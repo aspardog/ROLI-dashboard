@@ -91,17 +91,22 @@ function parseData() {
   }
 
   fs.writeFileSync(OUTPUT_PATH, JSON.stringify(results, null, 2));
-  fs.copyFileSync(OUTPUT_PATH, PUBLIC_PATH);
+
+  // public/ only needs the latest year — keeps the served file small
+  const years      = [...new Set(results.map(r => r.year))].sort();
+  const latestYear = years[years.length - 1];
+  const publicData = results.filter(r => r.year === latestYear);
+  fs.writeFileSync(PUBLIC_PATH, JSON.stringify(publicData));
 
   // --- Summary ---
-  const regions = [...new Set(results.map(r => r.region))];
-  const years   = [...new Set(results.map(r => r.year))].sort();
+  const regions  = [...new Set(results.map(r => r.region))];
   const countries = [...new Set(results.map(r => r.country))];
 
   console.log(`✓ Parsed ${results.length} entries → ${OUTPUT_PATH}`);
   console.log(`  Countries: ${countries.length} | Regions: ${regions.length} | Years: ${years.length}`);
   console.log(`  Years: ${years.join(', ')}`);
   console.log(`  Regions: ${regions.join(', ')}`);
+  console.log(`✓ Public copy filtered to ${latestYear}: ${publicData.length} entries → ${PUBLIC_PATH}`);
 }
 
 parseData();
