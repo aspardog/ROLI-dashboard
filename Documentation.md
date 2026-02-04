@@ -1,0 +1,144 @@
+# ROLI Dashboard — Project Documentation
+
+## Project Overview
+
+A React dashboard that visualises the **World Justice Project Rule of Law Index (ROLI)** for Latin America and the Caribbean. The app displays a Top 5 / Bottom 5 horizontal bar chart for any ROLI factor or sub-factor, with data sourced from the official WJP Historical Data Excel file.
+
+---
+
+## Directory Layout
+
+```
+/
+├── archive/                  # Unused CRA boilerplate (kept for reference)
+├── data/
+│   ├── 2025_wjp_rule_of_law_index_HISTORICAL_DATA_FILE.xlsx   # Source data (WJP)
+│   └── roli_data.json        # Canonical parsed dataset (generated)
+├── public/
+│   ├── roli_data.json        # Copy served by the dev/build server (generated)
+│   └── ...                   # Standard CRA public assets
+├── src/
+│   ├── index.js              # React entry point
+│   └── parse-roli-data.js    # Excel → JSON parser
+├── App.js                    # Dashboard component (root level)
+├── craco.config.js           # Webpack overrides (see below)
+├── package.json
+└── Documentation.md          # This file
+```
+
+---
+
+## Data Pipeline
+
+```
+Excel file (data/)  →  parse-roli-data.js  →  roli_data.json (data/ + public/)  →  fetch() in App.js
+```
+
+### 1. Source file
+
+`data/2025_wjp_rule_of_law_index_HISTORICAL_DATA_FILE.xlsx`
+
+The official WJP export. The parser reads the sheet named **Historical Data**. When a new edition is released, replace this file and re-run the parser.
+
+### 2. Parser (`npm run parse-data`)
+
+Defined in `src/parse-roli-data.js`. It:
+
+- Reads every row of the "Historical Data" sheet.
+- Maps fixed column indices to named keys (`roli`, `f1`–`f8`, `sf11`–`sf87`).
+- Normalises country names where the Excel differs from the dashboard (e.g. "Venezuela, RB" → "Venezuela") via a lookup map.
+- Rounds all scores to three decimal places.
+- Writes the full dataset to **two locations**:
+  - `data/roli_data.json` — the canonical copy, version-controlled alongside the Excel source.
+  - `public/roli_data.json` — the copy that CRA's dev server (and production build) serves as a static asset.
+
+Run it any time the source Excel changes:
+
+```bash
+npm run parse-data
+```
+
+### 3. App data loading
+
+`App.js` (at the project root) fetches `/roli_data.json` at runtime via `fetch()` inside a `useEffect`.
+
+After fetching, the full dataset is filtered in-memory to the active region and year using two constants at the top of the file:
+
+```js
+const ACTIVE_REGION = 'Latin America and Caribbean';
+const ACTIVE_YEAR   = '2025';
+```
+
+Change these constants to switch the dashboard to a different region or year — no other code changes needed.
+
+---
+
+## Column Mapping
+
+The Excel "Historical Data" sheet uses a fixed column layout. The parser maps columns by index:
+
+| Column | Key    | Meaning                          |
+|--------|--------|----------------------------------|
+| 0      | —      | Country name                     |
+| 1      | —      | Year                             |
+| 4      | —      | Region                           |
+| 5      | roli   | Overall ROLI score               |
+| 6      | f1     | F1 – Constraints on Gov. Power   |
+| 7–12   | sf11–sf16 | Sub-factors of F1             |
+| 13     | f2     | F2 – Absence of Corruption       |
+| 14–17  | sf21–sf24 | Sub-factors of F2             |
+| 18     | f3     | F3 – Open Government             |
+| 19–22  | sf31–sf34 | Sub-factors of F3             |
+| 23     | f4     | F4 – Fundamental Rights          |
+| 24–31  | sf41–sf48 | Sub-factors of F4             |
+| 32     | f5     | F5 – Order and Security          |
+| 33–35  | sf51–sf53 | Sub-factors of F5             |
+| 36     | f6     | F6 – Regulatory Compliance       |
+| 37–41  | sf61–sf65 | Sub-factors of F6             |
+| 42     | f7     | F7 – Civil Justice               |
+| 43–49  | sf71–sf77 | Sub-factors of F7             |
+| 50     | f8     | F8 – Criminal Justice            |
+| 51–57  | sf81–sf87 | Sub-factors of F8             |
+
+---
+
+## Running Locally
+
+```bash
+# Install dependencies
+npm install
+
+# (Re-)generate the JSON dataset from the Excel source
+npm run parse-data
+
+# Start the development server
+npm start
+# → http://localhost:3000
+```
+
+---
+
+## Why craco?
+
+Create React App restricts imports to files inside `src/` and only runs its babel-loader (which handles JSX) on that same directory. `App.js` lives at the project root, so two overrides are needed:
+
+1. **ModuleScopePlugin removed** — allows `src/index.js` to `import '../App'`.
+2. **babel-loader `include` extended** — ensures JSX in root-level `.js` files is transformed.
+
+Both overrides live in `craco.config.js`. The `npm` scripts (`start`, `build`, `test`) run through `craco` instead of `react-scripts` directly; everything else (dev server, hot reload, production build) behaves identically.
+
+---
+
+## Archive
+
+The `archive/` folder contains default Create React App files that are not used by this project. They are kept rather than deleted so the project can be traced back to its CRA scaffold if needed.
+
+| File | Original purpose |
+|------|-----------------|
+| App.css | Default CRA stylesheet |
+| App.test.js | Default CRA smoke test |
+| index.css | Default CRA body/code reset |
+| logo.svg | Default CRA spinning logo |
+| README.md | Default CRA readme |
+| reportWebVitals.js | Web Vitals performance reporter |
+| setupTests.js | Jest / testing-library setup |
