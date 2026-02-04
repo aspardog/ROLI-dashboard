@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-A React dashboard that visualises the **World Justice Project Rule of Law Index (ROLI)** for Latin America and the Caribbean. The app displays a Top 5 / Bottom 5 horizontal bar chart for any ROLI factor or sub-factor, with data sourced from the official WJP Historical Data Excel file.
+An interactive React dashboard for the **World Justice Project Rule of Law Index (ROLI)**. The app displays a Top / Bottom Performers horizontal bar chart for any ROLI factor or sub-factor (44 sub-factors total), filterable by region (Global + 7 WJP regions). The split count adapts automatically — regions with fewer than 10 countries split evenly to avoid overlap. Data is sourced from the official WJP Historical Data Excel file.
 
 ---
 
@@ -10,19 +10,19 @@ A React dashboard that visualises the **World Justice Project Rule of Law Index 
 
 ```
 /
-├── archive/                  # Unused CRA boilerplate (kept for reference)
-├── data/
+├── data/                     # Gitignored — not tracked in the repo
 │   ├── 2025_wjp_rule_of_law_index_HISTORICAL_DATA_FILE.xlsx   # Source data (WJP)
 │   └── roli_data.json        # Canonical parsed dataset (generated)
 ├── public/
 │   ├── roli_data.json        # Copy served by the dev/build server (generated)
-│   └── ...                   # Standard CRA public assets
+│   └── ...                   # Standard CRA public assets (index.html, favicon, etc.)
 ├── src/
 │   ├── index.js              # React entry point
 │   └── parse-roli-data.js    # Excel → JSON parser
 ├── App.js                    # Dashboard component (root level)
 ├── craco.config.js           # Webpack overrides (see below)
 ├── package.json
+├── README.md                 # Project overview and quick-start
 └── Documentation.md          # This file
 ```
 
@@ -49,8 +49,8 @@ Defined in `src/parse-roli-data.js`. It:
 - Normalises country names where the Excel differs from the dashboard (e.g. "Venezuela, RB" → "Venezuela") via a lookup map.
 - Rounds all scores to three decimal places.
 - Writes the full dataset to **two locations**:
-  - `data/roli_data.json` — the canonical copy, version-controlled alongside the Excel source.
-  - `public/roli_data.json` — the copy that CRA's dev server (and production build) serves as a static asset.
+  - `data/roli_data.json` — the canonical local copy (gitignored, not tracked in the repo).
+  - `public/roli_data.json` — the copy that CRA's dev server (and production build) serves as a static asset. This file **is** tracked in git.
 
 Run it any time the source Excel changes:
 
@@ -62,14 +62,10 @@ npm run parse-data
 
 `App.js` (at the project root) fetches `/roli_data.json` at runtime via `fetch()` inside a `useEffect`.
 
-After fetching, the full dataset is filtered in-memory to the active region and year using two constants at the top of the file:
+After fetching, the full dataset is filtered in-memory:
 
-```js
-const ACTIVE_REGION = 'Latin America and Caribbean';
-const ACTIVE_YEAR   = '2025';
-```
-
-Change these constants to switch the dashboard to a different region or year — no other code changes needed.
+- **Year** — fixed by the constant `ACTIVE_YEAR` at the top of the file (currently `'2025'`). Change this value when a new edition is released.
+- **Region** — selected at runtime via the Region dropdown. Options include Global (all countries) and the 7 WJP regions. The filter runs on every selection change.
 
 ---
 
@@ -127,18 +123,3 @@ Create React App restricts imports to files inside `src/` and only runs its babe
 
 Both overrides live in `craco.config.js`. The `npm` scripts (`start`, `build`, `test`) run through `craco` instead of `react-scripts` directly; everything else (dev server, hot reload, production build) behaves identically.
 
----
-
-## Archive
-
-The `archive/` folder contains default Create React App files that are not used by this project. They are kept rather than deleted so the project can be traced back to its CRA scaffold if needed.
-
-| File | Original purpose |
-|------|-----------------|
-| App.css | Default CRA stylesheet |
-| App.test.js | Default CRA smoke test |
-| index.css | Default CRA body/code reset |
-| logo.svg | Default CRA spinning logo |
-| README.md | Default CRA readme |
-| reportWebVitals.js | Web Vitals performance reporter |
-| setupTests.js | Jest / testing-library setup |
