@@ -140,8 +140,9 @@ function TopBottomChart({ data, variable, label, regionLabel }) {
       return t;
     };
 
-    clone.setAttribute('width', width);
-    clone.setAttribute('height', height + legendH);
+    clone.setAttribute('width', '15cm');
+    clone.setAttribute('height', '15cm');
+    clone.setAttribute('viewBox', `0 0 ${width} ${height + legendH}`);
     clone.setAttribute('xmlns', ns);
 
     // Embed Inter Tight font so the SVG is self-contained
@@ -317,8 +318,9 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
     const clone = svg.cloneNode(true);
     const { width, height } = svg.getBoundingClientRect();
     const ns = 'http://www.w3.org/2000/svg';
-    clone.setAttribute('width', width);
-    clone.setAttribute('height', height);
+    clone.setAttribute('width', '15cm');
+    clone.setAttribute('height', '10cm');
+    clone.setAttribute('viewBox', `0 0 ${width} ${height}`);
     clone.setAttribute('xmlns', ns);
 
     // Embed Inter Tight font so the SVG is self-contained
