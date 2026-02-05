@@ -145,8 +145,8 @@ function TopBottomChart({ data, variable, label, regionLabel }) {
       return t;
     };
 
-    clone.setAttribute('width', '15cm');
-    clone.setAttribute('height', '15cm');
+    clone.setAttribute('width', vbW);
+    clone.setAttribute('height', vbH);
     clone.setAttribute('viewBox', `${vbX} ${vbY} ${vbW} ${vbH}`);
     clone.setAttribute('xmlns', ns);
 
@@ -329,8 +329,8 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
     const vbH   = bbox.height + pad * 2;
     const clone = svg.cloneNode(true);
     const ns    = 'http://www.w3.org/2000/svg';
-    clone.setAttribute('width', '15cm');
-    clone.setAttribute('height', '10cm');
+    clone.setAttribute('width', vbW);
+    clone.setAttribute('height', vbH);
     clone.setAttribute('viewBox', `${vbX} ${vbY} ${vbW} ${vbH}`);
     clone.setAttribute('xmlns', ns);
 
