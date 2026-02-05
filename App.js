@@ -273,56 +273,86 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
 
   const title = country === '__regional_avg__' ? (selectedRegion === 'global' ? 'Global Average' : `${regionLabel} — Regional Average`) : country;
 
+  const chartRef = useRef(null);
+
+  function downloadSVG() {
+    const svg = chartRef.current?.querySelector('svg');
+    if (!svg) return;
+    const clone = svg.cloneNode(true);
+    const { width, height } = svg.getBoundingClientRect();
+    const ns = 'http://www.w3.org/2000/svg';
+    clone.setAttribute('width', width);
+    clone.setAttribute('height', height);
+    clone.setAttribute('xmlns', ns);
+    const bg = document.createElementNS(ns, 'rect');
+    bg.setAttribute('x', 0); bg.setAttribute('y', 0);
+    bg.setAttribute('width', width); bg.setAttribute('height', height);
+    bg.setAttribute('fill', 'white');
+    clone.insertBefore(bg, clone.firstChild);
+    const blob = new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ROLI_${title}_${variable}.svg`.replace(/\s+/g, '_');
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
       <h2 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, margin: '0 0 4px' }}>{title} — {label}</h2>
       <p style={{ fontSize: '14px', color: COLORS.muted, margin: '0 0 20px' }}>2019–2025</p>
-      <ResponsiveContainer width="100%" height={340}>
-        <LineChart data={series} margin={{ top: 24, right: 32, left: 16, bottom: 8 }}>
-          <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke={TS_COLORS.grid} />
-          <XAxis
-            dataKey="year"
-            tick={{ fontSize: 13, fill: TS_COLORS.axis, fontWeight: 500 }}
-            axisLine={{ stroke: TS_COLORS.grid, strokeWidth: 1 }}
-            tickLine={{ stroke: TS_COLORS.axis, strokeWidth: 1 }}
-            interval={0}
-          />
-          <YAxis
-            domain={[yMin, yMax]}
-            ticks={yTicks}
-            tickFormatter={(v) => v.toFixed(2)}
-            tick={{ fontSize: 13, fill: TS_COLORS.axis }}
-            axisLine={{ stroke: TS_COLORS.grid, strokeWidth: 1 }}
-            tickLine={false}
-          />
-          <Line
-            type="linear"
-            dataKey="value"
-            stroke={TS_COLORS.line}
-            strokeWidth={2.5}
-            dot={{ r: 4, fill: TS_COLORS.line, strokeWidth: 0 }}
-            isAnimationActive={false}
-          >
-            <LabelList
-              dataKey="value"
-              content={({ x, y, value, index }) => {
-                const isFirst = index === 0;
-                const isLast  = index === series.length - 1;
-                return (
-                  <text
-                    x={isFirst ? x + 6 : isLast ? x - 6 : x}
-                    y={y - 12}
-                    textAnchor={isFirst ? 'start' : isLast ? 'end' : 'middle'}
-                    fontSize={13}
-                    fontWeight={700}
-                    fill={TS_COLORS.line}
-                  >{Number(value).toFixed(2)}</text>
-                );
-              }}
+      <div ref={chartRef}>
+        <ResponsiveContainer width="100%" height={340}>
+          <LineChart data={series} margin={{ top: 24, right: 32, left: 16, bottom: 8 }}>
+            <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke={TS_COLORS.grid} />
+            <XAxis
+              dataKey="year"
+              tick={{ fontSize: 13, fill: TS_COLORS.axis, fontWeight: 500 }}
+              axisLine={{ stroke: TS_COLORS.grid, strokeWidth: 1 }}
+              tickLine={{ stroke: TS_COLORS.axis, strokeWidth: 1 }}
+              interval={0}
             />
-          </Line>
-        </LineChart>
-      </ResponsiveContainer>
+            <YAxis
+              domain={[yMin, yMax]}
+              ticks={yTicks}
+              tickFormatter={(v) => v.toFixed(2)}
+              tick={{ fontSize: 13, fill: TS_COLORS.axis }}
+              axisLine={{ stroke: TS_COLORS.grid, strokeWidth: 1 }}
+              tickLine={false}
+            />
+            <Line
+              type="linear"
+              dataKey="value"
+              stroke={TS_COLORS.line}
+              strokeWidth={2.5}
+              dot={{ r: 4, fill: TS_COLORS.line, strokeWidth: 0 }}
+              isAnimationActive={false}
+            >
+              <LabelList
+                dataKey="value"
+                content={({ x, y, value, index }) => {
+                  const isFirst = index === 0;
+                  const isLast  = index === series.length - 1;
+                  return (
+                    <text
+                      x={isFirst ? x + 6 : isLast ? x - 6 : x}
+                      y={y - 12}
+                      textAnchor={isFirst ? 'start' : isLast ? 'end' : 'middle'}
+                      fontSize={13}
+                      fontWeight={700}
+                      fill={TS_COLORS.line}
+                    >{Number(value).toFixed(2)}</text>
+                  );
+                }}
+              />
+            </Line>
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
+        <button onClick={downloadSVG} style={{ background: 'none', border: '1.5px solid #e5e5e5', borderRadius: '6px', padding: '8px 16px', fontSize: '13px', fontWeight: '600', color: COLORS.muted, cursor: 'pointer' }}>↓ Export SVG</button>
+      </div>
     </div>
   );
 }
