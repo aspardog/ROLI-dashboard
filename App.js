@@ -135,7 +135,7 @@ function TopBottomChart({ data, variable, label, regionLabel }) {
     };
     // Helper: create a text element with content
     const txt = (x, y, content) => {
-      const t = el('text', { x, y, fill: COLORS.muted, 'font-size': 13, 'font-weight': 500, 'font-family': "'Source Sans Pro', 'Segoe UI', sans-serif" });
+      const t = el('text', { x, y, fill: COLORS.muted, 'font-size': 13, 'font-weight': 500, 'font-family': "'Inter Tight', sans-serif" });
       t.textContent = content;
       return t;
     };
@@ -395,7 +395,7 @@ export default function ROLIDashboard() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: COLORS.background, fontFamily: "'Source Sans Pro', 'Segoe UI', system-ui, sans-serif", padding: '32px 24px' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: COLORS.background, fontFamily: "'Inter Tight', sans-serif", padding: '32px 24px' }}>
       {/* Header */}
       <div style={{ maxWidth: '900px', margin: '0 auto 32px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
