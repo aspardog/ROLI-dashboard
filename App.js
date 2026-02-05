@@ -122,10 +122,15 @@ function TopBottomChart({ data, variable, label, regionLabel }) {
   async function downloadSVG() {
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
-    const clone = svg.cloneNode(true);
-    const { width, height } = svg.getBoundingClientRect();
+    const bbox    = svg.getBBox();
+    const pad     = 8;
     const legendH = 44;
-    const ns = 'http://www.w3.org/2000/svg';
+    const vbX     = bbox.x  - pad;
+    const vbY     = bbox.y  - pad;
+    const vbW     = bbox.width  + pad * 2;
+    const vbH     = bbox.height + pad * 2 + legendH;
+    const clone   = svg.cloneNode(true);
+    const ns      = 'http://www.w3.org/2000/svg';
 
     // Helper: create an SVG element with attributes
     const el = (tag, attrs) => {
@@ -142,7 +147,7 @@ function TopBottomChart({ data, variable, label, regionLabel }) {
 
     clone.setAttribute('width', '15cm');
     clone.setAttribute('height', '15cm');
-    clone.setAttribute('viewBox', `0 0 ${width} ${height + legendH}`);
+    clone.setAttribute('viewBox', `${vbX} ${vbY} ${vbW} ${vbH}`);
     clone.setAttribute('xmlns', ns);
 
     // Embed Inter Tight font so the SVG is self-contained
@@ -159,17 +164,18 @@ function TopBottomChart({ data, variable, label, regionLabel }) {
     });
 
     // White background covering chart + legend
-    clone.insertBefore(el('rect', { x: 0, y: 0, width, height: height + legendH, fill: 'white' }), clone.firstChild);
+    clone.insertBefore(el('rect', { x: vbX, y: vbY, width: vbW, height: vbH, fill: 'white' }), clone.firstChild);
 
-    // Legend strip
-    const ly = height + 15; // top of swatches
-    const ty = height + 27; // text baseline
+    // Legend strip — positioned just below the content bbox
+    const lx = vbX + 24;
+    const ly = bbox.y + bbox.height + pad + 15;
+    const ty = bbox.y + bbox.height + pad + 27;
 
-    clone.appendChild(el('rect',  { x: 24,  y: ly, width: 14, height: 14, fill: COLORS.top5,    rx: 3 }));
-    clone.appendChild(txt(42,  ty, 'Top 5'));
+    clone.appendChild(el('rect',  { x: lx,      y: ly, width: 14, height: 14, fill: COLORS.top5,    rx: 3 }));
+    clone.appendChild(txt(lx + 18,  ty, 'Top 5'));
 
-    clone.appendChild(el('rect',  { x: 107, y: ly, width: 14, height: 14, fill: COLORS.bottom5, rx: 3 }));
-    clone.appendChild(txt(125, ty, 'Bottom 5'));
+    clone.appendChild(el('rect',  { x: lx + 83, y: ly, width: 14, height: 14, fill: COLORS.bottom5, rx: 3 }));
+    clone.appendChild(txt(lx + 101, ty, 'Bottom 5'));
 
     const blob = new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
@@ -315,12 +321,17 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
   async function downloadSVG() {
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
+    const bbox  = svg.getBBox();
+    const pad   = 8;
+    const vbX   = bbox.x  - pad;
+    const vbY   = bbox.y  - pad;
+    const vbW   = bbox.width  + pad * 2;
+    const vbH   = bbox.height + pad * 2;
     const clone = svg.cloneNode(true);
-    const { width, height } = svg.getBoundingClientRect();
-    const ns = 'http://www.w3.org/2000/svg';
+    const ns    = 'http://www.w3.org/2000/svg';
     clone.setAttribute('width', '15cm');
     clone.setAttribute('height', '10cm');
-    clone.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    clone.setAttribute('viewBox', `${vbX} ${vbY} ${vbW} ${vbH}`);
     clone.setAttribute('xmlns', ns);
 
     // Embed Inter Tight font so the SVG is self-contained
@@ -337,8 +348,8 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
     });
 
     const bg = document.createElementNS(ns, 'rect');
-    bg.setAttribute('x', 0); bg.setAttribute('y', 0);
-    bg.setAttribute('width', width); bg.setAttribute('height', height);
+    bg.setAttribute('x', vbX); bg.setAttribute('y', vbY);
+    bg.setAttribute('width', vbW); bg.setAttribute('height', vbH);
     bg.setAttribute('fill', 'white');
     clone.insertBefore(bg, clone.firstChild);
 
