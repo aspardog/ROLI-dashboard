@@ -306,6 +306,7 @@ export default function ROLIDashboard() {
   const [selectedRegion, setSelectedRegion] = useState('global');
   const [selectedVariable, setSelectedVariable] = useState('roli');
   const [selectedCountry, setSelectedCountry] = useState('');
+  const [chartType, setChartType] = useState('topbottom');
   const selectedLabel = VARIABLE_OPTIONS.find(opt => opt.value === selectedVariable)?.label || selectedVariable;
   const regionLabel = REGION_OPTIONS.find(opt => opt.value === selectedRegion)?.label || selectedRegion;
 
@@ -372,18 +373,32 @@ export default function ROLIDashboard() {
             ))}
           </select>
         </div>
-        <div style={{ flex: 1 }}>
-          <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Country (Time Series)</label>
-          <select value={selectedCountry} onChange={(e) => setSelectedCountry(e.target.value)} style={{ width: '100%', padding: '14px 16px', fontSize: '16px', border: '2px solid #e5e5e5', borderRadius: '8px', backgroundColor: 'white', color: COLORS.text, cursor: 'pointer', outline: 'none', fontWeight: '500' }}>
-            {availableCountries.map(c => (<option key={c} value={c}>{c}</option>))}
-          </select>
-        </div>
+        {chartType === 'timeseries' && (
+          <div style={{ flex: 1 }}>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Country</label>
+            <select value={selectedCountry} onChange={(e) => setSelectedCountry(e.target.value)} style={{ width: '100%', padding: '14px 16px', fontSize: '16px', border: '2px solid #e5e5e5', borderRadius: '8px', backgroundColor: 'white', color: COLORS.text, cursor: 'pointer', outline: 'none', fontWeight: '500' }}>
+              {availableCountries.map(c => (<option key={c} value={c}>{c}</option>))}
+            </select>
+          </div>
+        )}
+      </div>
+
+      {/* Chart type toggle */}
+      <div style={{ maxWidth: '900px', margin: '0 auto 24px', display: 'flex', gap: '8px' }}>
+        <button
+          onClick={() => setChartType('topbottom')}
+          style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '600', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: chartType === 'topbottom' ? COLORS.top5 : 'white', color: chartType === 'topbottom' ? 'white' : COLORS.muted, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
+        >Top & Bottom Performers</button>
+        <button
+          onClick={() => setChartType('timeseries')}
+          style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '600', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: chartType === 'timeseries' ? COLORS.top5 : 'white', color: chartType === 'timeseries' ? 'white' : COLORS.muted, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
+        >Time Series</button>
       </div>
 
       {/* Charts */}
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-        <TopBottomChart data={roliData} variable={selectedVariable} label={selectedLabel} regionLabel={regionLabel} />
-        {selectedCountry && <TimeSeriesChart allData={allData} country={selectedCountry} variable={selectedVariable} label={selectedLabel} />}
+        {chartType === 'topbottom' && <TopBottomChart data={roliData} variable={selectedVariable} label={selectedLabel} regionLabel={regionLabel} />}
+        {chartType === 'timeseries' && selectedCountry && <TimeSeriesChart allData={allData} country={selectedCountry} variable={selectedVariable} label={selectedLabel} />}
       </div>
 
       {/* Footer */}
