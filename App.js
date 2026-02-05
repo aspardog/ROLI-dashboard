@@ -547,7 +547,7 @@ export default function ROLIDashboard() {
 
       {/* Footer */}
       <div style={{ maxWidth: '1100px', margin: '24px auto 0', textAlign: 'center' }}>
-        <p style={{ fontSize: '12px', color: COLORS.muted }}>Source: World Justice Project — Rule of Law Index 2025</p>
+        <p style={{ fontSize: '12px', color: COLORS.muted }}>Source: World Justice Project — Rule of Law Index {chartType === 'timeseries' ? '2019–2025' : '2025'}</p>
       </div>
     </div>
   );
