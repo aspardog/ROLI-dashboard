@@ -367,7 +367,7 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
       <h2 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, margin: '0 0 4px' }}>{title} — {label}</h2>
       <p style={{ fontSize: '14px', color: COLORS.muted, margin: '0 0 20px' }}>2019–2025</p>
       <div ref={chartRef}>
-        <ResponsiveContainer width="100%" height={340}>
+        <ResponsiveContainer width="100%" height={500}>
           <LineChart data={series} margin={{ top: 24, right: 32, left: 16, bottom: 8 }}>
             <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke={TS_COLORS.grid} />
             <XAxis
