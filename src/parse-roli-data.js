@@ -92,10 +92,10 @@ function parseData() {
 
   fs.writeFileSync(OUTPUT_PATH, JSON.stringify(results, null, 2));
 
-  // public/ only needs the latest year — keeps the served file small
+  // public/ needs 2019+ for the time series chart; keeps the served file small
   const years      = [...new Set(results.map(r => r.year))].sort();
   const latestYear = years[years.length - 1];
-  const publicData = results.filter(r => r.year === latestYear);
+  const publicData = results.filter(r => parseInt(r.year) >= 2019);
   fs.writeFileSync(PUBLIC_PATH, JSON.stringify(publicData));
 
   // --- Summary ---
@@ -106,7 +106,7 @@ function parseData() {
   console.log(`  Countries: ${countries.length} | Regions: ${regions.length} | Years: ${years.length}`);
   console.log(`  Years: ${years.join(', ')}`);
   console.log(`  Regions: ${regions.join(', ')}`);
-  console.log(`✓ Public copy filtered to ${latestYear}: ${publicData.length} entries → ${PUBLIC_PATH}`);
+  console.log(`✓ Public copy filtered to 2019+: ${publicData.length} entries → ${PUBLIC_PATH}`);
 }
 
 parseData();

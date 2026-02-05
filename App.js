@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Cell, ResponsiveContainer, LabelList, ReferenceLine } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Cell, ResponsiveContainer, LabelList, ReferenceLine, LineChart, Line, CartesianGrid } from 'recharts';
 
 const ACTIVE_YEAR = '2025';
 
@@ -235,10 +235,77 @@ function TopBottomChart({ data, variable, label, regionLabel }) {
 }
 
 
+const TS_COLORS = { line: '#181878', axis: '#514e4b', grid: '#BDBDBD' };
+
+function TimeSeriesChart({ allData, country, variable, label }) {
+  const series = useMemo(() => {
+    return allData
+      .filter(d => d.country === country && d[variable] != null && parseInt(d.year) >= 2019)
+      .sort((a, b) => a.year.localeCompare(b.year))
+      .map(d => ({ year: d.year, value: d[variable] }));
+  }, [allData, country, variable]);
+
+  if (series.length < 2) return null;
+
+  const values = series.map(d => d.value);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const yMin = Math.floor((min - 0.06) * 50) / 50;   // round down to nearest 0.02
+  const yMax = Math.ceil((max + 0.06) * 50) / 50;     // round up to nearest 0.02
+  const yTicks = [];
+  for (let v = yMin; v <= yMax + 0.001; v += 0.02) {
+    yTicks.push(Math.round(v * 100) / 100);
+  }
+
+  return (
+    <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
+      <h2 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, margin: '0 0 4px' }}>{country} — {label}</h2>
+      <p style={{ fontSize: '14px', color: COLORS.muted, margin: '0 0 20px' }}>2019–2025</p>
+      <ResponsiveContainer width="100%" height={340}>
+        <LineChart data={series} margin={{ top: 24, right: 32, left: 16, bottom: 8 }}>
+          <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke={TS_COLORS.grid} />
+          <XAxis
+            dataKey="year"
+            tick={{ fontSize: 13, fill: TS_COLORS.axis, fontWeight: 500 }}
+            axisLine={false}
+            tickLine={{ stroke: TS_COLORS.axis, strokeWidth: 1 }}
+            interval={0}
+          />
+          <YAxis
+            domain={[yMin, yMax]}
+            ticks={yTicks}
+            tickFormatter={(v) => v.toFixed(2)}
+            tick={{ fontSize: 13, fill: TS_COLORS.axis }}
+            axisLine={false}
+            tickLine={false}
+          />
+          <Line
+            type="linear"
+            dataKey="value"
+            stroke={TS_COLORS.line}
+            strokeWidth={2.5}
+            dot={{ r: 4, fill: TS_COLORS.line, strokeWidth: 0 }}
+            isAnimationActive={false}
+          >
+            <LabelList
+              dataKey="value"
+              position="top"
+              offset={10}
+              formatter={(v) => v.toFixed(2)}
+              style={{ fontSize: 13, fontWeight: 700, fill: TS_COLORS.line }}
+            />
+          </Line>
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
 export default function ROLIDashboard() {
   const [allData, setAllData] = useState([]);
   const [selectedRegion, setSelectedRegion] = useState('global');
   const [selectedVariable, setSelectedVariable] = useState('roli');
+  const [selectedCountry, setSelectedCountry] = useState('');
   const selectedLabel = VARIABLE_OPTIONS.find(opt => opt.value === selectedVariable)?.label || selectedVariable;
   const regionLabel = REGION_OPTIONS.find(opt => opt.value === selectedRegion)?.label || selectedRegion;
 
@@ -252,6 +319,17 @@ export default function ROLIDashboard() {
     const byYear = allData.filter(d => d.year === ACTIVE_YEAR);
     return selectedRegion === 'global' ? byYear : byYear.filter(d => d.region === selectedRegion);
   }, [allData, selectedRegion]);
+
+  const availableCountries = useMemo(() => {
+    const set = new Set(roliData.map(d => d.country));
+    return [...set].sort();
+  }, [roliData]);
+
+  useEffect(() => {
+    if (!availableCountries.includes(selectedCountry)) {
+      setSelectedCountry(availableCountries[0] || '');
+    }
+  }, [availableCountries, selectedCountry]);
 
   if (roliData.length === 0) {
     return <div style={{ minHeight: '100vh', backgroundColor: COLORS.background, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -294,11 +372,18 @@ export default function ROLIDashboard() {
             ))}
           </select>
         </div>
+        <div style={{ flex: 1 }}>
+          <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Country (Time Series)</label>
+          <select value={selectedCountry} onChange={(e) => setSelectedCountry(e.target.value)} style={{ width: '100%', padding: '14px 16px', fontSize: '16px', border: '2px solid #e5e5e5', borderRadius: '8px', backgroundColor: 'white', color: COLORS.text, cursor: 'pointer', outline: 'none', fontWeight: '500' }}>
+            {availableCountries.map(c => (<option key={c} value={c}>{c}</option>))}
+          </select>
+        </div>
       </div>
 
       {/* Charts */}
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
         <TopBottomChart data={roliData} variable={selectedVariable} label={selectedLabel} regionLabel={regionLabel} />
+        {selectedCountry && <TimeSeriesChart allData={allData} country={selectedCountry} variable={selectedVariable} label={selectedLabel} />}
       </div>
 
       {/* Footer */}
