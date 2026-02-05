@@ -150,6 +150,13 @@ function TopBottomChart({ data, variable, label, regionLabel }) {
     styleEl.textContent = fontCSS;
     clone.insertBefore(styleEl, clone.firstChild);
 
+    // Recharts doesn't set font-family on <text> nodes; force it so the
+    // embedded @font-face actually gets used.
+    clone.querySelectorAll('text').forEach(t => {
+      t.setAttribute('font-family', "'Inter Tight', sans-serif");
+      t.style.fontFamily = "'Inter Tight', sans-serif";
+    });
+
     // White background covering chart + legend
     clone.insertBefore(el('rect', { x: 0, y: 0, width, height: height + legendH, fill: 'white' }), clone.firstChild);
 
@@ -319,6 +326,13 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
     const styleEl = document.createElementNS(ns, 'style');
     styleEl.textContent = fontCSS;
     clone.insertBefore(styleEl, clone.firstChild);
+
+    // Recharts doesn't set font-family on <text> nodes; force it so the
+    // embedded @font-face actually gets used.
+    clone.querySelectorAll('text').forEach(t => {
+      t.setAttribute('font-family', "'Inter Tight', sans-serif");
+      t.style.fontFamily = "'Inter Tight', sans-serif";
+    });
 
     const bg = document.createElementNS(ns, 'rect');
     bg.setAttribute('x', 0); bg.setAttribute('y', 0);
