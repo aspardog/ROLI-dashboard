@@ -267,7 +267,7 @@ function TimeSeriesChart({ allData, country, variable, label }) {
           <XAxis
             dataKey="year"
             tick={{ fontSize: 13, fill: TS_COLORS.axis, fontWeight: 500 }}
-            axisLine={false}
+            axisLine={{ stroke: TS_COLORS.grid, strokeWidth: 1 }}
             tickLine={{ stroke: TS_COLORS.axis, strokeWidth: 1 }}
             interval={0}
           />
@@ -316,7 +316,7 @@ export default function ROLIDashboard() {
   const [selectedRegion, setSelectedRegion] = useState('global');
   const [selectedVariable, setSelectedVariable] = useState('roli');
   const [selectedCountry, setSelectedCountry] = useState('');
-  const [chartType, setChartType] = useState('topbottom');
+  const [chartType, setChartType] = useState('timeseries');
   const selectedLabel = VARIABLE_OPTIONS.find(opt => opt.value === selectedVariable)?.label || selectedVariable;
   const regionLabel = REGION_OPTIONS.find(opt => opt.value === selectedRegion)?.label || selectedRegion;
 
