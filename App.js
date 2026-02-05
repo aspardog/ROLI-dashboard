@@ -119,7 +119,7 @@ function TopBottomChart({ data, variable, label, regionLabel }) {
 
   const chartRef = useRef(null);
 
-  function downloadSVG() {
+  async function downloadSVG() {
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
     const clone = svg.cloneNode(true);
@@ -143,6 +143,12 @@ function TopBottomChart({ data, variable, label, regionLabel }) {
     clone.setAttribute('width', width);
     clone.setAttribute('height', height + legendH);
     clone.setAttribute('xmlns', ns);
+
+    // Embed Inter Tight font so the SVG is self-contained
+    const fontCSS = await getEmbeddedFontCSS();
+    const styleEl = document.createElementNS(ns, 'style');
+    styleEl.textContent = fontCSS;
+    clone.insertBefore(styleEl, clone.firstChild);
 
     // White background covering chart + legend
     clone.insertBefore(el('rect', { x: 0, y: 0, width, height: height + legendH, fill: 'white' }), clone.firstChild);
@@ -237,6 +243,29 @@ function TopBottomChart({ data, variable, label, regionLabel }) {
 
 const TS_COLORS = { line: '#181878', axis: '#514e4b', grid: '#BDBDBD' };
 
+// Fetches Inter Tight from Google Fonts, converts every font URL to a
+// base64 data URI, and caches the resulting @font-face CSS so that
+// exported SVGs are fully self-contained.
+let _fontCSSCache = null;
+async function getEmbeddedFontCSS() {
+  if (_fontCSSCache) return _fontCSSCache;
+  const res  = await fetch('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&display=swap');
+  let css    = await res.text();
+  const urls = [...css.matchAll(/url\(([^)]+)\)/g)].map(m => m[1]);
+  for (const fontUrl of urls) {
+    const fontRes  = await fetch(fontUrl);
+    const blob     = await fontRes.blob();
+    const dataUrl  = await new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+    css = css.replace(fontUrl, dataUrl);
+  }
+  _fontCSSCache = css;
+  return css;
+}
+
 function TimeSeriesChart({ allData, country, variable, label, selectedRegion, regionLabel }) {
   const series = useMemo(() => {
     if (country === '__regional_avg__') {
@@ -275,7 +304,7 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
 
   const chartRef = useRef(null);
 
-  function downloadSVG() {
+  async function downloadSVG() {
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
     const clone = svg.cloneNode(true);
@@ -284,11 +313,19 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
     clone.setAttribute('width', width);
     clone.setAttribute('height', height);
     clone.setAttribute('xmlns', ns);
+
+    // Embed Inter Tight font so the SVG is self-contained
+    const fontCSS = await getEmbeddedFontCSS();
+    const styleEl = document.createElementNS(ns, 'style');
+    styleEl.textContent = fontCSS;
+    clone.insertBefore(styleEl, clone.firstChild);
+
     const bg = document.createElementNS(ns, 'rect');
     bg.setAttribute('x', 0); bg.setAttribute('y', 0);
     bg.setAttribute('width', width); bg.setAttribute('height', height);
     bg.setAttribute('fill', 'white');
     clone.insertBefore(bg, clone.firstChild);
+
     const blob = new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
