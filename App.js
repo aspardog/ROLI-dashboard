@@ -177,6 +177,13 @@ function TopBottomChart({ data, variable, label, regionLabel }) {
     clone.appendChild(el('rect',  { x: lx + 83, y: ly, width: 14, height: 14, fill: COLORS.bottom5, rx: 3 }));
     clone.appendChild(txt(lx + 101, ty, 'Bottom 5'));
 
+    // Average dashed-line legend entry (mirrors the dashboard sidebar)
+    if (average !== null) {
+      const avgLx = lx + 195;
+      clone.appendChild(el('line', { x1: avgLx, y1: ly + 7, x2: avgLx + 22, y2: ly + 7, stroke: COLORS.muted, 'stroke-width': 1.5, 'stroke-dasharray': '5 3' }));
+      clone.appendChild(txt(avgLx + 28, ty, `${regionLabel} Avg: ${average.toFixed(2)}`));
+    }
+
     const blob = new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -477,7 +484,7 @@ export default function ROLIDashboard() {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: COLORS.background, fontFamily: "'Inter Tight', sans-serif", padding: '32px 24px' }}>
       {/* Header */}
-      <div style={{ maxWidth: '900px', margin: '0 auto 32px' }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto 32px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
           <div style={{ width: '6px', height: '48px', backgroundColor: COLORS.top5, borderRadius: '3px' }} />
           <h1 style={{ fontSize: '32px', fontWeight: '700', color: COLORS.text, margin: 0, letterSpacing: '-0.5px' }}>Rule of Law Index – Data Visualization Tool</h1>
@@ -486,7 +493,7 @@ export default function ROLIDashboard() {
       </div>
 
       {/* Controls */}
-      <div style={{ maxWidth: '900px', margin: '0 auto 40px', backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', display: 'flex', gap: '24px' }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto 40px', backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', display: 'flex', gap: '24px' }}>
         <div style={{ flex: 1 }}>
           <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Region</label>
           <select value={selectedRegion} onChange={(e) => setSelectedRegion(e.target.value)} style={{ width: '100%', padding: '14px 16px', fontSize: '16px', border: '2px solid #e5e5e5', borderRadius: '8px', backgroundColor: 'white', color: COLORS.text, cursor: 'pointer', outline: 'none', fontWeight: '500' }}>
@@ -521,7 +528,7 @@ export default function ROLIDashboard() {
       </div>
 
       {/* Chart type toggle */}
-      <div style={{ maxWidth: '900px', margin: '0 auto 24px', display: 'flex', gap: '8px' }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto 24px', display: 'flex', gap: '8px' }}>
         <button
           onClick={() => setChartType('timeseries')}
           style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '600', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: chartType === 'timeseries' ? COLORS.top5 : 'white', color: chartType === 'timeseries' ? 'white' : COLORS.muted, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
@@ -533,13 +540,13 @@ export default function ROLIDashboard() {
       </div>
 
       {/* Charts */}
-      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         {chartType === 'topbottom' && <TopBottomChart data={roliData} variable={selectedVariable} label={selectedLabel} regionLabel={regionLabel} />}
         {chartType === 'timeseries' && selectedCountry && <TimeSeriesChart allData={allData} country={selectedCountry} variable={selectedVariable} label={selectedLabel} selectedRegion={selectedRegion} regionLabel={regionLabel} />}
       </div>
 
       {/* Footer */}
-      <div style={{ maxWidth: '900px', margin: '24px auto 0', textAlign: 'center' }}>
+      <div style={{ maxWidth: '1100px', margin: '24px auto 0', textAlign: 'center' }}>
         <p style={{ fontSize: '12px', color: COLORS.muted }}>Source: World Justice Project — Rule of Law Index 2025</p>
       </div>
     </div>
