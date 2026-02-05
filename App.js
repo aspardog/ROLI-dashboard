@@ -271,7 +271,7 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
     yTicks.push(Math.round(v * 100) / 100);
   }
 
-  const title = country === '__regional_avg__' ? `${regionLabel} — Regional Average` : country;
+  const title = country === '__regional_avg__' ? (selectedRegion === 'global' ? 'Global Average' : `${regionLabel} — Regional Average`) : country;
 
   return (
     <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
@@ -403,7 +403,7 @@ export default function ROLIDashboard() {
           <div style={{ flex: 1 }}>
             <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Country</label>
             <select value={selectedCountry} onChange={(e) => setSelectedCountry(e.target.value)} style={{ width: '100%', padding: '14px 16px', fontSize: '16px', border: '2px solid #e5e5e5', borderRadius: '8px', backgroundColor: 'white', color: COLORS.text, cursor: 'pointer', outline: 'none', fontWeight: '500' }}>
-              <option value="__regional_avg__">Regional Average</option>
+              <option value="__regional_avg__">{selectedRegion === 'global' ? 'Global Average' : 'Regional Average'}</option>
               {availableCountries.map(c => (<option key={c} value={c}>{c}</option>))}
             </select>
           </div>
