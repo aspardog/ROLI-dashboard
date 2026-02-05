@@ -276,7 +276,7 @@ function TimeSeriesChart({ allData, country, variable, label }) {
             ticks={yTicks}
             tickFormatter={(v) => v.toFixed(2)}
             tick={{ fontSize: 13, fill: TS_COLORS.axis }}
-            axisLine={false}
+            axisLine={{ stroke: TS_COLORS.grid, strokeWidth: 1 }}
             tickLine={false}
           />
           <Line
@@ -289,10 +289,20 @@ function TimeSeriesChart({ allData, country, variable, label }) {
           >
             <LabelList
               dataKey="value"
-              position="top"
-              offset={10}
-              formatter={(v) => v.toFixed(2)}
-              style={{ fontSize: 13, fontWeight: 700, fill: TS_COLORS.line }}
+              content={({ x, y, value, index }) => {
+                const isFirst = index === 0;
+                const isLast  = index === series.length - 1;
+                return (
+                  <text
+                    x={isFirst ? x + 6 : isLast ? x - 6 : x}
+                    y={y - 12}
+                    textAnchor={isFirst ? 'start' : isLast ? 'end' : 'middle'}
+                    fontSize={13}
+                    fontWeight={700}
+                    fill={TS_COLORS.line}
+                  >{Number(value).toFixed(2)}</text>
+                );
+              }}
             />
           </Line>
         </LineChart>
