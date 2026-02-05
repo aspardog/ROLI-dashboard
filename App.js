@@ -331,7 +331,7 @@ export default function ROLIDashboard() {
   const [allData, setAllData] = useState([]);
   const [selectedRegion, setSelectedRegion] = useState('global');
   const [selectedVariable, setSelectedVariable] = useState('roli');
-  const [selectedCountry, setSelectedCountry] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState('__regional_avg__');
   const [chartType, setChartType] = useState('timeseries');
   const selectedLabel = VARIABLE_OPTIONS.find(opt => opt.value === selectedVariable)?.label || selectedVariable;
   const regionLabel = REGION_OPTIONS.find(opt => opt.value === selectedRegion)?.label || selectedRegion;
@@ -413,13 +413,13 @@ export default function ROLIDashboard() {
       {/* Chart type toggle */}
       <div style={{ maxWidth: '900px', margin: '0 auto 24px', display: 'flex', gap: '8px' }}>
         <button
-          onClick={() => setChartType('topbottom')}
-          style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '600', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: chartType === 'topbottom' ? COLORS.top5 : 'white', color: chartType === 'topbottom' ? 'white' : COLORS.muted, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
-        >Top & Bottom Performers</button>
-        <button
           onClick={() => setChartType('timeseries')}
           style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '600', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: chartType === 'timeseries' ? COLORS.top5 : 'white', color: chartType === 'timeseries' ? 'white' : COLORS.muted, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
         >Time Series</button>
+        <button
+          onClick={() => setChartType('topbottom')}
+          style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '600', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: chartType === 'topbottom' ? COLORS.top5 : 'white', color: chartType === 'topbottom' ? 'white' : COLORS.muted, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
+        >Top & Bottom Performers</button>
       </div>
 
       {/* Charts */}
