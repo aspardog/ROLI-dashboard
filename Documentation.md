@@ -18,8 +18,12 @@ An interactive React dashboard for the **World Justice Project Rule of Law Index
 │   └── ...                   # Standard CRA public assets (index.html, favicon, etc.)
 ├── src/
 │   ├── index.js              # React entry point
-│   └── parse-roli-data.js    # Excel → JSON parser
-├── App.js                    # Dashboard component (root level)
+│   ├── parse-roli-data.js    # Excel → JSON parser
+│   ├── constants.js          # Shared constants (ACTIVE_YEAR, regions, variables, colors)
+│   ├── svgExport.js          # Font embedding helper for SVG exports
+│   ├── TopBottomChart.js     # Top/Bottom performers chart component
+│   └── TimeSeriesChart.js    # Time series chart component
+├── App.js                    # Main dashboard component (root level)
 ├── craco.config.js           # Webpack overrides (see below)
 ├── package.json
 ├── README.md                 # Project overview and quick-start
@@ -64,8 +68,23 @@ npm run parse-data
 
 After fetching, the full dataset is filtered in-memory:
 
-- **Year** — fixed by the constant `ACTIVE_YEAR` at the top of the file (currently `'2025'`). Change this value when a new edition is released.
+- **Year** — fixed by the constant `ACTIVE_YEAR` in `src/constants.js` (currently `'2025'`). Change this value when a new edition is released.
 - **Region** — selected at runtime via the Region dropdown. Options include Global (all countries) and the 7 WJP regions. The filter runs on every selection change.
+
+---
+
+## Component Architecture
+
+The dashboard uses a modular structure for maintainability and extensibility:
+
+- **`App.js`** — Main dashboard component (`ROLIDashboard`). Manages state (region, variable, country, chart type), fetches data, and renders controls and the active chart.
+- **`src/constants.js`** — Exports all shared constants:
+  - `ACTIVE_YEAR` — Current year filter for the Top/Bottom chart
+  - `REGION_OPTIONS`, `VARIABLE_OPTIONS`, `SUBFACTOR_GROUPS` — Dropdown options
+  - `COLORS`, `TS_COLORS` — Color palettes for both chart types
+- **`src/svgExport.js`** — Provides `getEmbeddedFontCSS()`, which fetches Inter Tight from Google Fonts and converts all font URLs to base64 data URIs. This ensures exported SVGs are fully self-contained with embedded fonts.
+- **`src/TopBottomChart.js`** — Top/Bottom performers horizontal bar chart. Features: dynamic split count, regional average line, word-wrapped country names, SVG export with legend.
+- **`src/TimeSeriesChart.js`** — Time series line chart (2019–2025). Features: regional/global average computation, auto-scaled Y-axis, aligned first/last labels, SVG export.
 
 ---
 
