@@ -207,7 +207,7 @@ function TopBottomChart({ data, variable, label, regionLabel }) {
             </div>
           )}
         </div>
-        <div ref={chartRef} style={{ flex: 1, height: '520px' }}>
+        <div ref={chartRef} style={{ flex: 1, aspectRatio: '1' }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} layout="vertical" margin={{ top: 10, right: 60, left: 10, bottom: 10 }}
             customized={({ xAxisMap, yAxisMap, height, top, bottom }) => {
@@ -223,7 +223,23 @@ function TopBottomChart({ data, variable, label, regionLabel }) {
             <YAxis type="category" dataKey="id" tick={({ x, y, payload }) => {
               if (payload.value === '__sep__') return null;
               const item = chartData.find(d => d.id === payload.value);
-              return <text x={x} y={y} dy={4} textAnchor="end" fill={item?.group === 'top5' ? COLORS.top5 : COLORS.bottom5} fontSize={13} fontWeight={600}>{item?.displayCountry}</text>;
+              const color = item?.group === 'top5' ? COLORS.top5 : COLORS.bottom5;
+              // Split long names at word boundaries so they don't crush the bars
+              const words = (item?.displayCountry || '').split(' ');
+              const lines = [];
+              let current = '';
+              for (const word of words) {
+                if (current && (current + ' ' + word).length > 18) { lines.push(current); current = word; }
+                else { current = current ? current + ' ' + word : word; }
+              }
+              if (current) lines.push(current);
+              const lineH  = 16;
+              const startDy = 4 - ((lines.length - 1) * lineH) / 2; // keep vertical centre on tick
+              return (
+                <text x={x} y={y} textAnchor="end" fill={color} fontSize={13} fontWeight={600}>
+                  {lines.map((line, i) => <tspan key={i} x={x} dy={i === 0 ? startDy : lineH}>{line}</tspan>)}
+                </text>
+              );
             }} axisLine={false} tickLine={false} width={200} />
             <ReferenceLine y="__sep__" stroke={COLORS.divider} strokeWidth={2} />
             {average !== null && <ReferenceLine x={average} stroke={COLORS.muted} strokeWidth={1.5} strokeDasharray="5 3" />}
