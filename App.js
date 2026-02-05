@@ -214,7 +214,7 @@ function TopBottomChart({ data, variable, label, regionLabel }) {
             </div>
           )}
         </div>
-        <div ref={chartRef} style={{ flex: 1, aspectRatio: '1' }}>
+        <div ref={chartRef} style={{ flex: 1, aspectRatio: '1', maxWidth: 'calc(100vh - 500px)', maxHeight: 'calc(100vh - 500px)' }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} layout="vertical" margin={{ top: 10, right: 60, left: 10, bottom: 10 }}
             customized={({ xAxisMap, yAxisMap, height, top, bottom }) => {
