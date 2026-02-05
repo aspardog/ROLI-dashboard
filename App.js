@@ -237,13 +237,27 @@ function TopBottomChart({ data, variable, label, regionLabel }) {
 
 const TS_COLORS = { line: '#181878', axis: '#514e4b', grid: '#BDBDBD' };
 
-function TimeSeriesChart({ allData, country, variable, label }) {
+function TimeSeriesChart({ allData, country, variable, label, selectedRegion, regionLabel }) {
   const series = useMemo(() => {
+    if (country === '__regional_avg__') {
+      const filtered = allData.filter(d => {
+        if (selectedRegion !== 'global' && d.region !== selectedRegion) return false;
+        return d[variable] != null && parseInt(d.year) >= 2019;
+      });
+      const byYear = {};
+      for (const d of filtered) {
+        if (!byYear[d.year]) byYear[d.year] = [];
+        byYear[d.year].push(d[variable]);
+      }
+      return Object.entries(byYear)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([year, vals]) => ({ year, value: Math.round((vals.reduce((s, v) => s + v, 0) / vals.length) * 1000) / 1000 }));
+    }
     return allData
       .filter(d => d.country === country && d[variable] != null && parseInt(d.year) >= 2019)
       .sort((a, b) => a.year.localeCompare(b.year))
       .map(d => ({ year: d.year, value: d[variable] }));
-  }, [allData, country, variable]);
+  }, [allData, country, variable, selectedRegion]);
 
   if (series.length < 2) return null;
 
@@ -257,9 +271,11 @@ function TimeSeriesChart({ allData, country, variable, label }) {
     yTicks.push(Math.round(v * 100) / 100);
   }
 
+  const title = country === '__regional_avg__' ? `${regionLabel} — Regional Average` : country;
+
   return (
     <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
-      <h2 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, margin: '0 0 4px' }}>{country} — {label}</h2>
+      <h2 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, margin: '0 0 4px' }}>{title} — {label}</h2>
       <p style={{ fontSize: '14px', color: COLORS.muted, margin: '0 0 20px' }}>2019–2025</p>
       <ResponsiveContainer width="100%" height={340}>
         <LineChart data={series} margin={{ top: 24, right: 32, left: 16, bottom: 8 }}>
@@ -337,7 +353,7 @@ export default function ROLIDashboard() {
   }, [roliData]);
 
   useEffect(() => {
-    if (!availableCountries.includes(selectedCountry)) {
+    if (selectedCountry !== '__regional_avg__' && !availableCountries.includes(selectedCountry)) {
       setSelectedCountry(availableCountries[0] || '');
     }
   }, [availableCountries, selectedCountry]);
@@ -387,6 +403,7 @@ export default function ROLIDashboard() {
           <div style={{ flex: 1 }}>
             <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Country</label>
             <select value={selectedCountry} onChange={(e) => setSelectedCountry(e.target.value)} style={{ width: '100%', padding: '14px 16px', fontSize: '16px', border: '2px solid #e5e5e5', borderRadius: '8px', backgroundColor: 'white', color: COLORS.text, cursor: 'pointer', outline: 'none', fontWeight: '500' }}>
+              <option value="__regional_avg__">Regional Average</option>
               {availableCountries.map(c => (<option key={c} value={c}>{c}</option>))}
             </select>
           </div>
@@ -408,7 +425,7 @@ export default function ROLIDashboard() {
       {/* Charts */}
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
         {chartType === 'topbottom' && <TopBottomChart data={roliData} variable={selectedVariable} label={selectedLabel} regionLabel={regionLabel} />}
-        {chartType === 'timeseries' && selectedCountry && <TimeSeriesChart allData={allData} country={selectedCountry} variable={selectedVariable} label={selectedLabel} />}
+        {chartType === 'timeseries' && selectedCountry && <TimeSeriesChart allData={allData} country={selectedCountry} variable={selectedVariable} label={selectedLabel} selectedRegion={selectedRegion} regionLabel={regionLabel} />}
       </div>
 
       {/* Footer */}
