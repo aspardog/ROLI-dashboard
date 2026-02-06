@@ -3,7 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, Cell, ResponsiveContainer, LabelList, Refe
 import { COLORS } from './constants';
 import { getEmbeddedFontCSS } from './svgExport';
 
-export default function TopBottomChart({ allData, selectedRegion, selectedYear, setSelectedYear, variable, label, regionLabel }) {
+export default function TopBottomChart({ allData, selectedRegion, selectedYear, variable, label, regionLabel }) {
   const data = useMemo(() => {
     const byYear = allData.filter(d => d.year === selectedYear);
     return selectedRegion === 'global' ? byYear : byYear.filter(d => d.region === selectedRegion);
@@ -103,19 +103,7 @@ export default function TopBottomChart({ allData, selectedRegion, selectedYear, 
   return (
     <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
       <h2 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, margin: '0 0 4px' }}>Top and Bottom Performers in {label}</h2>
-      <p style={{ fontSize: '14px', color: COLORS.muted, margin: '0 0 12px' }}>{regionLabel}</p>
-      <div style={{ marginBottom: '20px' }}>
-        <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Year</label>
-        <select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)} style={{ padding: '10px 14px', fontSize: '15px', border: '2px solid #e5e5e5', borderRadius: '8px', backgroundColor: 'white', color: COLORS.text, cursor: 'pointer', outline: 'none', fontWeight: '500' }}>
-          <option value="2025">2025</option>
-          <option value="2024">2024</option>
-          <option value="2023">2023</option>
-          <option value="2022">2022</option>
-          <option value="2021">2021</option>
-          <option value="2020">2020</option>
-          <option value="2019">2019</option>
-        </select>
-      </div>
+      <p style={{ fontSize: '14px', color: COLORS.muted, margin: '0 0 20px' }}>{regionLabel}</p>
       <div style={{ display: 'flex', gap: '16px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', paddingTop: '20px', width: '140px', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
