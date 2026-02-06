@@ -128,7 +128,7 @@ export default function TopBottomChart({ data, variable, label, regionLabel }) {
               const sepY = yAxis.scale('__sep__');
               return <text x={xPx + 8} y={sepY - 8} fill={COLORS.muted} fontSize={12} fontWeight={600}>Avg: {average.toFixed(2)}</text>;
             }}>
-            <XAxis type="number" domain={[0, 1]} ticks={[0, 0.25, 0.5, 0.75, 1]} tick={{ fontSize: 12, fill: COLORS.muted }} axisLine={{ stroke: '#e5e5e5' }} tickLine={false} />
+            <XAxis type="number" domain={[0, 1]} ticks={[0, 0.25, 0.5, 0.75, 1]} tickFormatter={(v) => v.toFixed(2)} tick={{ fontSize: 12, fill: COLORS.muted }} axisLine={{ stroke: '#e5e5e5' }} tickLine={false} />
             <YAxis type="category" dataKey="id" tick={({ x, y, payload }) => {
               if (payload.value === '__sep__') return null;
               const item = chartData.find(d => d.id === payload.value);
