@@ -132,7 +132,6 @@ export default function TopBottomChart({ data, variable, label, regionLabel }) {
             <YAxis type="category" dataKey="id" tick={({ x, y, payload }) => {
               if (payload.value === '__sep__') return null;
               const item = chartData.find(d => d.id === payload.value);
-              const color = item?.group === 'top5' ? COLORS.top5 : COLORS.bottom5;
               // Split long names at word boundaries so they don't crush the bars
               const words = (item?.displayCountry || '').split(' ');
               const lines = [];
@@ -145,7 +144,7 @@ export default function TopBottomChart({ data, variable, label, regionLabel }) {
               const lineH  = 16;
               const startDy = 4 - ((lines.length - 1) * lineH) / 2; // keep vertical centre on tick
               return (
-                <text x={x} y={y} textAnchor="end" fill={color} fontSize={13} fontWeight={600}>
+                <text x={x} y={y} textAnchor="end" fill={COLORS.text} fontSize={13} fontWeight={700}>
                   {lines.map((line, i) => <tspan key={i} x={x} dy={i === 0 ? startDy : lineH}>{line}</tspan>)}
                 </text>
               );
