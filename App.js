@@ -9,6 +9,7 @@ export default function ROLIDashboard() {
   const [selectedVariable, setSelectedVariable] = useState('roli');
   const [selectedCountry, setSelectedCountry] = useState('__regional_avg__');
   const [chartType, setChartType] = useState('timeseries');
+  const [selectedYear, setSelectedYear] = useState('2025');
   const selectedLabel = VARIABLE_OPTIONS.find(opt => opt.value === selectedVariable)?.label || selectedVariable;
   const regionLabel = REGION_OPTIONS.find(opt => opt.value === selectedRegion)?.label || selectedRegion;
 
@@ -100,13 +101,13 @@ export default function ROLIDashboard() {
 
       {/* Charts */}
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-        {chartType === 'topbottom' && <TopBottomChart data={roliData} variable={selectedVariable} label={selectedLabel} regionLabel={regionLabel} />}
+        {chartType === 'topbottom' && <TopBottomChart allData={allData} selectedRegion={selectedRegion} selectedYear={selectedYear} setSelectedYear={setSelectedYear} variable={selectedVariable} label={selectedLabel} regionLabel={regionLabel} />}
         {chartType === 'timeseries' && selectedCountry && <TimeSeriesChart allData={allData} country={selectedCountry} variable={selectedVariable} label={selectedLabel} selectedRegion={selectedRegion} regionLabel={regionLabel} />}
       </div>
 
       {/* Footer */}
       <div style={{ maxWidth: '1100px', margin: '24px auto 0', textAlign: 'center' }}>
-        <p style={{ fontSize: '12px', color: COLORS.muted }}>Source: World Justice Project — Rule of Law Index {chartType === 'timeseries' ? '2019–2025' : '2025'}</p>
+        <p style={{ fontSize: '12px', color: COLORS.muted }}>Source: World Justice Project — Rule of Law Index {chartType === 'timeseries' ? '2019–2025' : selectedYear}</p>
       </div>
     </div>
   );
