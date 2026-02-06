@@ -126,7 +126,7 @@ export default function TimeSeriesChart({ allData, country, variable, label, sel
                       x={isFirst ? x + 6 : isLast ? x - 6 : x}
                       y={y - 12}
                       textAnchor={isFirst ? 'start' : isLast ? 'end' : 'middle'}
-                      fontSize={13}
+                      fontSize={16}
                       fontWeight={700}
                       fill={TS_COLORS.line}
                     >{Number(value).toFixed(2)}</text>
