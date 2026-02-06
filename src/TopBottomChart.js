@@ -155,6 +155,7 @@ export default function TopBottomChart({ data, variable, label, regionLabel }) {
               {chartData.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.isSeparator ? 'transparent' : (entry.group === 'top5' ? COLORS.top5 : COLORS.bottom5)} />))}
               <LabelList dataKey="value" content={({ x, y, width, height, value, index }) => {
                 if (chartData[index]?.isSeparator) return null;
+                const color = chartData[index]?.group === 'top5' ? COLORS.top5 : COLORS.bottom5;
                 const labelX = x + width + 10;
                 const labelY = y + height / 2;
                 const avgLinePx = average !== null && value > 0 ? x + (width / value) * average : null;
@@ -162,7 +163,7 @@ export default function TopBottomChart({ data, variable, label, regionLabel }) {
                 return (
                   <g>
                     {needsBg && <rect x={labelX - 2} y={labelY - 8} width={34} height={16} fill="white" />}
-                    <text x={labelX} y={labelY} dominantBaseline="middle" style={{ fontSize: '13px', fontWeight: '600', fill: COLORS.text }}>{value.toFixed(2)}</text>
+                    <text x={labelX} y={labelY} dominantBaseline="middle" style={{ fontSize: '13px', fontWeight: '600', fill: color }}>{value.toFixed(2)}</text>
                   </g>
                 );
               }} />
