@@ -101,7 +101,7 @@ export default function TopBottomChart({ allData, selectedRegion, selectedYear, 
   }
 
   return (
-    <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
+    <div className="chart-card" style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
       <h2 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, margin: '0 0 4px' }}>Top and Bottom Performers in {label}</h2>
       <p style={{ fontSize: '14px', color: COLORS.muted, margin: '0 0 20px' }}>{regionLabel}</p>
       <div style={{ display: 'flex', gap: '16px' }}>

@@ -111,7 +111,7 @@ export default function RadarChartView({
 
   if (radarData.length === 0) {
     return (
-      <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
+      <div className="chart-card" style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
         <h2 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, margin: '0 0 4px' }}>Radar Chart</h2>
         <p style={{ fontSize: '14px', color: COLORS.muted, margin: '0 0 20px' }}>Please select a country, factors, and years to display the chart.</p>
       </div>
@@ -119,12 +119,12 @@ export default function RadarChartView({
   }
 
   return (
-    <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
+    <div className="chart-card" style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
       <h2 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, margin: '0 0 4px' }}>Comparative Radar Chart</h2>
       <p style={{ fontSize: '14px', color: COLORS.muted, margin: '0 0 20px' }}>{countryLabel}</p>
 
       {/* Legend */}
-      <div style={{ display: 'flex', gap: '20px', marginBottom: '20px', flexWrap: 'wrap' }}>
+      <div className="legend-container" style={{ display: 'flex', gap: '20px', marginBottom: '20px', flexWrap: 'wrap' }}>
         {selectedYears.map(year => (
           <div key={year} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{ width: '20px', height: '3px', backgroundColor: YEAR_COLORS[year], borderRadius: '2px' }} />
@@ -133,7 +133,7 @@ export default function RadarChartView({
         ))}
       </div>
 
-      <div ref={chartRef} style={{ width: '100%', height: '800px', margin: '0 -40px' }}>
+      <div ref={chartRef} className="radar-chart-container" style={{ width: '100%', height: '800px', margin: '0 -40px' }}>
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart data={radarData} margin={{ top: 60, right: 60, bottom: 60, left: 60 }}>
             <PolarGrid stroke="#d1cfd1" strokeDasharray="5 5" />

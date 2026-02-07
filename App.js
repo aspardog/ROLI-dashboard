@@ -3,6 +3,7 @@ import { ACTIVE_YEAR, REGION_OPTIONS, VARIABLE_OPTIONS, SUBFACTOR_GROUPS, COLORS
 import TopBottomChart from './src/TopBottomChart';
 import TimeSeriesChart from './src/TimeSeriesChart';
 import RadarChartView from './src/RadarChartView';
+import './src/responsive.css';
 
 export default function ROLIDashboard() {
   const [allData, setAllData] = useState([]);
@@ -55,11 +56,11 @@ export default function ROLIDashboard() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: COLORS.background, fontFamily: "'Inter Tight', sans-serif", padding: '32px 24px' }}>
+    <div className="dashboard-container" style={{ minHeight: '100vh', backgroundColor: COLORS.background, fontFamily: "'Inter Tight', sans-serif", padding: '32px 24px' }}>
       {/* Header */}
-      <div style={{ maxWidth: '1100px', margin: '0 auto 32px' }}>
+      <div className="dashboard-header" style={{ maxWidth: '1100px', margin: '0 auto 32px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
-          <div style={{ width: '6px', height: '48px', backgroundColor: COLORS.top5, borderRadius: '3px' }} />
+          <div className="accent-bar" style={{ width: '6px', height: '48px', backgroundColor: COLORS.top5, borderRadius: '3px' }} />
           <h1 style={{ fontSize: '32px', fontWeight: '700', color: COLORS.text, margin: 0, letterSpacing: '-0.5px' }}>Rule of Law Index – Data Visualization Tool</h1>
         </div>
 
@@ -67,7 +68,7 @@ export default function ROLIDashboard() {
 
       {/* Controls */}
       {chartType !== 'radar' && (
-        <div style={{ maxWidth: '1100px', margin: '0 auto 40px', backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', display: 'flex', gap: '24px' }}>
+        <div className="controls-container" style={{ maxWidth: '1100px', margin: '0 auto 40px', backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', display: 'flex', gap: '24px' }}>
           <div style={{ flex: 1 }}>
             <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Region</label>
             <select value={selectedRegion} onChange={(e) => setSelectedRegion(e.target.value)} style={{ width: '100%', padding: '14px 16px', fontSize: '16px', border: '2px solid #e5e5e5', borderRadius: '8px', backgroundColor: 'white', color: COLORS.text, cursor: 'pointer', outline: 'none', fontWeight: '500' }}>
@@ -118,7 +119,7 @@ export default function ROLIDashboard() {
 
 
       {/* Chart type toggle */}
-      <div style={{ maxWidth: '1100px', margin: '0 auto 24px', display: 'flex', gap: '8px' }}>
+      <div className="chart-toggle-container" style={{ maxWidth: '1100px', margin: '0 auto 24px', display: 'flex', gap: '8px' }}>
         <button
           onClick={() => setChartType('timeseries')}
           style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '600', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: chartType === 'timeseries' ? COLORS.top5 : 'white', color: chartType === 'timeseries' ? 'white' : COLORS.muted, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
@@ -151,8 +152,8 @@ export default function ROLIDashboard() {
             />
 
             {/* Radar Chart Controls */}
-            <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginTop: '24px' }}>
-              <div style={{ display: 'flex', gap: '24px', marginBottom: '24px' }}>
+            <div className="radar-controls chart-card" style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginTop: '24px' }}>
+              <div className="radar-controls-row" style={{ display: 'flex', gap: '24px', marginBottom: '24px' }}>
                 <div style={{ flex: 1 }}>
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Region</label>
                   <select value={selectedRegion} onChange={(e) => setSelectedRegion(e.target.value)} style={{ width: '100%', padding: '14px 16px', fontSize: '16px', border: '2px solid #e5e5e5', borderRadius: '8px', backgroundColor: 'white', color: COLORS.text, cursor: 'pointer', outline: 'none', fontWeight: '500' }}>
@@ -174,7 +175,7 @@ export default function ROLIDashboard() {
                 {/* Overall Index */}
                 <div style={{ marginBottom: '16px' }}>
                   <h3 style={{ fontSize: '14px', fontWeight: '600', color: COLORS.text, marginBottom: '8px' }}>Overall Index</h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '12px' }}>
+                  <div className="radar-controls-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '12px' }}>
                     {VARIABLE_OPTIONS.filter(o => o.category === 'general').map(factor => (
                       <label key={factor.value} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                         <input
@@ -198,7 +199,7 @@ export default function ROLIDashboard() {
                 {/* Factors */}
                 <div style={{ marginBottom: '16px' }}>
                   <h3 style={{ fontSize: '14px', fontWeight: '600', color: COLORS.text, marginBottom: '8px' }}>Factors</h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '12px' }}>
+                  <div className="radar-controls-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '12px' }}>
                     {VARIABLE_OPTIONS.filter(o => o.category === 'factor').map(factor => (
                       <label key={factor.value} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                         <input
@@ -223,7 +224,7 @@ export default function ROLIDashboard() {
                 {SUBFACTOR_GROUPS.map(group => (
                   <div key={group.category} style={{ marginBottom: '16px' }}>
                     <h3 style={{ fontSize: '14px', fontWeight: '600', color: COLORS.text, marginBottom: '8px' }}>{group.label}</h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '12px' }}>
+                    <div className="radar-controls-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '12px' }}>
                       {VARIABLE_OPTIONS.filter(o => o.category === group.category).map(factor => (
                         <label key={factor.value} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                           <input
@@ -274,7 +275,7 @@ export default function ROLIDashboard() {
       </div>
 
       {/* Footer */}
-      <div style={{ maxWidth: '1100px', margin: '24px auto 0', textAlign: 'center' }}>
+      <div className="dashboard-footer" style={{ maxWidth: '1100px', margin: '24px auto 0', textAlign: 'center' }}>
         <p style={{ fontSize: '12px', color: COLORS.muted }}>
           Source: World Justice Project — Rule of Law Index {
             chartType === 'timeseries' ? '2019–2025' :
