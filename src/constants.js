@@ -20,7 +20,7 @@ const VARIABLE_OPTIONS = [
   { value: 'f3', label: 'F3 - Open Government',                category: 'factor' },
   { value: 'f4', label: 'F4 - Fundamental Rights',             category: 'factor' },
   { value: 'f5', label: 'F5 - Order and Security',             category: 'factor' },
-  { value: 'f6', label: 'F6 - Regulatory Compliance',          category: 'factor' },
+  { value: 'f6', label: 'F6 - Regulatory Enforcement',          category: 'factor' },
   { value: 'f7', label: 'F7 - Civil Justice',                  category: 'factor' },
   { value: 'f8', label: 'F8 - Criminal Justice',               category: 'factor' },
 
@@ -83,7 +83,7 @@ const SUBFACTOR_GROUPS = [
   { label: 'F3 - Open Government',                 category: 'sf3' },
   { label: 'F4 - Fundamental Rights',              category: 'sf4' },
   { label: 'F5 - Order and Security',              category: 'sf5' },
-  { label: 'F6 - Regulatory Compliance',           category: 'sf6' },
+  { label: 'F6 - Regulatory Enforcement',           category: 'sf6' },
   { label: 'F7 - Civil Justice',                   category: 'sf7' },
   { label: 'F8 - Criminal Justice',                category: 'sf8' },
 ];

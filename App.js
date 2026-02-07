@@ -19,7 +19,7 @@ export default function ROLIDashboard() {
     { value: 'f3', label: 'F3 - Open Government' },
     { value: 'f4', label: 'F4 - Fundamental Rights' },
     { value: 'f5', label: 'F5 - Order and Security' },
-    { value: 'f6', label: 'F6 - Regulatory Compliance' },
+    { value: 'f6', label: 'F6 - Regulatory Enforcement' },
     { value: 'f7', label: 'F7 - Civil Justice' },
     { value: 'f8', label: 'F8 - Criminal Justice' }
   ]);

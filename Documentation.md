@@ -108,7 +108,7 @@ The Excel "Historical Data" sheet uses a fixed column layout. The parser maps co
 | 24–31  | sf41–sf48 | Sub-factors of F4             |
 | 32     | f5     | F5 – Order and Security          |
 | 33–35  | sf51–sf53 | Sub-factors of F5             |
-| 36     | f6     | F6 – Regulatory Compliance       |
+| 36     | f6     | F6 – Regulatory Enforcement       |
 | 37–41  | sf61–sf65 | Sub-factors of F6             |
 | 42     | f7     | F7 – Civil Justice               |
 | 43–49  | sf71–sf77 | Sub-factors of F7             |
