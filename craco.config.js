@@ -21,6 +21,16 @@ module.exports = {
         });
       }
 
+      // Fix for React 19 "exports is not defined" error in production
+      webpackConfig.output = {
+        ...webpackConfig.output,
+        environment: {
+          ...webpackConfig.output.environment,
+          dynamicImport: true,
+          module: true,
+        },
+      };
+
       return webpackConfig;
     },
   },
