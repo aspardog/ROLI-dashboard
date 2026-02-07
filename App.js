@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { ACTIVE_YEAR, REGION_OPTIONS, VARIABLE_OPTIONS, SUBFACTOR_GROUPS, COLORS } from './src/constants';
 import TopBottomChart from './src/TopBottomChart';
 import TimeSeriesChart from './src/TimeSeriesChart';
+import BasicRadarChart from './src/BasicRadarChart';
 
 export default function ROLIDashboard() {
   const [allData, setAllData] = useState([]);
@@ -111,12 +112,17 @@ export default function ROLIDashboard() {
           onClick={() => setChartType('topbottom')}
           style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '600', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: chartType === 'topbottom' ? COLORS.top5 : 'white', color: chartType === 'topbottom' ? 'white' : COLORS.muted, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
         >Top & Bottom Performers</button>
+        <button
+          onClick={() => setChartType('radar')}
+          style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '600', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: chartType === 'radar' ? COLORS.top5 : 'white', color: chartType === 'radar' ? 'white' : COLORS.muted, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
+        >Radar Chart</button>
       </div>
 
       {/* Charts */}
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         {chartType === 'topbottom' && <TopBottomChart allData={allData} selectedRegion={selectedRegion} selectedYear={selectedYear} variable={selectedVariable} label={selectedLabel} regionLabel={regionLabel} />}
         {chartType === 'timeseries' && selectedCountry && <TimeSeriesChart allData={allData} country={selectedCountry} variable={selectedVariable} label={selectedLabel} selectedRegion={selectedRegion} regionLabel={regionLabel} />}
+        {chartType === 'radar' && <BasicRadarChart allData={allData} selectedRegion={selectedRegion} selectedYear={selectedYear} />}
       </div>
 
       {/* Footer */}
