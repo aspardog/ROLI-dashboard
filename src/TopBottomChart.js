@@ -121,7 +121,7 @@ export default function TopBottomChart({ allData, selectedRegion, selectedYear, 
             </div>
           )}
         </div>
-        <div ref={chartRef} style={{ flex: 1, aspectRatio: '1.4', maxHeight: 'calc(100vh - 440px)', maxWidth: 'calc((100vh - 440px) * 1.4)' }}>
+        <div ref={chartRef} className="bar-chart-container" style={{ flex: 1, height: '600px', maxWidth: '840px' }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} layout="vertical" margin={{ top: 10, right: 60, left: 10, bottom: 10 }}
             customized={({ xAxisMap, yAxisMap }) => {

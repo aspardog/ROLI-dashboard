@@ -142,6 +142,12 @@
     min-height: 250px !important;
   }
 
+  /* Top/Bottom chart container - reduce height for mobile */
+  .bar-chart-container {
+    height: 450px !important;
+    max-width: 100% !important;
+  }
+
   /* Radar chart specific */
   .radar-chart-container {
     height: 450px !important;
