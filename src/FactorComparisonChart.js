@@ -22,6 +22,43 @@ const COMPARISON_COLORS = [
   '#c0392b', // Red
 ];
 
+// Custom Y-axis tick component with line wrapping
+const CustomYAxisTick = ({ x, y, payload }) => {
+  const words = payload.value.split(' ');
+  const lines = [];
+  let currentLine = '';
+
+  // Split into lines of maximum 3 words each
+  words.forEach((word, i) => {
+    if (currentLine && currentLine.split(' ').length >= 3) {
+      lines.push(currentLine);
+      currentLine = word;
+    } else {
+      currentLine = currentLine ? `${currentLine} ${word}` : word;
+    }
+  });
+  if (currentLine) lines.push(currentLine);
+
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {lines.map((line, i) => (
+        <text
+          key={i}
+          x={0}
+          y={0}
+          dy={i * 16 - (lines.length - 1) * 8}
+          textAnchor="end"
+          fill={COLORS.text}
+          fontSize={15}
+          fontWeight={400}
+        >
+          {line}
+        </text>
+      ))}
+    </g>
+  );
+};
+
 export default function FactorComparisonChart({ allData, selectedRegion, selectedYear, availableCountries }) {
   const chartRef = useRef(null);
   const [selectedCountries, setSelectedCountries] = useState(['__regional_avg__']);
@@ -72,12 +109,27 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
     if (!svg) return;
     const bbox = svg.getBBox();
     const pad = 8;
+    const legendH = 60; // Increased height for legend
     const vbX = bbox.x - pad;
     const vbY = bbox.y - pad;
     const vbW = bbox.width + pad * 2;
-    const vbH = bbox.height + pad * 2;
+    const vbH = bbox.height + pad * 2 + legendH;
     const clone = svg.cloneNode(true);
     const ns = 'http://www.w3.org/2000/svg';
+
+    // Helper: create an SVG element with attributes
+    const el = (tag, attrs) => {
+      const e = document.createElementNS(ns, tag);
+      Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, String(v)));
+      return e;
+    };
+
+    // Helper: create a text element with content
+    const txt = (x, y, content) => {
+      const t = el('text', { x, y, fill: COLORS.muted, 'font-size': 13, 'font-weight': 500, 'font-family': "'Inter Tight', sans-serif" });
+      t.textContent = content;
+      return t;
+    };
 
     clone.setAttribute('width', vbW);
     clone.setAttribute('height', vbH);
@@ -94,13 +146,26 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
       t.style.fontFamily = "'Inter Tight', sans-serif";
     });
 
-    const bg = document.createElementNS(ns, 'rect');
-    bg.setAttribute('x', vbX);
-    bg.setAttribute('y', vbY);
-    bg.setAttribute('width', vbW);
-    bg.setAttribute('height', vbH);
-    bg.setAttribute('fill', 'white');
-    clone.insertBefore(bg, clone.firstChild);
+    // White background covering chart + legend
+    clone.insertBefore(el('rect', { x: vbX, y: vbY, width: vbW, height: vbH, fill: 'white' }), clone.firstChild);
+
+    // Legend entries — positioned just below the content bbox
+    const lx = vbX + 24;
+    const ly = bbox.y + bbox.height + pad + 15;
+    const ty = bbox.y + bbox.height + pad + 27;
+
+    let currentX = lx;
+    selectedCountries.forEach((country, index) => {
+      const label = getCountryLabel(country);
+      const color = COMPARISON_COLORS[index % COMPARISON_COLORS.length];
+
+      // Color bar for this country
+      clone.appendChild(el('rect', { x: currentX, y: ly, width: 20, height: 3, fill: color, rx: 2 }));
+      clone.appendChild(txt(currentX + 24, ty, label));
+
+      // Move to next position (approximate width based on label length)
+      currentX += label.length * 7 + 40;
+    });
 
     const blob = new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
@@ -140,12 +205,12 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
         ))}
       </div>
 
-      <div ref={chartRef} className="bar-chart-container" style={{ width: '100%', height: '500px', maxWidth: '1100px', margin: '0 auto' }}>
+      <div ref={chartRef} className="bar-chart-container" style={{ width: '100%', height: '550px', maxWidth: '1200px', margin: '0 auto' }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={chartData}
             layout="vertical"
-            margin={{ top: 20, right: 100, left: 240, bottom: 20 }}
+            margin={{ top: 20, right: 100, left: 280, bottom: 20 }}
           >
             <XAxis
               type="number"
@@ -159,18 +224,13 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
             <YAxis
               type="category"
               dataKey="label"
-              tick={{ fontSize: 15, fill: COLORS.text, fontWeight: 400 }}
+              tick={<CustomYAxisTick />}
               axisLine={false}
               tickLine={false}
-              width={230}
+              width={270}
             />
 
-            {/* Grid lines - these render FIRST so bars appear on top */}
-            <ReferenceLine x={0.25} stroke="#e5e5e5" strokeDasharray="3 3" strokeWidth={1} />
-            <ReferenceLine x={0.5} stroke="#e5e5e5" strokeDasharray="3 3" strokeWidth={1} />
-            <ReferenceLine x={0.75} stroke="#e5e5e5" strokeDasharray="3 3" strokeWidth={1} />
-
-            {/* Bars for each selected country */}
+            {/* Bars for each selected country - rendered FIRST */}
             {selectedCountries.map((country, index) => (
               <Bar
                 key={country}
@@ -191,6 +251,11 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
                 />
               </Bar>
             ))}
+
+            {/* Grid lines - rendered LAST so they appear behind bars */}
+            <ReferenceLine x={0.25} stroke="#e5e5e5" strokeDasharray="3 3" strokeWidth={1} strokeOpacity={0.5} />
+            <ReferenceLine x={0.5} stroke="#e5e5e5" strokeDasharray="3 3" strokeWidth={1} strokeOpacity={0.5} />
+            <ReferenceLine x={0.75} stroke="#e5e5e5" strokeDasharray="3 3" strokeWidth={1} strokeOpacity={0.5} />
           </BarChart>
         </ResponsiveContainer>
       </div>
