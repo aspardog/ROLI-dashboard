@@ -3,6 +3,7 @@ import { ACTIVE_YEAR, REGION_OPTIONS, VARIABLE_OPTIONS, SUBFACTOR_GROUPS, COLORS
 import TopBottomChart from './src/TopBottomChart';
 import TimeSeriesChart from './src/TimeSeriesChart';
 import RadarChartView from './src/RadarChartView';
+import FactorComparisonChart from './src/FactorComparisonChart';
 import './src/responsive.css';
 
 export default function ROLIDashboard() {
@@ -67,7 +68,7 @@ export default function ROLIDashboard() {
       </div>
 
       {/* Controls */}
-      {chartType !== 'radar' && (
+      {chartType !== 'radar' && chartType !== 'factors' && (
         <div className="controls-container" style={{ maxWidth: '1100px', margin: '0 auto 40px', backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', display: 'flex', gap: '24px' }}>
           <div style={{ flex: 1 }}>
             <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Region</label>
@@ -117,6 +118,29 @@ export default function ROLIDashboard() {
         </div>
       )}
 
+      {/* Factor Comparison Controls */}
+      {chartType === 'factors' && (
+        <div className="controls-container" style={{ maxWidth: '1100px', margin: '0 auto 40px', backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', display: 'flex', gap: '24px' }}>
+          <div style={{ flex: 1 }}>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Region</label>
+            <select value={selectedRegion} onChange={(e) => setSelectedRegion(e.target.value)} style={{ width: '100%', padding: '14px 16px', fontSize: '16px', border: '2px solid #e5e5e5', borderRadius: '8px', backgroundColor: 'white', color: COLORS.text, cursor: 'pointer', outline: 'none', fontWeight: '500' }}>
+              {REGION_OPTIONS.map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
+            </select>
+          </div>
+          <div style={{ flex: 1 }}>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Year</label>
+            <select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)} style={{ width: '100%', padding: '14px 16px', fontSize: '16px', border: '2px solid #e5e5e5', borderRadius: '8px', backgroundColor: 'white', color: COLORS.text, cursor: 'pointer', outline: 'none', fontWeight: '500' }}>
+              <option value="2025">2025</option>
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+              <option value="2022">2022</option>
+              <option value="2021">2021</option>
+              <option value="2020">2020</option>
+              <option value="2019">2019</option>
+            </select>
+          </div>
+        </div>
+      )}
 
       {/* Chart type toggle */}
       <div className="chart-toggle-container" style={{ maxWidth: '1100px', margin: '0 auto 24px', display: 'flex', gap: '8px' }}>
@@ -132,12 +156,24 @@ export default function ROLIDashboard() {
           onClick={() => setChartType('radar')}
           style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '600', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: chartType === 'radar' ? COLORS.top5 : 'white', color: chartType === 'radar' ? 'white' : COLORS.muted, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
         >Radar Chart</button>
+        <button
+          onClick={() => setChartType('factors')}
+          style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '600', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: chartType === 'factors' ? COLORS.top5 : 'white', color: chartType === 'factors' ? 'white' : COLORS.muted, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
+        >Factor Comparison</button>
       </div>
 
       {/* Charts */}
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         {chartType === 'topbottom' && <TopBottomChart allData={allData} selectedRegion={selectedRegion} selectedYear={selectedYear} variable={selectedVariable} label={selectedLabel} regionLabel={regionLabel} />}
         {chartType === 'timeseries' && selectedCountry && <TimeSeriesChart allData={allData} country={selectedCountry} variable={selectedVariable} label={selectedLabel} selectedRegion={selectedRegion} regionLabel={regionLabel} />}
+        {chartType === 'factors' && (
+          <FactorComparisonChart
+            allData={allData}
+            selectedRegion={selectedRegion}
+            selectedYear={selectedYear}
+            availableCountries={availableCountries}
+          />
+        )}
         {chartType === 'radar' && (
           <>
             <RadarChartView
@@ -280,6 +316,7 @@ export default function ROLIDashboard() {
           Source: World Justice Project — Rule of Law Index {
             chartType === 'timeseries' ? '2019–2025' :
             chartType === 'radar' ? selectedRadarYears.sort().join(', ') :
+            chartType === 'factors' ? selectedYear :
             selectedYear
           }
         </p>
