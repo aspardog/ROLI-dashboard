@@ -15,21 +15,14 @@ module.exports = {
       const oneOf = webpackConfig.module.rules.find((rule) => rule.oneOf);
       if (oneOf) {
         oneOf.oneOf.forEach((rule) => {
-          if (rule.loader && rule.loader.includes('babel-loader') && rule.include) {
-            rule.include = [].concat(rule.include, appRoot);
+          if (rule.loader && rule.loader.includes('babel-loader')) {
+            // Remove the include restriction to transpile node_modules
+            delete rule.include;
+            // Exclude only specific packages that are known to be ES5
+            rule.exclude = /node_modules\/(?!(lodash-es|recharts))/;
           }
         });
       }
-
-      // Fix for React 19 "exports is not defined" error in production
-      webpackConfig.output = {
-        ...webpackConfig.output,
-        environment: {
-          ...webpackConfig.output.environment,
-          dynamicImport: true,
-          module: true,
-        },
-      };
 
       return webpackConfig;
     },
