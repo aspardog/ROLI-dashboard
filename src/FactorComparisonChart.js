@@ -196,7 +196,7 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
       <p style={{ fontSize: '14px', color: COLORS.muted, margin: '0 0 20px' }}>{selectedYear}</p>
 
       {/* Legend */}
-      <div className="legend-container" style={{ display: 'flex', gap: '20px', marginBottom: '20px', flexWrap: 'wrap' }}>
+      <div className="legend-container" style={{ display: 'flex', gap: '20px', marginBottom: '12px', flexWrap: 'wrap' }}>
         {selectedCountries.map((country, index) => (
           <div key={country} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{ width: '20px', height: '3px', backgroundColor: COMPARISON_COLORS[index % COMPARISON_COLORS.length], borderRadius: '2px' }} />
