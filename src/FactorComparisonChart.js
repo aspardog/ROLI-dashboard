@@ -61,7 +61,7 @@ const CustomYAxisTick = ({ x, y, payload }) => {
 
 export default function FactorComparisonChart({ allData, selectedRegion, selectedYear, availableCountries }) {
   const chartRef = useRef(null);
-  const [selectedCountries, setSelectedCountries] = useState(['__regional_avg__']);
+  const [selectedCountries, setSelectedCountries] = useState(['__region_global']);
   const [expandedRegions, setExpandedRegions] = useState({});
 
   // Group countries by region
@@ -98,14 +98,13 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
       const row = { label: factor.label, factor: factor.key };
 
       selectedCountries.forEach((country, index) => {
-        if (country === '__regional_avg__') {
-          // Calculate regional average
-          const yearData = allData.filter(d => d.year === selectedYear);
-          const regionData = selectedRegion === 'global'
-            ? yearData
-            : yearData.filter(d => d.region === selectedRegion);
-
-          const validData = regionData.filter(d => d[factor.key] != null);
+        if (country.startsWith('__region_')) {
+          // Calculate average for a specific region
+          const regionName = country.replace('__region_', '');
+          const yearData = regionName === 'global'
+            ? allData.filter(d => d.year === selectedYear)
+            : allData.filter(d => d.year === selectedYear && d.region === regionName);
+          const validData = yearData.filter(d => d[factor.key] != null);
           const avg = validData.length > 0
             ? validData.reduce((sum, d) => sum + d[factor.key], 0) / validData.length
             : 0;
@@ -126,8 +125,10 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
   }, [allData, selectedRegion, selectedCountries, selectedYear]);
 
   const getCountryLabel = (country) => {
-    if (country === '__regional_avg__') {
-      return selectedRegion === 'global' ? 'Global Average' : `${selectedRegion} Average`;
+    if (country.startsWith('__region_')) {
+      const regionName = country.replace('__region_', '');
+      if (regionName === 'global') return 'Global Average';
+      return `${regionName} Average`;
     }
     return country;
   };
@@ -339,33 +340,54 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
           </span>
         </div>
 
-        {/* Regional Average Option - Prominent */}
-        <div style={{ marginBottom: '20px', padding: '16px', backgroundColor: 'white', borderRadius: '8px', border: `2px solid ${selectedCountries.includes('__regional_avg__') ? COLORS.top5 : '#e5e5e5'}`, boxShadow: selectedCountries.includes('__regional_avg__') ? '0 2px 8px rgba(0, 59, 136, 0.15)' : 'none', transition: 'all 0.2s' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
-            <input
-              type="checkbox"
-              checked={selectedCountries.includes('__regional_avg__')}
-              onChange={(e) => {
-                if (e.target.checked && selectedCountries.length < 5) {
-                  setSelectedCountries([...selectedCountries, '__regional_avg__']);
-                } else if (!e.target.checked) {
-                  setSelectedCountries(selectedCountries.filter(c => c !== '__regional_avg__'));
-                }
-              }}
-              style={{ cursor: 'pointer', width: '20px', height: '20px', accentColor: COLORS.top5 }}
-            />
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: '15px', color: COLORS.text, fontWeight: '700', marginBottom: '2px' }}>
-                {selectedRegion === 'global' ? '🌍 Global Average' : `📍 ${selectedRegion} Average`}
-              </div>
-              <div style={{ fontSize: '12px', color: COLORS.muted }}>
-                Compare regional performance across all factors
-              </div>
-            </div>
-          </label>
+        {/* Regional Averages Section */}
+        <div style={{ marginBottom: '20px' }}>
+          <h3 style={{ fontSize: '14px', fontWeight: '600', color: COLORS.text, marginBottom: '12px' }}>🌍 Regional Averages</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '10px' }}>
+            {/* Global Average */}
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', backgroundColor: 'white', borderRadius: '6px', border: `2px solid ${selectedCountries.includes('__region_global') ? COLORS.top5 : '#e5e5e5'}`, cursor: 'pointer', transition: 'all 0.2s' }}>
+              <input
+                type="checkbox"
+                checked={selectedCountries.includes('__region_global')}
+                onChange={(e) => {
+                  if (e.target.checked && selectedCountries.length < 5) {
+                    setSelectedCountries([...selectedCountries, '__region_global']);
+                  } else if (!e.target.checked) {
+                    setSelectedCountries(selectedCountries.filter(c => c !== '__region_global'));
+                  }
+                }}
+                style={{ cursor: 'pointer', width: '18px', height: '18px', accentColor: COLORS.top5 }}
+              />
+              <span style={{ fontSize: '14px', color: COLORS.text, fontWeight: '600' }}>Global Average</span>
+            </label>
+
+            {/* Individual Regions */}
+            {REGION_OPTIONS.filter(r => r.value !== 'global').map(region => (
+              <label key={region.value} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', backgroundColor: 'white', borderRadius: '6px', border: `2px solid ${selectedCountries.includes(`__region_${region.value}`) ? COLORS.top5 : '#e5e5e5'}`, cursor: 'pointer', transition: 'all 0.2s' }}>
+                <input
+                  type="checkbox"
+                  checked={selectedCountries.includes(`__region_${region.value}`)}
+                  onChange={(e) => {
+                    const regionKey = `__region_${region.value}`;
+                    if (e.target.checked && selectedCountries.length < 5) {
+                      setSelectedCountries([...selectedCountries, regionKey]);
+                    } else if (!e.target.checked) {
+                      setSelectedCountries(selectedCountries.filter(c => c !== regionKey));
+                    }
+                  }}
+                  disabled={!selectedCountries.includes(`__region_${region.value}`) && selectedCountries.length >= 5}
+                  style={{ cursor: selectedCountries.includes(`__region_${region.value}`) || selectedCountries.length < 5 ? 'pointer' : 'not-allowed', width: '18px', height: '18px', accentColor: COLORS.top5 }}
+                />
+                <span style={{ fontSize: '14px', color: selectedCountries.includes(`__region_${region.value}`) || selectedCountries.length < 5 ? COLORS.text : COLORS.muted, fontWeight: '500' }}>{region.label}</span>
+              </label>
+            ))}
+          </div>
         </div>
 
-        {/* Countries by Region */}
+        {/* Individual Countries by Region */}
+        <div style={{ marginBottom: '12px' }}>
+          <h3 style={{ fontSize: '14px', fontWeight: '600', color: COLORS.text, marginBottom: '12px' }}>🏴 Individual Countries</h3>
+        </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {REGION_OPTIONS.filter(r => r.value !== 'global').map(region => {
             const countries = countriesByRegion[region.value] || [];
