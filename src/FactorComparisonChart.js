@@ -164,11 +164,6 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
     return countries.length > 0 && countries.every(c => selectedCountries.includes(c));
   };
 
-  const isRegionPartiallySelected = (region) => {
-    const countries = countriesByRegion[region] || [];
-    return countries.some(c => selectedCountries.includes(c)) && !isRegionFullySelected(region);
-  };
-
   async function downloadSVG() {
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
@@ -373,7 +368,6 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
 
             const isExpanded = expandedRegions[region.value];
             const fullySelected = isRegionFullySelected(region.value);
-            const partiallySelected = isRegionPartiallySelected(region.value);
 
             return (
               <div key={region.value} style={{ backgroundColor: 'white', borderRadius: '6px', border: '1px solid #e5e5e5', overflow: 'hidden' }}>
