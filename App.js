@@ -177,7 +177,19 @@ export default function ROLIDashboard() {
         )}
         {chartType === 'radar' && (
           <>
-            {/* Radar Chart Controls - MOVED BEFORE CHART */}
+            {/* Radar Chart - SHOWN FIRST */}
+            <RadarChartView
+              allData={allData}
+              selectedRegion={selectedRegion}
+              selectedCountry={selectedRadarCountry}
+              selectedFactors={selectedFactors}
+              selectedYears={selectedRadarYears}
+              countryLabel={selectedRadarCountry === '__regional_avg__' ?
+                (selectedRegion === 'global' ? 'Global Average' : regionLabel + ' Average') :
+                selectedRadarCountry}
+            />
+
+            {/* Radar Chart Controls - AFTER CHART */}
             <div className="radar-controls chart-card" style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
               <div className="radar-controls-row" style={{ display: 'flex', gap: '24px', marginBottom: '24px' }}>
                 <div style={{ flex: 1 }}>
@@ -219,12 +231,7 @@ export default function ROLIDashboard() {
                         <div style={{ display: 'flex', alignItems: 'center', padding: '12px 16px', backgroundColor: isExpanded ? '#fafafa' : 'white', cursor: 'pointer', userSelect: 'none' }} onClick={() => setExpandedFactorGroups({ ...expandedFactorGroups, [groupKey]: !isExpanded })}>
                           <span style={{ fontSize: '18px', marginRight: '8px', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>▶</span>
                           <span style={{ flex: 1, fontSize: '14px', fontWeight: '600', color: COLORS.text }}>Overall Index</span>
-                          <span style={{ fontSize: '12px', color: COLORS.muted, marginRight: '12px' }}>{selectedCount} / {options.length}</span>
-                          {allSelected ? (
-                            <button onClick={(e) => { e.stopPropagation(); setSelectedFactors(selectedFactors.filter(f => !options.some(o => o.value === f.value))); }} style={{ padding: '4px 10px', fontSize: '11px', fontWeight: '600', color: COLORS.muted, backgroundColor: 'transparent', border: '1px solid #d0d0d0', borderRadius: '4px', cursor: 'pointer' }}>Deselect All</button>
-                          ) : (
-                            <button onClick={(e) => { e.stopPropagation(); const newFactors = [...selectedFactors]; options.forEach(o => { if (!newFactors.some(f => f.value === o.value)) newFactors.push(o); }); setSelectedFactors(newFactors); }} style={{ padding: '4px 10px', fontSize: '11px', fontWeight: '600', color: COLORS.top5, backgroundColor: 'transparent', border: `1px solid ${COLORS.top5}`, borderRadius: '4px', cursor: 'pointer' }}>Select All</button>
-                          )}
+                          <span style={{ fontSize: '12px', color: COLORS.muted }}>{selectedCount} / {options.length}</span>
                         </div>
                         {isExpanded && (
                           <div style={{ padding: '12px 16px 12px 48px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '8px', borderTop: '1px solid #f0f0f0' }}>
@@ -253,12 +260,7 @@ export default function ROLIDashboard() {
                         <div style={{ display: 'flex', alignItems: 'center', padding: '12px 16px', backgroundColor: isExpanded ? '#fafafa' : 'white', cursor: 'pointer', userSelect: 'none' }} onClick={() => setExpandedFactorGroups({ ...expandedFactorGroups, [groupKey]: !isExpanded })}>
                           <span style={{ fontSize: '18px', marginRight: '8px', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>▶</span>
                           <span style={{ flex: 1, fontSize: '14px', fontWeight: '600', color: COLORS.text }}>Factors</span>
-                          <span style={{ fontSize: '12px', color: COLORS.muted, marginRight: '12px' }}>{selectedCount} / {options.length}</span>
-                          {allSelected ? (
-                            <button onClick={(e) => { e.stopPropagation(); setSelectedFactors(selectedFactors.filter(f => !options.some(o => o.value === f.value))); }} style={{ padding: '4px 10px', fontSize: '11px', fontWeight: '600', color: COLORS.muted, backgroundColor: 'transparent', border: '1px solid #d0d0d0', borderRadius: '4px', cursor: 'pointer' }}>Deselect All</button>
-                          ) : (
-                            <button onClick={(e) => { e.stopPropagation(); const newFactors = [...selectedFactors]; options.forEach(o => { if (!newFactors.some(f => f.value === o.value)) newFactors.push(o); }); setSelectedFactors(newFactors); }} style={{ padding: '4px 10px', fontSize: '11px', fontWeight: '600', color: COLORS.top5, backgroundColor: 'transparent', border: `1px solid ${COLORS.top5}`, borderRadius: '4px', cursor: 'pointer' }}>Select All</button>
-                          )}
+                          <span style={{ fontSize: '12px', color: COLORS.muted }}>{selectedCount} / {options.length}</span>
                         </div>
                         {isExpanded && (
                           <div style={{ padding: '12px 16px 12px 48px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '8px', borderTop: '1px solid #f0f0f0' }}>
@@ -287,12 +289,7 @@ export default function ROLIDashboard() {
                         <div style={{ display: 'flex', alignItems: 'center', padding: '12px 16px', backgroundColor: isExpanded ? '#fafafa' : 'white', cursor: 'pointer', userSelect: 'none' }} onClick={() => setExpandedFactorGroups({ ...expandedFactorGroups, [groupKey]: !isExpanded })}>
                           <span style={{ fontSize: '18px', marginRight: '8px', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>▶</span>
                           <span style={{ flex: 1, fontSize: '14px', fontWeight: '600', color: COLORS.text }}>{group.label} — Subfactors</span>
-                          <span style={{ fontSize: '12px', color: COLORS.muted, marginRight: '12px' }}>{selectedCount} / {options.length}</span>
-                          {allSelected ? (
-                            <button onClick={(e) => { e.stopPropagation(); setSelectedFactors(selectedFactors.filter(f => !options.some(o => o.value === f.value))); }} style={{ padding: '4px 10px', fontSize: '11px', fontWeight: '600', color: COLORS.muted, backgroundColor: 'transparent', border: '1px solid #d0d0d0', borderRadius: '4px', cursor: 'pointer' }}>Deselect All</button>
-                          ) : (
-                            <button onClick={(e) => { e.stopPropagation(); const newFactors = [...selectedFactors]; options.forEach(o => { if (!newFactors.some(f => f.value === o.value)) newFactors.push(o); }); setSelectedFactors(newFactors); }} style={{ padding: '4px 10px', fontSize: '11px', fontWeight: '600', color: COLORS.top5, backgroundColor: 'transparent', border: `1px solid ${COLORS.top5}`, borderRadius: '4px', cursor: 'pointer' }}>Select All</button>
-                          )}
+                          <span style={{ fontSize: '12px', color: COLORS.muted }}>{selectedCount} / {options.length}</span>
                         </div>
                         {isExpanded && (
                           <div style={{ padding: '12px 16px 12px 48px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '8px', borderTop: '1px solid #f0f0f0' }}>
@@ -333,18 +330,6 @@ export default function ROLIDashboard() {
                 </div>
               </div>
             </div>
-
-            {/* Radar Chart - AFTER controls */}
-            <RadarChartView
-              allData={allData}
-              selectedRegion={selectedRegion}
-              selectedCountry={selectedRadarCountry}
-              selectedFactors={selectedFactors}
-              selectedYears={selectedRadarYears}
-              countryLabel={selectedRadarCountry === '__regional_avg__' ?
-                (selectedRegion === 'global' ? 'Global Average' : regionLabel + ' Average') :
-                selectedRadarCountry}
-            />
           </>
         )}
       </div>

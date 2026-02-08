@@ -277,7 +277,7 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
           <BarChart
             data={chartData}
             layout="vertical"
-            margin={{ top: 20, right: 100, left: 160, bottom: 20 }}
+            margin={{ top: 20, right: 100, left: 120, bottom: 20 }}
             barCategoryGap="35%"
           >
             <XAxis
@@ -295,7 +295,7 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
               tick={<CustomYAxisTick />}
               axisLine={false}
               tickLine={false}
-              width={240}
+              width={200}
             />
 
             {/* Bars for each selected country - rendered FIRST */}
@@ -339,9 +339,9 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
           </span>
         </div>
 
-        {/* Regional Average Option */}
-        <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: 'white', borderRadius: '6px', border: '1px solid #e5e5e5' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+        {/* Regional Average Option - Prominent */}
+        <div style={{ marginBottom: '20px', padding: '16px', backgroundColor: 'white', borderRadius: '8px', border: `2px solid ${selectedCountries.includes('__regional_avg__') ? COLORS.top5 : '#e5e5e5'}`, boxShadow: selectedCountries.includes('__regional_avg__') ? '0 2px 8px rgba(0, 59, 136, 0.15)' : 'none', transition: 'all 0.2s' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
             <input
               type="checkbox"
               checked={selectedCountries.includes('__regional_avg__')}
@@ -352,11 +352,16 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
                   setSelectedCountries(selectedCountries.filter(c => c !== '__regional_avg__'));
                 }
               }}
-              style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+              style={{ cursor: 'pointer', width: '20px', height: '20px', accentColor: COLORS.top5 }}
             />
-            <span style={{ fontSize: '14px', color: COLORS.text, fontWeight: '600' }}>
-              {selectedRegion === 'global' ? 'Global Average' : `${selectedRegion} Average`}
-            </span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '15px', color: COLORS.text, fontWeight: '700', marginBottom: '2px' }}>
+                {selectedRegion === 'global' ? '🌍 Global Average' : `📍 ${selectedRegion} Average`}
+              </div>
+              <div style={{ fontSize: '12px', color: COLORS.muted }}>
+                Compare regional performance across all factors
+              </div>
+            </div>
           </label>
         </div>
 
