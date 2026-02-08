@@ -275,8 +275,8 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
           <BarChart
             data={chartData}
             layout="vertical"
-            margin={{ top: 20, right: 100, left: 280, bottom: 20 }}
-            barCategoryGap="20%"
+            margin={{ top: 20, right: 100, left: 220, bottom: 20 }}
+            barCategoryGap="35%"
           >
             <XAxis
               type="number"
