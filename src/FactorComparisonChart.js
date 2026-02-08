@@ -282,7 +282,7 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
           <BarChart
             data={chartData}
             layout="vertical"
-            margin={{ top: 20, right: 100, left: 220, bottom: 20 }}
+            margin={{ top: 20, right: 100, left: 160, bottom: 20 }}
             barCategoryGap="35%"
           >
             <XAxis
@@ -300,7 +300,7 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
               tick={<CustomYAxisTick />}
               axisLine={false}
               tickLine={false}
-              width={270}
+              width={240}
             />
 
             {/* Bars for each selected country - rendered FIRST */}
