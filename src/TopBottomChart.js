@@ -102,8 +102,15 @@ export default function TopBottomChart({ allData, selectedRegion, selectedYear, 
 
   return (
     <div className="chart-card" style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
-      <h2 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, margin: '0 0 4px' }}>Top and Bottom Performers in {label}</h2>
-      <p style={{ fontSize: '14px', color: COLORS.muted, margin: '0 0 20px' }}>{regionLabel}</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
+        <div style={{ flex: 1 }}>
+          <h2 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, margin: '0 0 4px' }}>Top and Bottom Performers in {label}</h2>
+          <p style={{ fontSize: '14px', color: COLORS.muted, margin: '0 0 20px' }}>{regionLabel}</p>
+        </div>
+        <button onClick={downloadSVG} style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', fontSize: '13px', fontWeight: '600', color: 'white', backgroundColor: COLORS.top5, border: 'none', borderRadius: '6px', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.12)' }}>
+          <span style={{ fontSize: '16px' }}>↓</span> Export SVG
+        </button>
+      </div>
       <div style={{ display: 'flex', gap: '16px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', paddingTop: '20px', width: '140px', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -176,9 +183,6 @@ export default function TopBottomChart({ allData, selectedRegion, selectedYear, 
           </BarChart>
         </ResponsiveContainer>
         </div>
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
-        <button onClick={downloadSVG} style={{ background: 'none', border: '1.5px solid #e5e5e5', borderRadius: '6px', padding: '8px 16px', fontSize: '13px', fontWeight: '600', color: COLORS.muted, cursor: 'pointer' }}>↓ Export SVG</button>
       </div>
     </div>
   );

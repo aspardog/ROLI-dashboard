@@ -87,8 +87,15 @@ export default function TimeSeriesChart({ allData, country, variable, label, sel
 
   return (
     <div className="chart-card" style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
-      <h2 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, margin: '0 0 4px' }}>{title} — {label}</h2>
-      <p style={{ fontSize: '14px', color: COLORS.muted, margin: '0 0 20px' }}>2019–2025</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
+        <div style={{ flex: 1 }}>
+          <h2 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, margin: '0 0 4px' }}>{title} — {label}</h2>
+          <p style={{ fontSize: '14px', color: COLORS.muted, margin: '0 0 20px' }}>2019–2025</p>
+        </div>
+        <button onClick={downloadSVG} style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', fontSize: '13px', fontWeight: '600', color: 'white', backgroundColor: COLORS.top5, border: 'none', borderRadius: '6px', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.12)' }}>
+          <span style={{ fontSize: '16px' }}>↓</span> Export SVG
+        </button>
+      </div>
       <div ref={chartRef}>
         <ResponsiveContainer width="100%" height={500}>
           <LineChart data={series} margin={{ top: 24, right: 32, left: 16, bottom: 8 }}>
@@ -136,9 +143,6 @@ export default function TimeSeriesChart({ allData, country, variable, label, sel
             </Line>
           </LineChart>
         </ResponsiveContainer>
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
-        <button onClick={downloadSVG} style={{ background: 'none', border: '1.5px solid #e5e5e5', borderRadius: '6px', padding: '8px 16px', fontSize: '13px', fontWeight: '600', color: COLORS.muted, cursor: 'pointer' }}>↓ Export SVG</button>
       </div>
     </div>
   );
