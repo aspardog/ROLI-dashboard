@@ -108,16 +108,16 @@ export default function TopBottomChart({ allData, selectedRegion, selectedYear, 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', paddingTop: '20px', width: '140px', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{ width: '14px', height: '14px', backgroundColor: COLORS.top5, borderRadius: '3px' }} />
-            <span style={{ fontSize: '13px', color: COLORS.muted, fontWeight: '500' }}>Top {splitCount}</span>
+            <span style={{ fontSize: '15px', color: COLORS.muted, fontWeight: '500' }}>Top {splitCount}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{ width: '14px', height: '14px', backgroundColor: COLORS.bottom5, borderRadius: '3px' }} />
-            <span style={{ fontSize: '13px', color: COLORS.muted, fontWeight: '500' }}>Bottom {splitCount}</span>
+            <span style={{ fontSize: '15px', color: COLORS.muted, fontWeight: '500' }}>Bottom {splitCount}</span>
           </div>
           {average !== null && (
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
               <div style={{ width: '20px', height: '2px', flexShrink: 0, marginTop: '7px', backgroundImage: `repeating-linear-gradient(to right, ${COLORS.muted} 0, ${COLORS.muted} 4px, transparent 4px, transparent 8px)` }} />
-              <span style={{ fontSize: '13px', color: COLORS.muted, fontWeight: '500' }}>{regionLabel}<br/>Avg: {average.toFixed(2)}</span>
+              <span style={{ fontSize: '15px', color: COLORS.muted, fontWeight: '500' }}>{regionLabel}<br/>Avg: {average.toFixed(2)}</span>
             </div>
           )}
         </div>

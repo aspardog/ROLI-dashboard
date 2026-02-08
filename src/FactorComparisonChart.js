@@ -200,7 +200,7 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
         {selectedCountries.map((country, index) => (
           <div key={country} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{ width: '20px', height: '3px', backgroundColor: COMPARISON_COLORS[index % COMPARISON_COLORS.length], borderRadius: '2px' }} />
-            <span style={{ fontSize: '13px', color: COLORS.muted, fontWeight: '500' }}>{getCountryLabel(country)}</span>
+            <span style={{ fontSize: '15px', color: COLORS.muted, fontWeight: '500' }}>{getCountryLabel(country)}</span>
           </div>
         ))}
       </div>

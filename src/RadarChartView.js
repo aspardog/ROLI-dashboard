@@ -128,7 +128,7 @@ export default function RadarChartView({
         {selectedYears.map(year => (
           <div key={year} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{ width: '20px', height: '3px', backgroundColor: YEAR_COLORS[year], borderRadius: '2px' }} />
-            <span style={{ fontSize: '13px', color: COLORS.muted, fontWeight: '500' }}>{year}</span>
+            <span style={{ fontSize: '15px', color: COLORS.muted, fontWeight: '500' }}>{year}</span>
           </div>
         ))}
       </div>
