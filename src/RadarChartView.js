@@ -172,7 +172,7 @@ export default function RadarChartView({
                 }
 
                 // Calculate total height needed for label
-                const labelHeight = labelLines.length * 14;
+                const labelHeight = labelLines.length * 16;
 
                 return (
                   <g>
@@ -182,7 +182,7 @@ export default function RadarChartView({
                       y={y - labelHeight - 8}
                       textAnchor={textAnchor}
                       fill={COLORS.text}
-                      fontSize={12}
+                      fontSize={16}
                       fontWeight={600}
                     >
                       {valuesText.map((item, i) => (
@@ -197,10 +197,10 @@ export default function RadarChartView({
                       <text
                         key={i}
                         x={x}
-                        y={y - labelHeight + 14 + (i * 14)}
+                        y={y - labelHeight + 16 + (i * 16)}
                         textAnchor={textAnchor}
                         fill={COLORS.text}
-                        fontSize={12}
+                        fontSize={16}
                         fontWeight={500}
                       >
                         {line}
@@ -229,7 +229,7 @@ export default function RadarChartView({
                     x={newX}
                     y={newY + 4}
                     fill={COLORS.muted}
-                    fontSize={10}
+                    fontSize={12}
                     textAnchor="middle"
                   >
                     {payload.value.toFixed(1)}
