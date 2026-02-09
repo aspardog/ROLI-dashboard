@@ -252,6 +252,7 @@ export default function RadarChartView({
             <PolarRadiusAxis
               angle={90}
               domain={[0, 1]}
+              ticks={[0, 0.2, 0.4, 0.6, 0.8, 1.0]}
               tick={(props) => {
                 const { x, y, payload, cx, cy } = props;
                 // Move tick inside the radar by adjusting position
