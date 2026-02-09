@@ -122,7 +122,7 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
     });
 
     return data;
-  }, [allData, selectedRegion, selectedCountries, selectedYear]);
+  }, [allData, selectedCountries, selectedYear]);
 
   const getCountryLabel = (country) => {
     if (country.startsWith('__region_')) {
