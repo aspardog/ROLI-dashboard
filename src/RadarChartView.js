@@ -268,7 +268,7 @@ export default function RadarChartView({
                     x={newX}
                     y={newY + 4}
                     fill={COLORS.muted}
-                    fontSize={12}
+                    fontSize={16}
                     textAnchor="middle"
                   >
                     {payload.value.toFixed(1)}
