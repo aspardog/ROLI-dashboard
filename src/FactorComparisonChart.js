@@ -257,12 +257,12 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
 
   const chartHeight = selectedCountries.length === 1 ? 550 :
                       selectedCountries.length === 2 ? 600 :
-                      selectedCountries.length === 3 ? 700 :
-                      selectedCountries.length === 4 ? 800 : 900;
+                      selectedCountries.length === 3 ? 750 :
+                      selectedCountries.length === 4 ? 900 : 1100;
 
   const categoryGap = selectedCountries.length <= 2 ? '35%' :
-                      selectedCountries.length === 3 ? '45%' :
-                      selectedCountries.length === 4 ? '55%' : '65%';
+                      selectedCountries.length === 3 ? '50%' :
+                      selectedCountries.length === 4 ? '70%' : '100%';
 
   return (
     <div className="chart-card" style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
