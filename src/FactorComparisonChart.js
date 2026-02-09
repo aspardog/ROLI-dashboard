@@ -44,10 +44,10 @@ const CustomYAxisTick = ({ x, y, payload }) => {
       {lines.map((line, i) => (
         <text
           key={i}
-          x={0}
+          x={-200}
           y={0}
           dy={i * 16 - (lines.length - 1) * 8}
-          textAnchor="end"
+          textAnchor="start"
           fill={COLORS.text}
           fontSize={15}
           fontWeight={400}
