@@ -170,9 +170,9 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
     if (!svg) return;
     const bbox = svg.getBBox();
     const pad = 8;
-    const legendH = 60; // Increased height for legend
+    const legendH = 60; // Space for legend at top
     const vbX = bbox.x - pad;
-    const vbY = bbox.y - pad;
+    const vbY = bbox.y - pad - legendH;
     const vbW = bbox.width + pad * 2;
     const vbH = bbox.height + pad * 2 + legendH;
     const clone = svg.cloneNode(true);
@@ -185,9 +185,9 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
       return e;
     };
 
-    // Helper: create a text element with content
+    // Helper: create a text element with content - BIGGER font
     const txt = (x, y, content) => {
-      const t = el('text', { x, y, fill: COLORS.muted, 'font-size': 13, 'font-weight': 500, 'font-family': "'Inter Tight', sans-serif" });
+      const t = el('text', { x, y, fill: COLORS.text, 'font-size': 16, 'font-weight': 500, 'font-family': "'Inter Tight', sans-serif" });
       t.textContent = content;
       return t;
     };
@@ -210,22 +210,23 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
     // White background covering chart + legend
     clone.insertBefore(el('rect', { x: vbX, y: vbY, width: vbW, height: vbH, fill: 'white' }), clone.firstChild);
 
-    // Legend entries — positioned just below the content bbox
+    // Legend entries — positioned at TOP (bigger bars and text)
     const lx = vbX + 24;
-    const ly = bbox.y + bbox.height + pad + 15;
-    const ty = bbox.y + bbox.height + pad + 27;
+    const ly = vbY + 20;
+    const barHeight = 5; // Thicker color bars (was 3)
+    const ty = ly + 12;
 
     let currentX = lx;
     selectedCountries.forEach((country, index) => {
       const label = getCountryLabel(country);
       const color = COMPARISON_COLORS[index % COMPARISON_COLORS.length];
 
-      // Color bar for this country
-      clone.appendChild(el('rect', { x: currentX, y: ly, width: 20, height: 3, fill: color, rx: 2 }));
-      clone.appendChild(txt(currentX + 24, ty, label));
+      // Color bar for this country (thicker)
+      clone.appendChild(el('rect', { x: currentX, y: ly, width: 30, height: barHeight, fill: color, rx: 2 }));
+      clone.appendChild(txt(currentX + 36, ty, label));
 
       // Move to next position (approximate width based on label length)
-      currentX += label.length * 7 + 40;
+      currentX += label.length * 9 + 50;
     });
 
     const blob = new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml' });

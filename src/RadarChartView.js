@@ -73,12 +73,28 @@ export default function RadarChartView({
     if (!svg) return;
     const bbox = svg.getBBox();
     const pad = 8;
+    const legendH = 60; // Space for legend at top
     const vbX = bbox.x - pad;
-    const vbY = bbox.y - pad;
+    const vbY = bbox.y - pad - legendH;
     const vbW = bbox.width + pad * 2;
-    const vbH = bbox.height + pad * 2;
+    const vbH = bbox.height + pad * 2 + legendH;
     const clone = svg.cloneNode(true);
     const ns = 'http://www.w3.org/2000/svg';
+
+    // Helper: create an SVG element with attributes
+    const el = (tag, attrs) => {
+      const e = document.createElementNS(ns, tag);
+      Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, String(v)));
+      return e;
+    };
+
+    // Helper: create a text element with content
+    const txt = (x, y, content) => {
+      const t = el('text', { x, y, fill: COLORS.text, 'font-size': 16, 'font-weight': 500, 'font-family': "'Inter Tight', sans-serif" });
+      t.textContent = content;
+      return t;
+    };
+
     clone.setAttribute('width', vbW);
     clone.setAttribute('height', vbH);
     clone.setAttribute('viewBox', `${vbX} ${vbY} ${vbW} ${vbH}`);
@@ -99,6 +115,21 @@ export default function RadarChartView({
     bg.setAttribute('width', vbW); bg.setAttribute('height', vbH);
     bg.setAttribute('fill', 'white');
     clone.insertBefore(bg, clone.firstChild);
+
+    // Add legend at top
+    const lx = vbX + 24;
+    const ly = vbY + 20;
+    const lineY = ly + 5;
+    const textY = ly + 10;
+
+    let currentX = lx;
+    selectedYears.forEach(year => {
+      const color = YEAR_COLORS[year];
+      // Color line for this year
+      clone.appendChild(el('rect', { x: currentX, y: lineY, width: 30, height: 4, fill: color, rx: 2 }));
+      clone.appendChild(txt(currentX + 36, textY, year));
+      currentX += year.length * 10 + 70; // Space for next legend item
+    });
 
     const blob = new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);

@@ -31,9 +31,9 @@ export default function TopBottomChart({ allData, selectedRegion, selectedYear, 
     if (!svg) return;
     const bbox    = svg.getBBox();
     const pad     = 8;
-    const legendH = 44;
+    const legendH = 60; // Increased space for larger legend at top
     const vbX     = bbox.x  - pad;
-    const vbY     = bbox.y  - pad;
+    const vbY     = bbox.y  - pad - legendH;
     const vbW     = bbox.width  + pad * 2;
     const vbH     = bbox.height + pad * 2 + legendH;
     const clone   = svg.cloneNode(true);
@@ -45,9 +45,9 @@ export default function TopBottomChart({ allData, selectedRegion, selectedYear, 
       Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, String(v)));
       return e;
     };
-    // Helper: create a text element with content
+    // Helper: create a text element with content - BIGGER font
     const txt = (x, y, content) => {
-      const t = el('text', { x, y, fill: COLORS.muted, 'font-size': 13, 'font-weight': 500, 'font-family': "'Inter Tight', sans-serif" });
+      const t = el('text', { x, y, fill: COLORS.text, 'font-size': 16, 'font-weight': 500, 'font-family': "'Inter Tight', sans-serif" });
       t.textContent = content;
       return t;
     };
@@ -73,22 +73,23 @@ export default function TopBottomChart({ allData, selectedRegion, selectedYear, 
     // White background covering chart + legend
     clone.insertBefore(el('rect', { x: vbX, y: vbY, width: vbW, height: vbH, fill: 'white' }), clone.firstChild);
 
-    // Legend strip — positioned just below the content bbox
+    // Legend — positioned at TOP of chart (bigger boxes and text)
     const lx = vbX + 24;
-    const ly = bbox.y + bbox.height + pad + 15;
-    const ty = bbox.y + bbox.height + pad + 27;
+    const ly = vbY + 20;
+    const boxSize = 18; // Larger boxes (was 14)
+    const ty = ly + 14;
 
-    clone.appendChild(el('rect',  { x: lx,      y: ly, width: 14, height: 14, fill: COLORS.top5,    rx: 3 }));
-    clone.appendChild(txt(lx + 18,  ty, 'Top 5'));
+    clone.appendChild(el('rect',  { x: lx,      y: ly, width: boxSize, height: boxSize, fill: COLORS.top5,    rx: 3 }));
+    clone.appendChild(txt(lx + 24,  ty, `Top ${splitCount}`));
 
-    clone.appendChild(el('rect',  { x: lx + 83, y: ly, width: 14, height: 14, fill: COLORS.bottom5, rx: 3 }));
-    clone.appendChild(txt(lx + 101, ty, 'Bottom 5'));
+    clone.appendChild(el('rect',  { x: lx + 110, y: ly, width: boxSize, height: boxSize, fill: COLORS.bottom5, rx: 3 }));
+    clone.appendChild(txt(lx + 134, ty, `Bottom ${splitCount}`));
 
-    // Average dashed-line legend entry (mirrors the dashboard sidebar)
+    // Average dashed-line legend entry
     if (average !== null) {
-      const avgLx = lx + 195;
-      clone.appendChild(el('line', { x1: avgLx, y1: ly + 7, x2: avgLx + 22, y2: ly + 7, stroke: COLORS.muted, 'stroke-width': 1.5, 'stroke-dasharray': '5 3' }));
-      clone.appendChild(txt(avgLx + 28, ty, `${regionLabel} Avg: ${average.toFixed(2)}`));
+      const avgLx = lx + 260;
+      clone.appendChild(el('line', { x1: avgLx, y1: ly + 9, x2: avgLx + 30, y2: ly + 9, stroke: COLORS.muted, 'stroke-width': 2, 'stroke-dasharray': '6 4' }));
+      clone.appendChild(txt(avgLx + 36, ty, `${regionLabel} Avg: ${average.toFixed(2)}`));
     }
 
     const blob = new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml' });
