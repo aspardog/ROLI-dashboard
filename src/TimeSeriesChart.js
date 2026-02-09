@@ -105,7 +105,7 @@ export default function TimeSeriesChart({ allData, country, variable, label, sel
             <YAxis
               domain={[yMin, yMax]}
               ticks={yTicks}
-              tickFormatter={(v) => v.toFixed(1)}
+              tickFormatter={(v) => v.toFixed(2)}
               tick={{ fontSize: 13, fill: TS_COLORS.axis }}
               axisLine={{ stroke: TS_COLORS.grid, strokeWidth: 1 }}
               tickLine={false}
