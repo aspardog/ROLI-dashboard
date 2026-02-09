@@ -47,7 +47,7 @@ export default function TopBottomChart({ allData, selectedRegion, selectedYear, 
     };
     // Helper: create a text element with content - BIGGER font
     const txt = (x, y, content) => {
-      const t = el('text', { x, y, fill: COLORS.text, 'font-size': 16, 'font-weight': 500, 'font-family': "'Inter Tight', sans-serif" });
+      const t = el('text', { x, y, fill: COLORS.text, 'font-size': 16, 'font-weight': 500, 'font-family': "'Inter Tight', sans-serif", 'dominant-baseline': 'middle' });
       t.textContent = content;
       return t;
     };
@@ -73,23 +73,24 @@ export default function TopBottomChart({ allData, selectedRegion, selectedYear, 
     // White background covering chart + legend
     clone.insertBefore(el('rect', { x: vbX, y: vbY, width: vbW, height: vbH, fill: 'white' }), clone.firstChild);
 
-    // Legend — positioned at TOP of chart (bigger boxes and text)
+    // Legend — positioned at TOP of chart (bigger boxes and text, vertically centered)
     const lx = vbX + 24;
     const ly = vbY + 20;
-    const boxSize = 18; // Larger boxes (was 14)
-    const ty = ly + 14;
+    const boxSize = 18; // Larger boxes
+    const centerY = ly + boxSize / 2; // Center of the box
 
     clone.appendChild(el('rect',  { x: lx,      y: ly, width: boxSize, height: boxSize, fill: COLORS.top5,    rx: 3 }));
-    clone.appendChild(txt(lx + 24,  ty, `Top ${splitCount}`));
+    clone.appendChild(txt(lx + 24,  centerY, `Top ${splitCount}`));
 
     clone.appendChild(el('rect',  { x: lx + 110, y: ly, width: boxSize, height: boxSize, fill: COLORS.bottom5, rx: 3 }));
-    clone.appendChild(txt(lx + 134, ty, `Bottom ${splitCount}`));
+    clone.appendChild(txt(lx + 134, centerY, `Bottom ${splitCount}`));
 
     // Average dashed-line legend entry
     if (average !== null) {
       const avgLx = lx + 260;
-      clone.appendChild(el('line', { x1: avgLx, y1: ly + 9, x2: avgLx + 30, y2: ly + 9, stroke: COLORS.muted, 'stroke-width': 2, 'stroke-dasharray': '6 4' }));
-      clone.appendChild(txt(avgLx + 36, ty, `${regionLabel} Avg: ${average.toFixed(2)}`));
+      const lineY = ly + boxSize / 2; // Center the line vertically with boxes
+      clone.appendChild(el('line', { x1: avgLx, y1: lineY, x2: avgLx + 30, y2: lineY, stroke: COLORS.muted, 'stroke-width': 2, 'stroke-dasharray': '6 4' }));
+      clone.appendChild(txt(avgLx + 36, centerY, `${regionLabel} Avg: ${average.toFixed(2)}`));
     }
 
     const blob = new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml' });

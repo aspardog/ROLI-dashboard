@@ -187,7 +187,7 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
 
     // Helper: create a text element with content - BIGGER font
     const txt = (x, y, content) => {
-      const t = el('text', { x, y, fill: COLORS.text, 'font-size': 16, 'font-weight': 500, 'font-family': "'Inter Tight', sans-serif" });
+      const t = el('text', { x, y, fill: COLORS.text, 'font-size': 16, 'font-weight': 500, 'font-family': "'Inter Tight', sans-serif", 'dominant-baseline': 'middle' });
       t.textContent = content;
       return t;
     };
@@ -210,11 +210,11 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
     // White background covering chart + legend
     clone.insertBefore(el('rect', { x: vbX, y: vbY, width: vbW, height: vbH, fill: 'white' }), clone.firstChild);
 
-    // Legend entries — positioned at TOP (bigger bars and text)
+    // Legend entries — positioned at TOP (bigger bars and text, vertically centered)
     const lx = vbX + 24;
     const ly = vbY + 20;
-    const barHeight = 5; // Thicker color bars (was 3)
-    const ty = ly + 12;
+    const barHeight = 5; // Thicker color bars
+    const centerY = ly + barHeight / 2; // Center of the bar
 
     let currentX = lx;
     selectedCountries.forEach((country, index) => {
@@ -223,7 +223,8 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
 
       // Color bar for this country (thicker)
       clone.appendChild(el('rect', { x: currentX, y: ly, width: 30, height: barHeight, fill: color, rx: 2 }));
-      clone.appendChild(txt(currentX + 36, ty, label));
+      // Text centered vertically with the bar
+      clone.appendChild(txt(currentX + 36, centerY, label));
 
       // Move to next position (approximate width based on label length)
       currentX += label.length * 9 + 50;

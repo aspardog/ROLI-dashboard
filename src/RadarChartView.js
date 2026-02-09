@@ -90,7 +90,7 @@ export default function RadarChartView({
 
     // Helper: create a text element with content
     const txt = (x, y, content) => {
-      const t = el('text', { x, y, fill: COLORS.text, 'font-size': 16, 'font-weight': 500, 'font-family': "'Inter Tight', sans-serif" });
+      const t = el('text', { x, y, fill: COLORS.text, 'font-size': 16, 'font-weight': 500, 'font-family': "'Inter Tight', sans-serif", 'dominant-baseline': 'middle' });
       t.textContent = content;
       return t;
     };
@@ -116,18 +116,19 @@ export default function RadarChartView({
     bg.setAttribute('fill', 'white');
     clone.insertBefore(bg, clone.firstChild);
 
-    // Add legend at top
+    // Add legend at top (vertically centered)
     const lx = vbX + 24;
     const ly = vbY + 20;
-    const lineY = ly + 5;
-    const textY = ly + 10;
+    const barHeight = 4;
+    const centerY = ly + barHeight / 2; // Center of the bar
 
     let currentX = lx;
     selectedYears.forEach(year => {
       const color = YEAR_COLORS[year];
       // Color line for this year
-      clone.appendChild(el('rect', { x: currentX, y: lineY, width: 30, height: 4, fill: color, rx: 2 }));
-      clone.appendChild(txt(currentX + 36, textY, year));
+      clone.appendChild(el('rect', { x: currentX, y: ly, width: 30, height: barHeight, fill: color, rx: 2 }));
+      // Text centered vertically with the bar
+      clone.appendChild(txt(currentX + 36, centerY, year));
       currentX += year.length * 10 + 70; // Space for next legend item
     });
 
