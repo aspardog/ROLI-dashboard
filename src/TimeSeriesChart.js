@@ -29,15 +29,10 @@ export default function TimeSeriesChart({ allData, country, variable, label, sel
 
   if (series.length < 2) return null;
 
-  const values = series.map(d => d.value);
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const yMin = Math.floor((min - 0.06) * 50) / 50;   // round down to nearest 0.02
-  const yMax = Math.ceil((max + 0.06) * 50) / 50;     // round up to nearest 0.02
-  const yTicks = [];
-  for (let v = yMin; v <= yMax + 0.001; v += 0.02) {
-    yTicks.push(Math.round(v * 100) / 100);
-  }
+  // Fixed scale from 0 to 1
+  const yMin = 0;
+  const yMax = 1;
+  const yTicks = [0, 0.2, 0.4, 0.6, 0.8, 1.0];
 
   const title = country === '__regional_avg__' ? (selectedRegion === 'global' ? 'Global Average' : `${regionLabel} — Regional Average`) : country;
 
@@ -110,7 +105,7 @@ export default function TimeSeriesChart({ allData, country, variable, label, sel
             <YAxis
               domain={[yMin, yMax]}
               ticks={yTicks}
-              tickFormatter={(v) => v.toFixed(2)}
+              tickFormatter={(v) => v.toFixed(1)}
               tick={{ fontSize: 13, fill: TS_COLORS.axis }}
               axisLine={{ stroke: TS_COLORS.grid, strokeWidth: 1 }}
               tickLine={false}
