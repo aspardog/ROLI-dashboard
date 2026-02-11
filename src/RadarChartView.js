@@ -1,7 +1,9 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, memo } from 'react';
+import PropTypes from 'prop-types';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import { COLORS } from './constants';
-import { getEmbeddedFontCSS } from './svgExport';
+import { prepareSVGClone, embedFonts, addWhiteBackground, createLegendItem, downloadSVG as downloadSVGHelper } from './svgExportHelpers';
+import ChartCard from './components/ChartCard';
 
 const YEAR_COLORS = {
   '2019': '#95a3a6',
@@ -13,7 +15,7 @@ const YEAR_COLORS = {
   '2025': '#003B88'
 };
 
-export default function RadarChartView({
+function RadarChartView({
   allData,
   selectedRegion,
   selectedCountry,
@@ -71,97 +73,42 @@ export default function RadarChartView({
   async function downloadSVG() {
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
-    const bbox = svg.getBBox();
-    const pad = 8;
-    const legendH = 60; // Space for legend at top
-    const vbX = bbox.x - pad;
-    const vbY = bbox.y - pad - legendH;
-    const vbW = bbox.width + pad * 2;
-    const vbH = bbox.height + pad * 2 + legendH;
-    const clone = svg.cloneNode(true);
-    const ns = 'http://www.w3.org/2000/svg';
 
-    // Helper: create an SVG element with attributes
-    const el = (tag, attrs) => {
-      const e = document.createElementNS(ns, tag);
-      Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, String(v)));
-      return e;
-    };
+    const { clone, vbX, vbY, vbW, vbH } = prepareSVGClone(svg, 60, 'top');
+    await embedFonts(clone);
+    addWhiteBackground(clone, vbX, vbY, vbW, vbH);
 
-    // Helper: create a text element with content
-    const txt = (x, y, content) => {
-      const t = el('text', { x, y, fill: COLORS.text, 'font-size': 16, 'font-weight': 500, 'font-family': "'Inter Tight', sans-serif", 'dominant-baseline': 'middle' });
-      t.textContent = content;
-      return t;
-    };
-
-    clone.setAttribute('width', vbW);
-    clone.setAttribute('height', vbH);
-    clone.setAttribute('viewBox', `${vbX} ${vbY} ${vbW} ${vbH}`);
-    clone.setAttribute('xmlns', ns);
-
-    const fontCSS = await getEmbeddedFontCSS();
-    const styleEl = document.createElementNS(ns, 'style');
-    styleEl.textContent = fontCSS;
-    clone.insertBefore(styleEl, clone.firstChild);
-
-    clone.querySelectorAll('text').forEach(t => {
-      t.setAttribute('font-family', "'Inter Tight', sans-serif");
-      t.style.fontFamily = "'Inter Tight', sans-serif";
-    });
-
-    const bg = document.createElementNS(ns, 'rect');
-    bg.setAttribute('x', vbX); bg.setAttribute('y', vbY);
-    bg.setAttribute('width', vbW); bg.setAttribute('height', vbH);
-    bg.setAttribute('fill', 'white');
-    clone.insertBefore(bg, clone.firstChild);
-
-    // Add legend at top (vertically centered)
+    // Add legend items for each year
     const lx = vbX + 24;
     const ly = vbY + 20;
-    const barHeight = 4;
-    const centerY = ly + barHeight / 2; // Center of the bar
-
     let currentX = lx;
+
     selectedYears.forEach(year => {
       const color = YEAR_COLORS[year];
-      // Color line for this year
-      clone.appendChild(el('rect', { x: currentX, y: ly, width: 30, height: barHeight, fill: color, rx: 2 }));
-      // Text centered vertically with the bar
-      clone.appendChild(txt(currentX + 36, centerY, year));
-      currentX += year.length * 10 + 70; // Space for next legend item
+      const legendItems = createLegendItem(currentX, ly, color, year, 'line', { width: 30, height: 4 });
+      legendItems.forEach(el => clone.appendChild(el));
+      currentX += year.length * 10 + 70;
     });
 
-    const blob = new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `ROLI_Radar_${countryLabel}_${selectedYears.join('_')}.svg`.replace(/\s+/g, '_');
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadSVGHelper(clone, `ROLI_Radar_${countryLabel}_${selectedYears.join('_')}.svg`);
   }
 
   if (radarData.length === 0) {
     return (
-      <div className="chart-card" style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
-        <h2 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, margin: '0 0 4px' }}>Radar Chart</h2>
-        <p style={{ fontSize: '14px', color: COLORS.muted, margin: '0 0 20px' }}>Please select a country, factors, and years to display the chart.</p>
-      </div>
+      <ChartCard
+        title="Radar Chart"
+        isEmpty={true}
+        emptyMessage="Please select a country, factors, and years to display the chart."
+      />
     );
   }
 
   return (
-    <div className="chart-card" style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-        <div style={{ flex: 1 }}>
-          <h2 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, margin: '0 0 4px' }}>Comparative Radar Chart</h2>
-          <p style={{ fontSize: '14px', color: COLORS.muted, margin: '0' }}>{countryLabel}</p>
-        </div>
-        <button onClick={downloadSVG} style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', fontSize: '13px', fontWeight: '600', color: 'white', backgroundColor: COLORS.top5, border: 'none', borderRadius: '6px', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.12)', marginTop: '0' }}>
-          <span style={{ fontSize: '16px' }}>↓</span> Export SVG
-        </button>
-      </div>
-
+    <ChartCard
+      title="Comparative Radar Chart"
+      subtitle={countryLabel}
+      onExport={downloadSVG}
+    >
       {/* Legend */}
       <div className="legend-container" style={{ display: 'flex', gap: '20px', marginBottom: '20px', flexWrap: 'wrap' }}>
         {selectedYears.map(year => (
@@ -292,6 +239,20 @@ export default function RadarChartView({
           </RadarChart>
         </ResponsiveContainer>
       </div>
-    </div>
+    </ChartCard>
   );
 }
+
+RadarChartView.propTypes = {
+  allData: PropTypes.arrayOf(PropTypes.object).isRequired,
+  selectedRegion: PropTypes.string.isRequired,
+  selectedCountry: PropTypes.string.isRequired,
+  selectedFactors: PropTypes.arrayOf(PropTypes.shape({
+    value: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired
+  })).isRequired,
+  selectedYears: PropTypes.arrayOf(PropTypes.string).isRequired,
+  countryLabel: PropTypes.string.isRequired
+};
+
+export default memo(RadarChartView);

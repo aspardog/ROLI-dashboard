@@ -1,9 +1,11 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, memo } from 'react';
+import PropTypes from 'prop-types';
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, ResponsiveContainer, LabelList } from 'recharts';
-import { COLORS, TS_COLORS } from './constants';
-import { getEmbeddedFontCSS } from './svgExport';
+import { TS_COLORS } from './constants';
+import { prepareSVGClone, embedFonts, addWhiteBackground, downloadSVG as downloadSVGHelper } from './svgExportHelpers';
+import ChartCard from './components/ChartCard';
 
-export default function TimeSeriesChart({ allData, country, variable, label, selectedRegion, regionLabel }) {
+function TimeSeriesChart({ allData, country, variable, label, selectedRegion, regionLabel }) {
   const chartRef = useRef(null);
 
   const series = useMemo(() => {
@@ -39,58 +41,20 @@ export default function TimeSeriesChart({ allData, country, variable, label, sel
   async function downloadSVG() {
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
-    const bbox  = svg.getBBox();
-    const pad   = 8;
-    const vbX   = bbox.x  - pad;
-    const vbY   = bbox.y  - pad;
-    const vbW   = bbox.width  + pad * 2;
-    const vbH   = bbox.height + pad * 2;
-    const clone = svg.cloneNode(true);
-    const ns    = 'http://www.w3.org/2000/svg';
-    clone.setAttribute('width', vbW);
-    clone.setAttribute('height', vbH);
-    clone.setAttribute('viewBox', `${vbX} ${vbY} ${vbW} ${vbH}`);
-    clone.setAttribute('xmlns', ns);
 
-    // Embed Inter Tight font so the SVG is self-contained
-    const fontCSS = await getEmbeddedFontCSS();
-    const styleEl = document.createElementNS(ns, 'style');
-    styleEl.textContent = fontCSS;
-    clone.insertBefore(styleEl, clone.firstChild);
+    const { clone, vbX, vbY, vbW, vbH } = prepareSVGClone(svg, 0, 'top');
+    await embedFonts(clone);
+    addWhiteBackground(clone, vbX, vbY, vbW, vbH);
 
-    // Recharts doesn't set font-family on <text> nodes; force it so the
-    // embedded @font-face actually gets used.
-    clone.querySelectorAll('text').forEach(t => {
-      t.setAttribute('font-family', "'Inter Tight', sans-serif");
-      t.style.fontFamily = "'Inter Tight', sans-serif";
-    });
-
-    const bg = document.createElementNS(ns, 'rect');
-    bg.setAttribute('x', vbX); bg.setAttribute('y', vbY);
-    bg.setAttribute('width', vbW); bg.setAttribute('height', vbH);
-    bg.setAttribute('fill', 'white');
-    clone.insertBefore(bg, clone.firstChild);
-
-    const blob = new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `ROLI_${title}_${variable}.svg`.replace(/\s+/g, '_');
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadSVGHelper(clone, `ROLI_${title}_${variable}.svg`);
   }
 
   return (
-    <div className="chart-card" style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-        <div style={{ flex: 1 }}>
-          <h2 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, margin: '0 0 4px' }}>{title} — {label}</h2>
-          <p style={{ fontSize: '14px', color: COLORS.muted, margin: '0' }}>2019–2025</p>
-        </div>
-        <button onClick={downloadSVG} style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', fontSize: '13px', fontWeight: '600', color: 'white', backgroundColor: COLORS.top5, border: 'none', borderRadius: '6px', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.12)', marginTop: '0' }}>
-          <span style={{ fontSize: '16px' }}>↓</span> Export SVG
-        </button>
-      </div>
+    <ChartCard
+      title={`${title} — ${label}`}
+      subtitle="2019–2025"
+      onExport={downloadSVG}
+    >
       <div ref={chartRef}>
         <ResponsiveContainer width="100%" height={500}>
           <LineChart data={series} margin={{ top: 24, right: 32, left: 16, bottom: 8 }}>
@@ -139,6 +103,17 @@ export default function TimeSeriesChart({ allData, country, variable, label, sel
           </LineChart>
         </ResponsiveContainer>
       </div>
-    </div>
+    </ChartCard>
   );
 }
+
+TimeSeriesChart.propTypes = {
+  allData: PropTypes.arrayOf(PropTypes.object).isRequired,
+  country: PropTypes.string.isRequired,
+  variable: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  selectedRegion: PropTypes.string.isRequired,
+  regionLabel: PropTypes.string.isRequired
+};
+
+export default memo(TimeSeriesChart);

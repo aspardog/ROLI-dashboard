@@ -1,13 +1,17 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import { ACTIVE_YEAR, REGION_OPTIONS, VARIABLE_OPTIONS, SUBFACTOR_GROUPS, COLORS } from './src/constants';
-import TopBottomChart from './src/TopBottomChart';
-import TimeSeriesChart from './src/TimeSeriesChart';
-import RadarChartView from './src/RadarChartView';
-import FactorComparisonChart from './src/FactorComparisonChart';
 import './src/responsive.css';
+
+// Lazy load chart components for better initial bundle size
+const TopBottomChart = lazy(() => import('./src/TopBottomChart'));
+const TimeSeriesChart = lazy(() => import('./src/TimeSeriesChart'));
+const RadarChartView = lazy(() => import('./src/RadarChartView'));
+const FactorComparisonChart = lazy(() => import('./src/FactorComparisonChart'));
 
 export default function ROLIDashboard() {
   const [allData, setAllData] = useState([]);
+  const [isLoadingData, setIsLoadingData] = useState(true);
+  const [dataError, setDataError] = useState(null);
   const [selectedRegion, setSelectedRegion] = useState('global');
   const [selectedVariable, setSelectedVariable] = useState('roli');
   const [selectedCountry, setSelectedCountry] = useState('__regional_avg__');
@@ -30,9 +34,21 @@ export default function ROLIDashboard() {
   const regionLabel = REGION_OPTIONS.find(opt => opt.value === selectedRegion)?.label || selectedRegion;
 
   useEffect(() => {
+    setIsLoadingData(true);
     fetch('/roli_data.json')
-      .then(res => res.json())
-      .then(json => setAllData(json));
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to load data');
+        return res.json();
+      })
+      .then(json => {
+        setAllData(json);
+        setIsLoadingData(false);
+      })
+      .catch(err => {
+        console.error('Error loading data:', err);
+        setDataError(err.message);
+        setIsLoadingData(false);
+      });
   }, []);
 
   const roliData = useMemo(() => {
@@ -57,6 +73,33 @@ export default function ROLIDashboard() {
     </div>;
   }
 
+  // Show loading state
+  if (isLoadingData) {
+    return (
+      <div style={{ minHeight: '100vh', backgroundColor: COLORS.background, fontFamily: "'Inter Tight', sans-serif", display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '18px', fontWeight: '600', color: COLORS.text, marginBottom: '12px' }}>Loading ROLI Data...</div>
+          <div style={{ fontSize: '14px', color: COLORS.muted }}>Please wait while we load the data</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (dataError) {
+    return (
+      <div style={{ minHeight: '100vh', backgroundColor: COLORS.background, fontFamily: "'Inter Tight', sans-serif", display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ textAlign: 'center', maxWidth: '500px', padding: '24px' }}>
+          <div style={{ fontSize: '18px', fontWeight: '600', color: '#c0392b', marginBottom: '12px' }}>Error Loading Data</div>
+          <div style={{ fontSize: '14px', color: COLORS.muted, marginBottom: '16px' }}>{dataError}</div>
+          <button onClick={() => window.location.reload()} style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '600', color: 'white', backgroundColor: COLORS.top5, border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="dashboard-container" style={{ minHeight: '100vh', backgroundColor: COLORS.background, fontFamily: "'Inter Tight', sans-serif", padding: '32px 24px' }}>
       {/* Header */}
@@ -65,7 +108,9 @@ export default function ROLIDashboard() {
           <div className="accent-bar" style={{ width: '6px', height: '48px', backgroundColor: COLORS.top5, borderRadius: '3px' }} />
           <h1 style={{ fontSize: '32px', fontWeight: '700', color: COLORS.text, margin: 0, letterSpacing: '-0.5px' }}>Rule of Law Index – Data Visualization Tool</h1>
         </div>
-
+        <p style={{ fontSize: '15px', lineHeight: '1.6', color: COLORS.muted, margin: '16px 0 0 22px', maxWidth: '900px' }}>
+          This interactive dashboard helps visualize and explore findings from the World Justice Project's Rule of Law Index, enabling deeper insights into how the rule of law is experienced across countries and regions worldwide. Use the chart type toggles to switch between different visualizations, select regions and variables to filter the data, and compare performance across countries, factors, and time periods. Export any chart as SVG for presentations or reports.
+        </p>
       </div>
 
       {/* Controls */}
@@ -159,8 +204,13 @@ export default function ROLIDashboard() {
 
       {/* Charts */}
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-        {chartType === 'topbottom' && <TopBottomChart allData={allData} selectedRegion={selectedRegion} selectedYear={selectedYear} variable={selectedVariable} label={selectedLabel} regionLabel={regionLabel} />}
-        {chartType === 'timeseries' && selectedCountry && <TimeSeriesChart allData={allData} country={selectedCountry} variable={selectedVariable} label={selectedLabel} selectedRegion={selectedRegion} regionLabel={regionLabel} />}
+        <Suspense fallback={
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+            <p style={{ fontSize: '16px', color: COLORS.muted }}>Loading chart...</p>
+          </div>
+        }>
+          {chartType === 'topbottom' && <TopBottomChart allData={allData} selectedRegion={selectedRegion} selectedYear={selectedYear} variable={selectedVariable} label={selectedLabel} regionLabel={regionLabel} />}
+          {chartType === 'timeseries' && selectedCountry && <TimeSeriesChart allData={allData} country={selectedCountry} variable={selectedVariable} label={selectedLabel} selectedRegion={selectedRegion} regionLabel={regionLabel} />}
         {chartType === 'factors' && (
           <FactorComparisonChart
             allData={allData}
@@ -326,6 +376,7 @@ export default function ROLIDashboard() {
             </div>
           </>
         )}
+        </Suspense>
       </div>
 
       {/* Footer */}

@@ -1,9 +1,11 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, memo } from 'react';
+import PropTypes from 'prop-types';
 import { BarChart, Bar, XAxis, YAxis, Cell, ResponsiveContainer, LabelList, ReferenceLine } from 'recharts';
 import { COLORS } from './constants';
-import { getEmbeddedFontCSS } from './svgExport';
+import { prepareSVGClone, embedFonts, addWhiteBackground, createLegendItem, downloadSVG as downloadSVGHelper } from './svgExportHelpers';
+import ChartCard from './components/ChartCard';
 
-export default function TopBottomChart({ allData, selectedRegion, selectedYear, variable, label, regionLabel }) {
+function TopBottomChart({ allData, selectedRegion, selectedYear, variable, label, regionLabel }) {
   const data = useMemo(() => {
     const byYear = allData.filter(d => d.year === selectedYear);
     return selectedRegion === 'global' ? byYear : byYear.filter(d => d.region === selectedRegion);
@@ -29,90 +31,36 @@ export default function TopBottomChart({ allData, selectedRegion, selectedYear, 
   async function downloadSVG() {
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
-    const bbox    = svg.getBBox();
-    const pad     = 8;
-    const legendH = 60; // Increased space for larger legend at top
-    const vbX     = bbox.x  - pad;
-    const vbY     = bbox.y  - pad - legendH;
-    const vbW     = bbox.width  + pad * 2;
-    const vbH     = bbox.height + pad * 2 + legendH;
-    const clone   = svg.cloneNode(true);
-    const ns      = 'http://www.w3.org/2000/svg';
 
-    // Helper: create an SVG element with attributes
-    const el = (tag, attrs) => {
-      const e = document.createElementNS(ns, tag);
-      Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, String(v)));
-      return e;
-    };
-    // Helper: create a text element with content - BIGGER font
-    const txt = (x, y, content) => {
-      const t = el('text', { x, y, fill: COLORS.text, 'font-size': 16, 'font-weight': 500, 'font-family': "'Inter Tight', sans-serif", 'dominant-baseline': 'middle' });
-      t.textContent = content;
-      return t;
-    };
+    const { clone, vbX, vbY, vbW, vbH } = prepareSVGClone(svg, 60, 'top');
+    await embedFonts(clone);
+    addWhiteBackground(clone, vbX, vbY, vbW, vbH);
 
-    clone.setAttribute('width', vbW);
-    clone.setAttribute('height', vbH);
-    clone.setAttribute('viewBox', `${vbX} ${vbY} ${vbW} ${vbH}`);
-    clone.setAttribute('xmlns', ns);
-
-    // Embed Inter Tight font so the SVG is self-contained
-    const fontCSS = await getEmbeddedFontCSS();
-    const styleEl = document.createElementNS(ns, 'style');
-    styleEl.textContent = fontCSS;
-    clone.insertBefore(styleEl, clone.firstChild);
-
-    // Recharts doesn't set font-family on <text> nodes; force it so the
-    // embedded @font-face actually gets used.
-    clone.querySelectorAll('text').forEach(t => {
-      t.setAttribute('font-family', "'Inter Tight', sans-serif");
-      t.style.fontFamily = "'Inter Tight', sans-serif";
-    });
-
-    // White background covering chart + legend
-    clone.insertBefore(el('rect', { x: vbX, y: vbY, width: vbW, height: vbH, fill: 'white' }), clone.firstChild);
-
-    // Legend — positioned at TOP of chart (bigger boxes and text, vertically centered)
+    // Add legend items
     const lx = vbX + 24;
     const ly = vbY + 20;
-    const boxSize = 18; // Larger boxes
-    const centerY = ly + boxSize / 2; // Center of the box
+    const boxSize = 18;
 
-    clone.appendChild(el('rect',  { x: lx,      y: ly, width: boxSize, height: boxSize, fill: COLORS.top5,    rx: 3 }));
-    clone.appendChild(txt(lx + 24,  centerY, `Top ${splitCount}`));
+    const legendItems = createLegendItem(lx, ly, COLORS.top5, `Top ${splitCount}`, 'box', { size: boxSize });
+    legendItems.forEach(el => clone.appendChild(el));
 
-    clone.appendChild(el('rect',  { x: lx + 110, y: ly, width: boxSize, height: boxSize, fill: COLORS.bottom5, rx: 3 }));
-    clone.appendChild(txt(lx + 134, centerY, `Bottom ${splitCount}`));
+    const legendItems2 = createLegendItem(lx + 110, ly, COLORS.bottom5, `Bottom ${splitCount}`, 'box', { size: boxSize });
+    legendItems2.forEach(el => clone.appendChild(el));
 
-    // Average dashed-line legend entry
     if (average !== null) {
-      const avgLx = lx + 260;
-      const lineY = ly + boxSize / 2; // Center the line vertically with boxes
-      clone.appendChild(el('line', { x1: avgLx, y1: lineY, x2: avgLx + 30, y2: lineY, stroke: COLORS.muted, 'stroke-width': 2, 'stroke-dasharray': '6 4' }));
-      clone.appendChild(txt(avgLx + 36, centerY, `${regionLabel} Avg: ${average.toFixed(2)}`));
+      const avgItems = createLegendItem(lx + 260, ly, COLORS.muted, `${regionLabel} Avg: ${average.toFixed(2)}`, 'dashed-line', { width: 30, size: boxSize });
+      avgItems.forEach(el => clone.appendChild(el));
     }
 
-    const blob = new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `ROLI_${regionLabel}_${variable}_${selectedYear}.svg`.replace(/\s+/g, '_');
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadSVGHelper(clone, `ROLI_${regionLabel}_${variable}_${selectedYear}.svg`);
   }
 
   return (
-    <div className="chart-card" style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-        <div style={{ flex: 1 }}>
-          <h2 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, margin: '0 0 4px' }}>Top and Bottom Performers in {label}</h2>
-          <p style={{ fontSize: '14px', color: COLORS.muted, margin: '0' }}>{regionLabel}</p>
-        </div>
-        <button onClick={downloadSVG} style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', fontSize: '13px', fontWeight: '600', color: 'white', backgroundColor: COLORS.top5, border: 'none', borderRadius: '6px', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.12)', marginTop: '0' }}>
-          <span style={{ fontSize: '16px' }}>↓</span> Export SVG
-        </button>
-      </div>
+    <ChartCard
+      title={`Top and Bottom Performers in ${label}`}
+      subtitle={regionLabel}
+      onExport={downloadSVG}
+    >
       <div style={{ display: 'flex', gap: '16px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', paddingTop: '20px', width: '140px', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -186,6 +134,17 @@ export default function TopBottomChart({ allData, selectedRegion, selectedYear, 
         </ResponsiveContainer>
         </div>
       </div>
-    </div>
+    </ChartCard>
   );
 }
+
+TopBottomChart.propTypes = {
+  allData: PropTypes.arrayOf(PropTypes.object).isRequired,
+  selectedRegion: PropTypes.string.isRequired,
+  selectedYear: PropTypes.string.isRequired,
+  variable: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  regionLabel: PropTypes.string.isRequired
+};
+
+export default memo(TopBottomChart);

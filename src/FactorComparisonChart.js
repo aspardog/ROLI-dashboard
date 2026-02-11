@@ -1,7 +1,9 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, memo } from 'react';
+import PropTypes from 'prop-types';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, LabelList, ReferenceLine } from 'recharts';
 import { COLORS, REGION_OPTIONS } from './constants';
-import { getEmbeddedFontCSS } from './svgExport';
+import { prepareSVGClone, embedFonts, addWhiteBackground, createLegendItem, downloadSVG as downloadSVGHelper } from './svgExportHelpers';
+import ChartCard from './components/ChartCard';
 
 const FACTORS = [
   { key: 'f1', label: 'Constraints on Government Power' },
@@ -59,7 +61,7 @@ const CustomYAxisTick = ({ x, y, payload }) => {
   );
 };
 
-export default function FactorComparisonChart({ allData, selectedRegion, selectedYear, availableCountries }) {
+function FactorComparisonChart({ allData, selectedRegion, selectedYear, availableCountries }) {
   const chartRef = useRef(null);
   const [selectedCountries, setSelectedCountries] = useState(['__region_global']);
   const [expandedRegions, setExpandedRegions] = useState({});
@@ -168,86 +170,37 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
   async function downloadSVG() {
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
-    const bbox = svg.getBBox();
-    const pad = 8;
-    const legendH = 60; // Space for legend at top
-    const vbX = bbox.x - pad;
-    const vbY = bbox.y - pad - legendH;
-    const vbW = bbox.width + pad * 2;
-    const vbH = bbox.height + pad * 2 + legendH;
-    const clone = svg.cloneNode(true);
-    const ns = 'http://www.w3.org/2000/svg';
 
-    // Helper: create an SVG element with attributes
-    const el = (tag, attrs) => {
-      const e = document.createElementNS(ns, tag);
-      Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, String(v)));
-      return e;
-    };
+    const { clone, vbX, vbY, vbW, vbH } = prepareSVGClone(svg, 60, 'top');
+    await embedFonts(clone);
+    addWhiteBackground(clone, vbX, vbY, vbW, vbH);
 
-    // Helper: create a text element with content - BIGGER font
-    const txt = (x, y, content) => {
-      const t = el('text', { x, y, fill: COLORS.text, 'font-size': 16, 'font-weight': 500, 'font-family': "'Inter Tight', sans-serif", 'dominant-baseline': 'middle' });
-      t.textContent = content;
-      return t;
-    };
-
-    clone.setAttribute('width', vbW);
-    clone.setAttribute('height', vbH);
-    clone.setAttribute('viewBox', `${vbX} ${vbY} ${vbW} ${vbH}`);
-    clone.setAttribute('xmlns', ns);
-
-    const fontCSS = await getEmbeddedFontCSS();
-    const styleEl = document.createElementNS(ns, 'style');
-    styleEl.textContent = fontCSS;
-    clone.insertBefore(styleEl, clone.firstChild);
-
-    clone.querySelectorAll('text').forEach(t => {
-      t.setAttribute('font-family', "'Inter Tight', sans-serif");
-      t.style.fontFamily = "'Inter Tight', sans-serif";
-    });
-
-    // White background covering chart + legend
-    clone.insertBefore(el('rect', { x: vbX, y: vbY, width: vbW, height: vbH, fill: 'white' }), clone.firstChild);
-
-    // Legend entries — positioned at TOP (bigger bars and text, vertically centered)
+    // Add legend items for each country/region
     const lx = vbX + 24;
     const ly = vbY + 20;
-    const barHeight = 5; // Thicker color bars
-    const centerY = ly + barHeight / 2; // Center of the bar
-
     let currentX = lx;
+
     selectedCountries.forEach((country, index) => {
       const label = getCountryLabel(country);
       const color = COMPARISON_COLORS[index % COMPARISON_COLORS.length];
-
-      // Color bar for this country (thicker)
-      clone.appendChild(el('rect', { x: currentX, y: ly, width: 30, height: barHeight, fill: color, rx: 2 }));
-      // Text centered vertically with the bar
-      clone.appendChild(txt(currentX + 36, centerY, label));
-
-      // Move to next position (approximate width based on label length)
+      const legendItems = createLegendItem(currentX, ly, color, label, 'line', { width: 30, height: 5 });
+      legendItems.forEach(el => clone.appendChild(el));
       currentX += label.length * 9 + 50;
     });
 
-    const blob = new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
     const fileName = selectedCountries.length === 1
       ? `ROLI_Factors_${getCountryLabel(selectedCountries[0])}_${selectedYear}.svg`
       : `ROLI_Factors_Comparison_${selectedYear}.svg`;
-    a.download = fileName.replace(/\s+/g, '_');
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadSVGHelper(clone, fileName);
   }
 
   if (chartData.length === 0) {
     return (
-      <div className="chart-card" style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
-        <h2 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, margin: '0 0 4px' }}>Factor Comparison</h2>
-        <p style={{ fontSize: '14px', color: COLORS.muted, margin: '0 0 20px' }}>Please select countries to compare</p>
-      </div>
+      <ChartCard
+        title="Factor Comparison"
+        isEmpty={true}
+        emptyMessage="Please select countries to compare"
+      />
     );
   }
 
@@ -267,17 +220,11 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
                       selectedCountries.length === 4 ? '70%' : '100%';
 
   return (
-    <div className="chart-card" style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-        <div style={{ flex: 1 }}>
-          <h2 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, margin: '0 0 4px' }}>Factor Comparison</h2>
-          <p style={{ fontSize: '14px', color: COLORS.muted, margin: '0' }}>{selectedYear}</p>
-        </div>
-        <button onClick={downloadSVG} style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', fontSize: '13px', fontWeight: '600', color: 'white', backgroundColor: COLORS.top5, border: 'none', borderRadius: '6px', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.12)', marginTop: '0' }}>
-          <span style={{ fontSize: '16px' }}>↓</span> Export SVG
-        </button>
-      </div>
-
+    <ChartCard
+      title="Factor Comparison"
+      subtitle={selectedYear}
+      onExport={downloadSVG}
+    >
       {/* Legend */}
       <div className="legend-container" style={{ display: 'flex', gap: '20px', marginBottom: '12px', flexWrap: 'wrap' }}>
         {selectedCountries.map((country, index) => (
@@ -473,6 +420,15 @@ export default function FactorComparisonChart({ allData, selectedRegion, selecte
           })}
         </div>
       </div>
-    </div>
+    </ChartCard>
   );
 }
+
+FactorComparisonChart.propTypes = {
+  allData: PropTypes.arrayOf(PropTypes.object).isRequired,
+  selectedRegion: PropTypes.string.isRequired,
+  selectedYear: PropTypes.string.isRequired,
+  availableCountries: PropTypes.arrayOf(PropTypes.string).isRequired
+};
+
+export default memo(FactorComparisonChart);
