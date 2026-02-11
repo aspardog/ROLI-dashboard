@@ -161,64 +161,45 @@ export function createLegendItem(x, y, color, label, type = 'box', options = {})
  * Optimizes SVG by reducing precision and cleaning unnecessary attributes
  */
 function optimizeSVG(svgString) {
-  // Reduce decimal precision to 2 places for all numbers
-  svgString = svgString.replace(/(\d+\.\d{3,})/g, (match) => {
-    return parseFloat(match).toFixed(2);
+  // First, reduce decimal precision to 2 places for all numbers in attributes
+  svgString = svgString.replace(/="(\d+\.\d{3,})"/g, (match, num) => {
+    return '="' + parseFloat(num).toFixed(2) + '"';
   });
 
   // Compress hex colors from 6 to 3 digits when possible
   svgString = svgString.replace(/#([0-9a-f])\1([0-9a-f])\2([0-9a-f])\3/gi, '#$1$2$3');
 
-  // Remove default attribute values
-  svgString = svgString.replace(/\s*opacity="1"/g, '');
-  svgString = svgString.replace(/\s*fill-opacity="1"/g, '');
-  svgString = svgString.replace(/\s*stroke-opacity="1"/g, '');
-  svgString = svgString.replace(/\s*stroke-width="1"/g, '');
-  svgString = svgString.replace(/\s*visibility="visible"/g, '');
+  // Remove default attribute values - use more precise regex
+  svgString = svgString.replace(/\s+opacity="1(?:\.0+)?"/g, '');
+  svgString = svgString.replace(/\s+fill-opacity="1(?:\.0+)?"/g, '');
+  svgString = svgString.replace(/\s+stroke-opacity="1(?:\.0+)?"/g, '');
+  svgString = svgString.replace(/\s+stroke-width="1(?:\.0+)?"/g, '');
+  svgString = svgString.replace(/\s+visibility="visible"/g, '');
 
-  // Remove elements that are not visible
-  svgString = svgString.replace(/<[^>]*opacity="0"[^>]*>.*?<\/[^>]*>/g, '');
-  svgString = svgString.replace(/<[^>]*visibility="hidden"[^>]*>.*?<\/[^>]*>/g, '');
-
-  // Remove empty groups
-  svgString = svgString.replace(/<g[^>]*>\s*<\/g>/g, '');
-
-  // Remove unnecessary whitespace between elements
+  // Remove unnecessary whitespace between elements (before other optimizations)
   svgString = svgString.replace(/>\s+</g, '><');
 
   // Remove empty or default attributes
-  svgString = svgString.replace(/\s*style=""\s*/g, ' ');
-  svgString = svgString.replace(/\s*class=""\s*/g, ' ');
-  svgString = svgString.replace(/\s*font-family=""\s*/g, ' ');
-  svgString = svgString.replace(/\s*transform=""\s*/g, ' ');
+  svgString = svgString.replace(/\s+style=""/g, '');
+  svgString = svgString.replace(/\s+class=""/g, '');
+  svgString = svgString.replace(/\s+font-family=""/g, '');
+  svgString = svgString.replace(/\s+transform=""/g, '');
 
   // Remove Recharts metadata and unnecessary attributes
-  svgString = svgString.replace(/\s*data-[^=]*="[^"]*"/g, '');
-  svgString = svgString.replace(/\s*tabindex="[^"]*"/g, '');
-  svgString = svgString.replace(/\s*role="[^"]*"/g, '');
-  svgString = svgString.replace(/\s*aria-[^=]*="[^"]*"/g, '');
-  svgString = svgString.replace(/\s*focusable="[^"]*"/g, '');
+  svgString = svgString.replace(/\s+data-[^=]*="[^"]*"/g, '');
+  svgString = svgString.replace(/\s+tabindex="[^"]*"/g, '');
+  svgString = svgString.replace(/\s+role="[^"]*"/g, '');
+  svgString = svgString.replace(/\s+aria-[^=]*="[^"]*"/g, '');
+  svgString = svgString.replace(/\s+focusable="[^"]*"/g, '');
 
-  // Remove shape-rendering and text-rendering (usually not needed)
-  svgString = svgString.replace(/\s*shape-rendering="[^"]*"/g, '');
-  svgString = svgString.replace(/\s*text-rendering="[^"]*"/g, '');
+  // Remove shape-rendering and text-rendering
+  svgString = svgString.replace(/\s+shape-rendering="[^"]*"/g, '');
+  svgString = svgString.replace(/\s+text-rendering="[^"]*"/g, '');
 
   // Remove identity transforms
-  svgString = svgString.replace(/\s*transform="translate\(0,?\s*0?\)"/g, '');
-  svgString = svgString.replace(/\s*transform="scale\(1,?\s*1?\)"/g, '');
-  svgString = svgString.replace(/\s*transform="matrix\(1,?\s*0,?\s*0,?\s*1,?\s*0,?\s*0\)"/g, '');
-
-  // Remove unused clipPaths and defs
-  const usedClipPaths = new Set();
-  const clipPathMatches = svgString.matchAll(/clip-path="url\(#([^)]+)\)"/g);
-  for (const match of clipPathMatches) {
-    usedClipPaths.add(match[1]);
-  }
-
-  // Remove clipPath definitions that aren't used
-  svgString = svgString.replace(/<clipPath[^>]*id="([^"]+)"[^>]*>.*?<\/clipPath>/g, (match, id) => {
-    return usedClipPaths.has(id) ? match : '';
-  });
+  svgString = svgString.replace(/\s+transform="translate\(0(?:\.0+)?,?\s*0(?:\.0+)?\)"/g, '');
+  svgString = svgString.replace(/\s+transform="scale\(1(?:\.0+)?,?\s*1(?:\.0+)?\)"/g, '');
+  svgString = svgString.replace(/\s+transform="matrix\(1(?:\.0+)?,?\s*0(?:\.0+)?,?\s*0(?:\.0+)?,?\s*1(?:\.0+)?,?\s*0(?:\.0+)?,?\s*0(?:\.0+)?\)"/g, '');
 
   // Collapse multiple spaces
   svgString = svgString.replace(/\s{2,}/g, ' ');
