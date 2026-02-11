@@ -61,6 +61,39 @@ export function prepareSVGClone(svg, legendHeight = 60, legendPosition = 'top') 
 }
 
 /**
+ * Cleans unnecessary attributes from SVG clone
+ */
+function cleanSVGClone(clone) {
+  // Remove all data-* attributes
+  clone.querySelectorAll('[data-name]').forEach(el => {
+    Array.from(el.attributes).forEach(attr => {
+      if (attr.name.startsWith('data-')) {
+        el.removeAttribute(attr.name);
+      }
+    });
+  });
+
+  // Remove unnecessary attributes from all elements
+  clone.querySelectorAll('*').forEach(el => {
+    el.removeAttribute('tabindex');
+    el.removeAttribute('role');
+    el.removeAttribute('focusable');
+    Array.from(el.attributes).forEach(attr => {
+      if (attr.name.startsWith('aria-')) {
+        el.removeAttribute(attr.name);
+      }
+    });
+  });
+
+  // Remove empty style attributes
+  clone.querySelectorAll('[style]').forEach(el => {
+    if (el.getAttribute('style') === '' || el.getAttribute('style') === null) {
+      el.removeAttribute('style');
+    }
+  });
+}
+
+/**
  * Embeds font CSS and applies to all text elements
  */
 export async function embedFonts(clone) {
@@ -78,6 +111,9 @@ export async function embedFonts(clone) {
       t.style.fontFamily = '';
     }
   });
+
+  // Clean unnecessary attributes
+  cleanSVGClone(clone);
 }
 
 /**
@@ -130,6 +166,23 @@ function optimizeSVG(svgString) {
     return parseFloat(match).toFixed(2);
   });
 
+  // Compress hex colors from 6 to 3 digits when possible
+  svgString = svgString.replace(/#([0-9a-f])\1([0-9a-f])\2([0-9a-f])\3/gi, '#$1$2$3');
+
+  // Remove default attribute values
+  svgString = svgString.replace(/\s*opacity="1"/g, '');
+  svgString = svgString.replace(/\s*fill-opacity="1"/g, '');
+  svgString = svgString.replace(/\s*stroke-opacity="1"/g, '');
+  svgString = svgString.replace(/\s*stroke-width="1"/g, '');
+  svgString = svgString.replace(/\s*visibility="visible"/g, '');
+
+  // Remove elements that are not visible
+  svgString = svgString.replace(/<[^>]*opacity="0"[^>]*>.*?<\/[^>]*>/g, '');
+  svgString = svgString.replace(/<[^>]*visibility="hidden"[^>]*>.*?<\/[^>]*>/g, '');
+
+  // Remove empty groups
+  svgString = svgString.replace(/<g[^>]*>\s*<\/g>/g, '');
+
   // Remove unnecessary whitespace between elements
   svgString = svgString.replace(/>\s+</g, '><');
 
@@ -137,13 +190,41 @@ function optimizeSVG(svgString) {
   svgString = svgString.replace(/\s*style=""\s*/g, ' ');
   svgString = svgString.replace(/\s*class=""\s*/g, ' ');
   svgString = svgString.replace(/\s*font-family=""\s*/g, ' ');
+  svgString = svgString.replace(/\s*transform=""\s*/g, ' ');
 
   // Remove Recharts metadata and unnecessary attributes
   svgString = svgString.replace(/\s*data-[^=]*="[^"]*"/g, '');
   svgString = svgString.replace(/\s*tabindex="[^"]*"/g, '');
+  svgString = svgString.replace(/\s*role="[^"]*"/g, '');
+  svgString = svgString.replace(/\s*aria-[^=]*="[^"]*"/g, '');
+  svgString = svgString.replace(/\s*focusable="[^"]*"/g, '');
+
+  // Remove shape-rendering and text-rendering (usually not needed)
+  svgString = svgString.replace(/\s*shape-rendering="[^"]*"/g, '');
+  svgString = svgString.replace(/\s*text-rendering="[^"]*"/g, '');
+
+  // Remove identity transforms
+  svgString = svgString.replace(/\s*transform="translate\(0,?\s*0?\)"/g, '');
+  svgString = svgString.replace(/\s*transform="scale\(1,?\s*1?\)"/g, '');
+  svgString = svgString.replace(/\s*transform="matrix\(1,?\s*0,?\s*0,?\s*1,?\s*0,?\s*0\)"/g, '');
+
+  // Remove unused clipPaths and defs
+  const usedClipPaths = new Set();
+  const clipPathMatches = svgString.matchAll(/clip-path="url\(#([^)]+)\)"/g);
+  for (const match of clipPathMatches) {
+    usedClipPaths.add(match[1]);
+  }
+
+  // Remove clipPath definitions that aren't used
+  svgString = svgString.replace(/<clipPath[^>]*id="([^"]+)"[^>]*>.*?<\/clipPath>/g, (match, id) => {
+    return usedClipPaths.has(id) ? match : '';
+  });
 
   // Collapse multiple spaces
   svgString = svgString.replace(/\s{2,}/g, ' ');
+
+  // Remove spaces before closing tags
+  svgString = svgString.replace(/\s+>/g, '>');
 
   return svgString;
 }
