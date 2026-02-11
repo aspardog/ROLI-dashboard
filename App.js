@@ -108,9 +108,14 @@ export default function ROLIDashboard() {
           <div className="accent-bar" style={{ width: '6px', height: '48px', backgroundColor: COLORS.top5, borderRadius: '3px' }} />
           <h1 style={{ fontSize: '32px', fontWeight: '700', color: COLORS.text, margin: 0, letterSpacing: '-0.5px' }}>Rule of Law Index – Data Visualization Tool</h1>
         </div>
-        <p style={{ fontSize: '15px', lineHeight: '1.6', color: COLORS.muted, margin: '16px 0 0 22px', maxWidth: '900px' }}>
-          This interactive dashboard helps visualize and explore findings from the World Justice Project's Rule of Law Index, enabling deeper insights into how the rule of law is experienced across countries and regions worldwide. Use the chart type toggles to switch between different visualizations, select regions and variables to filter the data, and compare performance across countries, factors, and time periods. Export any chart as SVG for presentations or reports.
-        </p>
+        <div style={{ margin: '16px 0 0 22px', maxWidth: '900px' }}>
+          <p style={{ fontSize: '15px', lineHeight: '1.6', color: COLORS.text, margin: '0 0 12px 0' }}>
+            The World Justice Project Rule of Law Index measures how the rule of law is experienced across 142 countries through 8 factors and 44 sub-factors. This dashboard enables researchers, policymakers, and advocates to visualize complex patterns, identify trends over time, and compare performance across countries and regions—transforming raw data into actionable insights.
+          </p>
+          <p style={{ fontSize: '15px', lineHeight: '1.6', color: COLORS.muted, margin: '0' }}>
+            <strong style={{ color: COLORS.text }}>How to use:</strong> Select a chart type from the toggles above to explore different visualizations. Filter data by region and variable, compare multiple countries side-by-side in the Factor Comparison view, or track changes over time (2019–2025) in the Time Series chart. Click "Export SVG" on any chart to download publication-ready graphics.
+          </p>
+        </div>
       </div>
 
       {/* Controls */}
