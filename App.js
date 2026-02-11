@@ -112,9 +112,16 @@ export default function ROLIDashboard() {
           <p style={{ fontSize: '15px', lineHeight: '1.6', color: COLORS.text, margin: '0 0 12px 0' }}>
             The World Justice Project Rule of Law Index measures how the rule of law is experienced across 142 countries through 8 factors and 44 sub-factors. This dashboard enables researchers, policymakers, and advocates to visualize complex patterns, identify trends over time, and compare performance across countries and regions—transforming raw data into actionable insights.
           </p>
-          <p style={{ fontSize: '15px', lineHeight: '1.6', color: COLORS.muted, margin: '0' }}>
-            <strong style={{ color: COLORS.text }}>How to use:</strong> Select a chart type from the toggles above to explore different visualizations. Filter data by region and variable, compare multiple countries side-by-side in the Factor Comparison view, or track changes over time (2019–2025) in the Time Series chart. Click "Export SVG" on any chart to download publication-ready graphics.
-          </p>
+          <div style={{ fontSize: '15px', lineHeight: '1.6', color: COLORS.muted, margin: '0' }}>
+            <strong style={{ color: COLORS.text, display: 'block', marginBottom: '8px' }}>How to use:</strong>
+            <ul style={{ margin: '0', paddingLeft: '20px', lineHeight: '1.7' }}>
+              <li>Select a chart type from the toggles to explore different visualizations</li>
+              <li>Filter data by region and variable to focus on specific areas of interest</li>
+              <li>Compare multiple countries side-by-side in the Factor Comparison view</li>
+              <li>Track changes over time (2019–2025) using the Time Series or Radar charts</li>
+              <li>Export any chart as SVG for publication-ready graphics and presentations</li>
+            </ul>
+          </div>
         </div>
       </div>
 

@@ -5,7 +5,8 @@ let _fontCSSCache = null;
 
 export async function getEmbeddedFontCSS() {
   if (_fontCSSCache) return _fontCSSCache;
-  const res  = await fetch('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&display=swap');
+  // Only load weights 500 and 600 (most commonly used), with Latin subset to reduce file size
+  const res  = await fetch('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&display=swap&subset=latin');
   let css    = await res.text();
   const urls = [...css.matchAll(/url\(([^)]+)\)/g)].map(m => m[1]);
   for (const fontUrl of urls) {

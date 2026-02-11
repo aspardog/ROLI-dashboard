@@ -67,12 +67,16 @@ export async function embedFonts(clone) {
   const fontCSS = await getEmbeddedFontCSS();
   const ns = 'http://www.w3.org/2000/svg';
   const styleEl = document.createElementNS(ns, 'style');
-  styleEl.textContent = fontCSS;
+  // Add font CSS plus global rule for all text elements
+  styleEl.textContent = fontCSS + "\ntext { font-family: 'Inter Tight', sans-serif; }";
   clone.insertBefore(styleEl, clone.firstChild);
 
+  // Remove inline font-family attributes to reduce file size
   clone.querySelectorAll('text').forEach(t => {
-    t.setAttribute('font-family', "'Inter Tight', sans-serif");
-    t.style.fontFamily = "'Inter Tight', sans-serif";
+    t.removeAttribute('font-family');
+    if (t.style.fontFamily) {
+      t.style.fontFamily = '';
+    }
   });
 }
 
@@ -118,10 +122,40 @@ export function createLegendItem(x, y, color, label, type = 'box', options = {})
 }
 
 /**
+ * Optimizes SVG by reducing precision and cleaning unnecessary attributes
+ */
+function optimizeSVG(svgString) {
+  // Reduce decimal precision to 2 places for all numbers
+  svgString = svgString.replace(/(\d+\.\d{3,})/g, (match) => {
+    return parseFloat(match).toFixed(2);
+  });
+
+  // Remove unnecessary whitespace between elements
+  svgString = svgString.replace(/>\s+</g, '><');
+
+  // Remove empty or default attributes
+  svgString = svgString.replace(/\s*style=""\s*/g, ' ');
+  svgString = svgString.replace(/\s*class=""\s*/g, ' ');
+  svgString = svgString.replace(/\s*font-family=""\s*/g, ' ');
+
+  // Remove Recharts metadata and unnecessary attributes
+  svgString = svgString.replace(/\s*data-[^=]*="[^"]*"/g, '');
+  svgString = svgString.replace(/\s*tabindex="[^"]*"/g, '');
+
+  // Collapse multiple spaces
+  svgString = svgString.replace(/\s{2,}/g, ' ');
+
+  return svgString;
+}
+
+/**
  * Triggers SVG download
  */
 export function downloadSVG(clone, filename) {
-  const blob = new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml' });
+  let svgString = new XMLSerializer().serializeToString(clone);
+  svgString = optimizeSVG(svgString);
+
+  const blob = new Blob([svgString], { type: 'image/svg+xml' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
