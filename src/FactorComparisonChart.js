@@ -247,7 +247,7 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
               type="number"
               domain={[0, 1]}
               ticks={[0, 0.25, 0.5, 0.75, 1]}
-              tickFormatter={(v) => `${Math.round(v * 100)}%`}
+              tickFormatter={(v) => v.toFixed(2)}
               tick={{ fontSize: 14, fill: COLORS.text, fontWeight: 500 }}
               axisLine={false}
               tickLine={false}
@@ -273,7 +273,7 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
                 <LabelList
                   dataKey={country}
                   position="right"
-                  formatter={(value) => value ? `${Math.round(value * 100)}%` : ''}
+                  formatter={(value) => value ? value.toFixed(2) : ''}
                   style={{
                     fontSize: '15px',
                     fontWeight: '600',
