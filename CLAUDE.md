@@ -50,8 +50,10 @@ Run `npm run parse-data` after updating the Excel source file.
 - `src/TimeSeriesChart.js` - Line chart showing 2019-2025 trends
 - `src/RadarChartView.js` - Multi-year, multi-factor radar visualization
 - `src/FactorComparisonChart.js` - Multi-country factor comparison
+- `src/InfoModal.js` - Modal component explaining the Rule of Law Index (8 factors, 44 sub-factors)
+- `src/HowToUseModal.js` - Modal component with usage guide for all 4 visualization types
 - `src/svgExport.js` - Font embedding helper for SVG exports (base64 data URIs)
-- `src/responsive.css` - Mobile-responsive styles
+- `src/responsive.css` - Mobile-responsive styles (includes modal styles)
 - `craco.config.js` - Webpack overrides to allow root-level App.js and transpile recharts
 
 ### Why App.js is at Project Root
@@ -75,6 +77,8 @@ All state lives in `App.js`:
 - `selectedFactors` - Factors/sub-factors selected for Radar chart (array of objects with value/label)
 - `selectedRadarYears` - Years selected for Radar chart (array of year strings)
 - `expandedFactorGroups` - Accordion state for Radar chart factor groups (object with group keys)
+- `isInfoModalOpen` - Boolean controlling visibility of InfoModal
+- `isHowToUseModalOpen` - Boolean controlling visibility of HowToUseModal
 
 **Component-level state:**
 - `FactorComparisonChart.js`:
@@ -156,6 +160,33 @@ All charts support SVG download with embedded fonts and professional legends:
 - White background covers entire SVG (chart + legend area)
 
 Charts manually construct legends in `downloadSVG()` functions using helper methods `el()` and `txt()`.
+
+### Informational Modals
+
+The dashboard includes two informational modals accessible from the header banner:
+
+**InfoModal (`src/InfoModal.js`)**
+- Triggered by "Learn about the Index →" link in banner
+- Explains what the Rule of Law Index is and how it's structured
+- Lists all 8 factors with descriptions
+- Details all 44 sub-factors organized by parent factor
+- Scrollable modal with close button (×) and click-outside-to-close
+- Responsive styles for mobile devices
+
+**HowToUseModal (`src/HowToUseModal.js`)**
+- Triggered by "How to use this dashboard →" link in banner
+- Provides usage guide for all 4 visualization types:
+  1. Time Series - trends over time
+  2. Top & Bottom Performers - rankings
+  3. Radar Chart - performance profiles
+  4. Factor Comparison - side-by-side comparisons
+- Includes SVG export explanation
+- Same modal structure and behavior as InfoModal
+
+**Banner Implementation:**
+- Two separate inline button links below main description
+- Both styled consistently with underline and hover effects
+- State managed in App.js via `isInfoModalOpen` and `isHowToUseModalOpen`
 
 ### Column Mapping (Excel → JSON)
 

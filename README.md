@@ -9,6 +9,9 @@ An interactive dashboard for the **World Justice Project Rule of Law Index (ROLI
   - **Time Series** — Line chart showing 2019-2025 trends with regional averages
   - **Radar Chart** — Multi-year, multi-factor overlay comparison
   - **Factor Comparison** — Multi-country comparison across all 8 factors
+- **Built-in documentation**:
+  - **"Learn about the Index"** — In-app modal explaining the Rule of Law Index structure, 8 factors, and 44 sub-factors
+  - **"How to use this dashboard"** — Interactive guide to each visualization type
 - **Region selector** — Global + 7 WJP regions
 - **Variable selector** — Overall Index, 8 factors, and 44 sub-factors grouped by factor
 - **Regional average** reference lines and calculations
@@ -55,4 +58,8 @@ World Justice Project — [Rule of Law Index](https://worldjusticeproject.org/ru
 
 ## Documentation
 
-Full details on the directory layout, data pipeline, column mapping, and craco configuration are in [Documentation.md](Documentation.md).
+Full details on the directory layout, data pipeline, column mapping, and craco configuration are in [CLAUDE.md](CLAUDE.md).
+
+The dashboard also includes **in-app documentation** accessible via two links in the header:
+- **Learn about the Index** — Opens a modal with comprehensive information about the Rule of Law Index
+- **How to use this dashboard** — Opens a guide explaining each of the four visualization types
