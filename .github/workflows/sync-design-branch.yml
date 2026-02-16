@@ -1,0 +1,43 @@
+name: Sync design branch with main
+
+# Trigger: Runs every time main is updated
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for all branches
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Sync design branch
+        run: |
+          # Checkout design branch
+          git checkout design
+
+          # Pull latest changes from design
+          git pull origin design
+
+          # Merge main into design
+          git merge origin/main -m "Auto-sync: Merge main into design"
+
+          # Push updated design branch
+          git push origin design
+
+      - name: Comment on PR if sync fails
+        if: failure()
+        run: |
+          echo "⚠️ Auto-sync from main to design failed. Manual merge required."
+          echo "This usually means there are merge conflicts that need human review."
