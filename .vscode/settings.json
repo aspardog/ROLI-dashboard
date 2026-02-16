@@ -1,0 +1,57 @@
+{
+  // Configuración para diseñadoras
+  // Muestra información útil en VS Code
+
+  // Formateador de código automático
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  // Git - Muestra la rama actual en la barra de estado
+  "git.enabled": true,
+  "git.decorations.enabled": true,
+
+  // Advertencia si estás en la rama incorrecta
+  "git.branchProtection": ["main"],
+  "git.branchProtectionPrompt": "alwaysPrompt",
+
+  // Mostrar archivos útiles primero
+  "explorer.sortOrder": "type",
+
+  // Resaltar espacios en blanco
+  "editor.renderWhitespace": "boundary",
+
+  // Sugerencias de código
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": false,
+    "strings": true
+  },
+
+  // Tamaño de tabulación (consistente con el proyecto)
+  "editor.tabSize": 2,
+  "editor.detectIndentation": false,
+
+  // Archivos a ignorar en el explorador
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true,
+    "**/build": true
+  },
+
+  // Terminal integrada
+  "terminal.integrated.defaultProfile.osx": "bash",
+  "terminal.integrated.defaultProfile.windows": "Command Prompt",
+
+  // Mostrar mini-mapa (útil para navegar código)
+  "editor.minimap.enabled": true,
+
+  // Bracket pair colorization (ayuda a ver estructura)
+  "editor.bracketPairColorization.enabled": true,
+
+  // Mostrar breadcrumbs (ruta del archivo)
+  "breadcrumbs.enabled": true,
+
+  // Recomendaciones de extensiones
+  "extensions.ignoreRecommendations": false
+}

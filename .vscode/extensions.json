@@ -1,0 +1,43 @@
+{
+  // Extensiones recomendadas para diseñadoras trabajando en este proyecto
+  "recommendations": [
+    // Git visual y fácil de usar
+    "eamodio.gitlens",
+
+    // Formateo automático de código
+    "esbenp.prettier-vscode",
+
+    // Snippets de React
+    "dsznajder.es7-react-js-snippets",
+
+    // Resaltado de sintaxis mejorado
+    "styled-components.vscode-styled-components",
+
+    // Colores visuales en el código
+    "naumovs.color-highlight",
+
+    // Previsualización de colores CSS
+    "bierner.color-info",
+
+    // Auto-cierre de etiquetas HTML/JSX
+    "formulahendry.auto-close-tag",
+
+    // Auto-renombre de etiquetas parejas
+    "formulahendry.auto-rename-tag",
+
+    // Mostrar tamaño de archivos en el explorador
+    "mkxml.vscode-filesize",
+
+    // Path Intellisense - autocompleta rutas de archivos
+    "christian-kohler.path-intellisense",
+
+    // Error Lens - muestra errores inline
+    "usernamehw.errorlens"
+  ],
+
+  // Extensiones que no son necesarias para diseño
+  "unwantedRecommendations": [
+    "ms-python.python",
+    "ms-vscode.cpptools"
+  ]
+}
