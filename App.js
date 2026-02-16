@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import { ACTIVE_YEAR, REGION_OPTIONS, VARIABLE_OPTIONS, SUBFACTOR_GROUPS, COLORS } from './src/constants';
+import InfoModal from './src/InfoModal';
+import HowToUseModal from './src/HowToUseModal';
 import './src/responsive.css';
 
 // Lazy load chart components for better initial bundle size
@@ -30,6 +32,8 @@ export default function ROLIDashboard() {
   ]);
   const [selectedRadarYears, setSelectedRadarYears] = useState(['2023', '2024', '2025']);
   const [expandedFactorGroups, setExpandedFactorGroups] = useState({ general: true, factor: true });
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+  const [isHowToUseModalOpen, setIsHowToUseModalOpen] = useState(false);
   const selectedLabel = VARIABLE_OPTIONS.find(opt => opt.value === selectedVariable)?.label || selectedVariable;
   const regionLabel = REGION_OPTIONS.find(opt => opt.value === selectedRegion)?.label || selectedRegion;
 
@@ -102,28 +106,60 @@ export default function ROLIDashboard() {
 
   return (
     <div className="dashboard-container" style={{ minHeight: '100vh', backgroundColor: COLORS.background, fontFamily: "'Inter Tight', sans-serif", padding: '32px 24px' }}>
-      {/* Header */}
+      {/* Header Banner */}
       <div className="dashboard-header" style={{ maxWidth: '1100px', margin: '0 auto 32px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
           <div className="accent-bar" style={{ width: '6px', height: '48px', backgroundColor: COLORS.top5, borderRadius: '3px' }} />
           <h1 style={{ fontSize: '32px', fontWeight: '700', color: COLORS.text, margin: 0, letterSpacing: '-0.5px' }}>Rule of Law Index – Data Visualization Tool</h1>
         </div>
         <div style={{ margin: '16px 0 0 22px', maxWidth: '900px' }}>
-          <p style={{ fontSize: '15px', lineHeight: '1.6', color: COLORS.text, margin: '0 0 12px 0' }}>
-            The World Justice Project Rule of Law Index measures how the rule of law is experienced across 142 countries through 8 factors and 44 sub-factors. This dashboard enables researchers, policymakers, and advocates to visualize complex patterns, identify trends over time, and compare performance across countries and regions—transforming raw data into actionable insights.
+          <p style={{ fontSize: '15px', lineHeight: '1.6', color: COLORS.text, margin: '0' }}>
+            Interactive dashboard for the <strong>World Justice Project Rule of Law Index</strong>. Explore results and <strong>download publication-ready visuals</strong> for presentations and reports.
           </p>
-          <div style={{ fontSize: '15px', lineHeight: '1.6', color: COLORS.muted, margin: '0' }}>
-            <strong style={{ color: COLORS.text, display: 'block', marginBottom: '8px' }}>How to use:</strong>
-            <ul style={{ margin: '0', paddingLeft: '20px', lineHeight: '1.7' }}>
-              <li>Select a chart type from the toggles to explore different visualizations</li>
-              <li>Filter data by region and variable to focus on specific areas of interest</li>
-              <li>Compare multiple countries side-by-side in the Factor Comparison view</li>
-              <li>Track changes over time (2019–2025) using the Time Series or Radar charts</li>
-              <li>Export any chart as SVG for publication-ready graphics and presentations</li>
-            </ul>
+          <div style={{ display: 'flex', gap: '16px', marginTop: '12px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => setIsInfoModalOpen(true)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: COLORS.top5,
+                fontWeight: '600',
+                fontSize: '15px',
+                cursor: 'pointer',
+                padding: 0,
+                textDecoration: 'underline',
+                fontFamily: 'inherit'
+              }}
+              onMouseOver={(e) => e.target.style.color = '#0056b3'}
+              onMouseOut={(e) => e.target.style.color = COLORS.top5}
+            >
+              Learn about the Index →
+            </button>
+            <button
+              onClick={() => setIsHowToUseModalOpen(true)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: COLORS.top5,
+                fontWeight: '600',
+                fontSize: '15px',
+                cursor: 'pointer',
+                padding: 0,
+                textDecoration: 'underline',
+                fontFamily: 'inherit'
+              }}
+              onMouseOver={(e) => e.target.style.color = '#0056b3'}
+              onMouseOut={(e) => e.target.style.color = COLORS.top5}
+            >
+              How to use this dashboard →
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Info Modals */}
+      <InfoModal isOpen={isInfoModalOpen} onClose={() => setIsInfoModalOpen(false)} />
+      <HowToUseModal isOpen={isHowToUseModalOpen} onClose={() => setIsHowToUseModalOpen(false)} />
 
       {/* Controls */}
       {chartType !== 'radar' && chartType !== 'factors' && (

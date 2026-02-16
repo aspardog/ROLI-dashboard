@@ -224,4 +224,32 @@
   select {
     font-size: 13px !important;
   }
+
+  /* Info Modal */
+  .info-modal-content {
+    max-width: calc(100vw - 20px) !important;
+    maxHeight: 95vh !important;
+    borderRadius: 8px !important;
+  }
+
+  .info-modal-content > div {
+    padding: 24px 20px !important;
+  }
+
+  .info-modal-content h2 {
+    fontSize: 22px !important;
+  }
+
+  .info-modal-content h3 {
+    fontSize: 18px !important;
+  }
+
+  .info-modal-content h4 {
+    fontSize: 15px !important;
+  }
+
+  .info-modal-content p,
+  .info-modal-content li {
+    fontSize: 14px !important;
+  }
 }
