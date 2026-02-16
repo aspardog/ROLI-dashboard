@@ -65,6 +65,7 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
               axisLine={{ stroke: TS_COLORS.grid, strokeWidth: 1 }}
               tickLine={{ stroke: TS_COLORS.axis, strokeWidth: 1 }}
               interval={0}
+              padding={{ left: 20, right: 0 }}
             />
             <YAxis
               domain={[yMin, yMax]}
