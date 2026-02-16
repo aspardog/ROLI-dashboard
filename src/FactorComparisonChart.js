@@ -17,11 +17,11 @@ const FACTORS = [
 ];
 
 const COMPARISON_COLORS = [
-  '#003B88', // Primary blue
-  '#27ae60', // Green
-  '#8e44ad', // Purple
-  '#e67e22', // Orange
-  '#c0392b', // Red
+  '#181878',
+  '#BF02AF',
+  '#3366FF',
+  '#FF4D6A',
+  '#FFB52B',
 ];
 
 // Custom Y-axis tick component with line wrapping
