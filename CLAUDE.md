@@ -6,6 +6,47 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Interactive React dashboard for the World Justice Project Rule of Law Index (ROLI). Visualizes global rule of law data across 8 factors and 44 sub-factors from 2019-2025, with support for regional filtering and multiple chart types.
 
+## Collaborator Roles
+
+This project has multiple collaborators with different roles and permissions:
+
+### Santiago (aspardog) - Lead Developer & Maintainer
+- **Permissions:** Full access to all branches, can merge to `main`
+- **Responsibilities:** Core logic, data pipeline, architecture, code reviews, final approvals
+- **Can modify:** Everything
+- **Working branches:** `main` (via PR), `design`, feature branches
+
+### Designer - Visual Design & UX
+- **Permissions:** Write access to `design` branch only, cannot merge to `main` without approval
+- **Responsibilities:** Visual design, color schemes, typography, spacing, responsive layouts, UX improvements
+- **Can modify:** Styles (CSS, inline styles), colors in constants.js, component visual appearance
+- **Cannot modify:** Core logic, data processing, configuration files, parsers
+- **Working branch:** `design` (ALWAYS)
+- **Important:** See `DESIGNER_README.md` for detailed designer-specific guidance
+
+### How Claude Code Should Assist Based on User Role
+
+**When assisting the Designer:**
+- Focus ONLY on visual/styling changes
+- Suggest modifications to CSS, inline styles, colors, spacing, typography
+- NEVER modify component logic, data processing, or configuration
+- ALWAYS verify they're working on `design` branch
+- Recommend creating Pull Requests for review
+- Reference `DESIGNER_README.md` for designer-specific guidelines
+- Provide clear explanations of what each style property does
+- Help with responsive design and mobile layouts
+
+**When assisting Santiago:**
+- Full access to all architectural decisions
+- Can modify core logic, data pipeline, configuration
+- Can work on any branch
+- Can approve and merge Pull Requests
+
+**If user role is unclear:**
+- Ask: "Are you the designer or the developer on this project?"
+- Read context from their requests (design-focused vs logic-focused)
+- Default to designer restrictions if uncertain (safer)
+
 ## Development Commands
 
 ```bash
