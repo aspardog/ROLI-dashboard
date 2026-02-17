@@ -10,6 +10,9 @@ jobs:
   sync:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write  # Required to push to branches
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
