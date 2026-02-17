@@ -269,19 +269,7 @@ export default function ROLIDashboard() {
         )}
         {chartType === 'radar' && (
           <>
-            {/* Radar Chart - SHOWN FIRST */}
-            <RadarChartView
-              allData={allData}
-              selectedRegion={selectedRegion}
-              selectedCountry={selectedRadarCountry}
-              selectedFactors={selectedFactors}
-              selectedYears={selectedRadarYears}
-              countryLabel={selectedRadarCountry === '__regional_avg__' ?
-                (selectedRegion === 'global' ? 'Global Average' : regionLabel + ' Average') :
-                selectedRadarCountry}
-            />
-
-            {/* Radar Chart Controls - AFTER CHART */}
+            {/* Radar Chart Controls - SHOWN FIRST */}
             <div className="radar-controls chart-card" style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
               <div className="radar-controls-row" style={{ display: 'flex', gap: '24px', marginBottom: '24px' }}>
                 <div style={{ flex: 1 }}>
@@ -422,6 +410,18 @@ export default function ROLIDashboard() {
                 </div>
               </div>
             </div>
+
+            {/* Radar Chart - SHOWN AFTER CONTROLS */}
+            <RadarChartView
+              allData={allData}
+              selectedRegion={selectedRegion}
+              selectedCountry={selectedRadarCountry}
+              selectedFactors={selectedFactors}
+              selectedYears={selectedRadarYears}
+              countryLabel={selectedRadarCountry === '__regional_avg__' ?
+                (selectedRegion === 'global' ? 'Global Average' : regionLabel + ' Average') :
+                selectedRadarCountry}
+            />
           </>
         )}
         </Suspense>
