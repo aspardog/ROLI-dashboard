@@ -43,6 +43,30 @@ npm run parse-data
 
 This writes `roli_data.json` to both `data/` (canonical copy) and `public/` (served by the app).
 
+## Collaboration Workflow
+
+This project uses a two-branch workflow:
+- **`main`** — Protected production branch, requires PR approval
+- **`design`** — Designer's working branch for visual/UX changes
+
+### For Santiago (Maintainer)
+
+**After merging any PR to `main`:** Run the sync script to update the designer's branch:
+
+```bash
+./sync-design.sh
+```
+
+This ensures the designer always works with the latest code. See `SYNC_GUIDE.md` for details.
+
+### For Designer
+
+Always work on the `design` branch. See comprehensive guides:
+- `START_HERE.md` — Quick setup guide
+- `DESIGNER_README.md` — Designer role context for Claude Code
+- `DESIGN_GUIDE.md` — Complete design workflow
+- `DESIGN_FILES_REFERENCE.md` — File-by-file reference
+
 ## Tech Stack
 
 | Technology | Role |
