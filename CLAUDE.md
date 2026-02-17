@@ -10,7 +10,7 @@ Interactive React dashboard for the World Justice Project Rule of Law Index (ROL
 
 This project has multiple collaborators with different roles and permissions:
 
-### Santiago (aspardog) - Lead Developer & Maintainer
+### Main User (aspardog) - Lead Developer & Maintainer
 - **Permissions:** Full access to all branches, can merge to `main`
 - **Responsibilities:** Core logic, data pipeline, architecture, code reviews, final approvals
 - **Can modify:** Everything
@@ -22,7 +22,7 @@ This project has multiple collaborators with different roles and permissions:
 - **Can modify:** Styles (CSS, inline styles), colors in constants.js, component visual appearance
 - **Cannot modify:** Core logic, data processing, configuration files, parsers
 - **Working branch:** `design` (ALWAYS)
-- **Important:** See `DESIGNER_README.md` for detailed designer-specific guidance
+- **Important:** See `docs/designer/DESIGNER_README.md` for detailed designer-specific guidance
 
 ### How Claude Code Should Assist Based on User Role
 
@@ -32,16 +32,16 @@ This project has multiple collaborators with different roles and permissions:
 - NEVER modify component logic, data processing, or configuration
 - ALWAYS verify they're working on `design` branch
 - Recommend creating Pull Requests for review
-- Reference `DESIGNER_README.md` for designer-specific guidelines
+- Reference `docs/designer/DESIGNER_README.md` for designer-specific guidelines
 - Provide clear explanations of what each style property does
 - Help with responsive design and mobile layouts
 
-**When assisting Santiago:**
+**When assisting Main User:**
 - Full access to all architectural decisions
 - Can modify core logic, data pipeline, configuration
 - Can work on any branch
 - Can approve and merge Pull Requests
-- **IMPORTANT:** After any merge to `main` or commit to `main`, remind Santiago to run `./sync-design.sh` to sync the designer's branch
+- **IMPORTANT:** After any merge to `main` or commit to `main`, remind Main User to run `./sync-design.sh` to sync the designer's branch
 
 **If user role is unclear:**
 - Ask: "Are you the designer or the developer on this project?"
@@ -328,7 +328,7 @@ Edit `COLORS` or `TS_COLORS` in `src/constants.js`. Changes propagate to all com
 3. Update `SUBFACTOR_GROUPS` if adding new factor
 4. Re-run parser
 
-### Syncing Design Branch After Merge to Main (For Santiago)
+### Syncing Design Branch After Merge to Main (For Main User)
 
 **CRITICAL:** After merging any PR to `main` or committing directly to `main`, you MUST sync the `design` branch so the designer works with your latest code.
 
@@ -355,9 +355,9 @@ This script automatically:
 - Avoids duplicate work
 - Ensures design changes apply to latest implementation
 
-**For Claude Code:** When assisting Santiago and you see commits/merges to `main`, remind him to run `./sync-design.sh` to keep the designer's branch updated.
+**For Claude Code:** When assisting Main User and you see commits/merges to `main`, remind them to run `./sync-design.sh` to keep the designer's branch updated.
 
-See `SYNC_GUIDE.md` for detailed instructions and troubleshooting.
+See `docs/maintainer/SYNC_GUIDE.md` for detailed instructions and troubleshooting.
 
 ## Tech Stack
 

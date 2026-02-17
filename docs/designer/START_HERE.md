@@ -177,7 +177,7 @@ git push origin design
    - **Descripción:** Qué hiciste y por qué
    - **Screenshots:** Antes y después (¡super útil!)
 6. Click **"Create pull request"**
-7. Notifica a Santiago
+7. Notifica a Main User
 
 ---
 
@@ -232,7 +232,7 @@ git checkout design
 
 ## 📞 ¿Necesitas ayuda?
 
-Contacta a Santiago: [tu contacto]
+Contacta a Main User: [tu contacto]
 
 ---
 

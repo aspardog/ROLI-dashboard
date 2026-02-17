@@ -1,4 +1,4 @@
-# Santiago's Daily Workflow
+# Main User's Daily Workflow
 
 ## After Merging PR to Main
 

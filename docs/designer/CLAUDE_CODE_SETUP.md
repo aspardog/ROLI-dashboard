@@ -4,7 +4,7 @@ This guide explains how to set up and use Claude Code **locally on your computer
 
 ## Why Use Claude Code Locally?
 
-- ✅ **Your own quota:** Uses your Claude account, not Santiago's
+- ✅ **Your own quota:** Uses your Claude account, not Main User's
 - ✅ **Full privacy:** Your conversations stay on your computer
 - ✅ **Faster responses:** No GitHub Actions delays
 - ✅ **More control:** Unlimited conversations with your quota
@@ -102,8 +102,8 @@ While not integrated with your local files, you can:
 ## What NOT to Do
 
 ❌ **Don't use @claude on GitHub**
-- Won't work (restricted to Santiago only)
-- Would use Santiago's API quota if it worked
+- Won't work (restricted to Main User only)
+- Would use Main User's API quota if it worked
 - GitHub Actions is slower than local use
 
 ❌ **Don't share your Claude login**
@@ -119,7 +119,7 @@ While not integrated with your local files, you can:
 ### Paid Plans
 - If you exceed free tier, you can upgrade
 - Pay only for what you use
-- Independent from Santiago's quota
+- Independent from Main User's quota
 
 ### Checking Your Usage
 1. Go to https://claude.ai
@@ -133,7 +133,7 @@ While not integrated with your local files, you can:
 - GitHub: https://github.com/anthropics/claude-code
 
 ### Project-Specific Help
-- Ask Santiago for clarification on technical decisions
+- Ask Main User for clarification on technical decisions
 - Use Claude Code for design/styling help
 - Refer to `DESIGNER_README.md` for guidelines
 
@@ -188,7 +188,7 @@ git add .
 git commit -m "Update color scheme to warmer tones"
 git push origin design
 
-# 7. Create Pull Request on GitHub for Santiago's review
+# 7. Create Pull Request on GitHub for Main User's review
 ```
 
 ## Summary
@@ -196,17 +196,17 @@ git push origin design
 | Feature | GitHub @claude | Local Claude Code |
 |---------|----------------|-------------------|
 | **Speed** | Slower (GitHub Actions) | Fast (instant) |
-| **Quota** | Santiago's | Yours |
+| **Quota** | Main User's | Yours |
 | **Privacy** | Public (in PR comments) | Private (local) |
 | **File access** | Limited | Full project access |
-| **Who can use** | Only Santiago | You! |
-| **Cost to Santiago** | Yes | No |
+| **Who can use** | Only Main User | You! |
+| **Cost to Main User** | Yes | No |
 
 **Recommendation:** Use Claude Code locally for all your design work. It's faster, private, and uses your own quota.
 
 ---
 
-**Questions?** Ask Santiago or refer to:
+**Questions?** Ask Main User or refer to:
 - `DESIGNER_README.md` — Designer role and guidelines
 - `DESIGN_GUIDE.md` — Complete design workflow
 - `START_HERE.md` — Quick setup guide

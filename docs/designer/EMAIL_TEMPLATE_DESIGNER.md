@@ -147,11 +147,11 @@ Claude tiene un tier gratuito generoso. Si lo usas mucho y llegas al límite, pu
 ¡Estoy emocionado de ver tus ideas y mejoras en el dashboard!
 
 Saludos,
-Santiago
+Main User
 
 ---
 
 **Links rápidos:**
 - Repo: https://github.com/aspardog/ROLI-dashboard
 - Claude Code: https://claude.ai/code
-- Documentación: https://github.com/aspardog/ROLI-dashboard/blob/design/START_HERE.md
+- Documentación: https://github.com/aspardog/ROLI-dashboard/blob/design/docs/designer/START_HERE.md

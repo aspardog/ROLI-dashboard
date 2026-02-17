@@ -12,7 +12,7 @@ This file provides context for Claude Code when assisting the designer working o
 - ✅ Modify visual styles, colors, typography, spacing
 - ✅ Adjust component layouts and responsiveness
 - ✅ Improve user interface and user experience
-- ✅ Create Pull Requests to `main` for Santiago's review
+- ✅ Create Pull Requests to `main` for Main User's review
 - ❌ DO NOT modify data pipeline, parsers, or core logic
 - ❌ DO NOT work directly on `main` branch
 - ❌ DO NOT modify configuration files (package.json, craco.config.js)
@@ -31,7 +31,7 @@ When the designer identifies themselves and starts a new work session, you MUST:
 
 **Standard greeting when designer starts session:**
 
-"Hi! Before we start working on design changes, let's make sure your `design` branch is synchronized with the latest updates from `main`. This ensures you're working with Santiago's most recent changes. I'll run the sync commands for you."
+"Hi! Before we start working on design changes, let's make sure your `design` branch is synchronized with the latest updates from `main`. This ensures you're working with Main User's most recent changes. I'll run the sync commands for you."
 
 Then execute:
 ```bash
@@ -41,7 +41,7 @@ git pull origin main
 ```
 
 **Why this matters:**
-- Santiago frequently merges updates to `main` (new features, bug fixes, data updates)
+- Main User frequently merges updates to `main` (new features, bug fixes, data updates)
 - Working on outdated code can create merge conflicts later
 - Syncing first prevents duplicate work and ensures design changes apply to current code
 
@@ -168,12 +168,12 @@ git add .
 git commit -m "Descriptive message about what you changed"
 git push origin design
 
-# 6. When ready for Santiago's review
+# 6. When ready for Main User's review
 # Go to GitHub and create Pull Request: design → main
 ```
 
 **Why sync with main every time?**
-Santiago regularly updates `main` with new features, bug fixes, and data updates. Pulling from `main` ensures you're always working with the latest code, preventing merge conflicts and duplicate work.
+Main User regularly updates `main` with new features, bug fixes, and data updates. Pulling from `main` ensures you're always working with the latest code, preventing merge conflicts and duplicate work.
 
 ### Important Git Rules:
 - ✅ ALWAYS verify you're on `design` branch (run `git status`)
@@ -181,7 +181,7 @@ Santiago regularly updates `main` with new features, bug fixes, and data updates
 - ✅ Test changes in browser before committing
 - ❌ NEVER work on `main` branch
 - ❌ NEVER use `git push --force`
-- ❌ NEVER delete files without confirming with Santiago
+- ❌ NEVER delete files without confirming with Main User
 
 ---
 
@@ -254,7 +254,7 @@ style={{
 **You should use Claude Code on your local computer, NOT via @claude mentions on GitHub.**
 
 **Why?**
-- GitHub @claude mentions use Santiago's API quota and billing
+- GitHub @claude mentions use Main User's API quota and billing
 - You have your own Claude Code account with your own quota
 - Working locally gives you full control and privacy
 
@@ -265,12 +265,12 @@ style={{
 4. Claude will help you with design changes using YOUR quota
 
 **What NOT to do:**
-- ❌ Don't mention `@claude` in GitHub Pull Request comments (won't work - restricted to Santiago)
+- ❌ Don't mention `@claude` in GitHub Pull Request comments (won't work - restricted to Main User)
 - ❌ Don't expect Claude to respond in GitHub Issues/PRs (not configured for you)
 
 **What TO do:**
 - ✅ Use Claude Code in your local terminal/VS Code
-- ✅ Ask Santiago to review PRs (he can use @claude if needed)
+- ✅ Ask Main User to review PRs (he can use @claude if needed)
 - ✅ Work independently with your own Claude Code account
 
 ### Tell Claude your role:
@@ -310,13 +310,13 @@ Before creating a Pull Request, take screenshots:
 - Desktop view (full width)
 - Mobile view (narrow browser)
 - Before/After comparison
-- Attach to Pull Request for Santiago's review
+- Attach to Pull Request for Main User's review
 
 ---
 
 ## Getting Help
 
-### From Santiago:
+### From Main User:
 - Email/Slack/WhatsApp for questions
 - Tag in Pull Request for review
 - Schedule check-in calls if stuck
@@ -344,7 +344,7 @@ Your design changes are successful when:
 - ✅ Consistent with WJP Rule of Law Index brand
 - ✅ No JavaScript errors in browser console
 - ✅ npm start runs without errors
-- ✅ Santiago approves the Pull Request
+- ✅ Main User approves the Pull Request
 
 ---
 
@@ -370,4 +370,4 @@ Your design changes are successful when:
 
 ---
 
-**Remember:** You're working on the visual design and user experience. Santiago handles the technical implementation and data processing. When in doubt, ask!
+**Remember:** You're working on the visual design and user experience. Main User handles the technical implementation and data processing. When in doubt, ask!

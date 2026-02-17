@@ -4,7 +4,7 @@
 
 ## 🎯 Tu rama de trabajo: `design`
 
-Siempre trabajarás en la rama llamada `design`. Tus cambios NO afectarán la versión en producción hasta que Santiago los apruebe.
+Siempre trabajarás en la rama llamada `design`. Tus cambios NO afectarán la versión en producción hasta que Main User los apruebe.
 
 ---
 
@@ -205,9 +205,9 @@ npm start
 
 ---
 
-## 📤 Pedir que Santiago revise tus cambios
+## 📤 Pedir que Main User revise tus cambios
 
-Cuando tengas cambios listos para que Santiago los revise:
+Cuando tengas cambios listos para que Main User los revise:
 
 1. **Asegúrate de haber hecho commit y push:**
    ```bash
@@ -225,7 +225,7 @@ Cuando tengas cambios listos para que Santiago los revise:
    - Adjunta screenshots del antes/después
    - Click "Create pull request"
 
-3. **Notifica a Santiago** (WhatsApp, email, etc.)
+3. **Notifica a Main User** (WhatsApp, email, etc.)
 
 ---
 
@@ -245,7 +245,7 @@ Cuando tengas cambios listos para que Santiago los revise:
 
 ### 🎯 Si tienes dudas:
 - Busca en el archivo el comentario más cercano
-- Pregúntale a Santiago
+- Pregúntale a Main User
 - Haz un cambio pequeño y ve qué pasa (siempre puedes deshacerlo)
 
 ---
@@ -268,7 +268,7 @@ TU COMPUTADORA                                    GITHUB
        │                                             │ 4. Creas Pull Request
        │                                             │    design → main
        │                                             │
-       │                                             │ 5. Santiago revisa
+       │                                             │ 5. Main User revisa
        │                                             │    y aprueba
        │                                             │
        │                                             ▼
@@ -286,7 +286,7 @@ TU COMPUTADORA                                    GITHUB
 ## 📞 Contacto
 
 Si tienes problemas o preguntas:
-- Santiago: [tu contacto]
+- Main User: [tu contacto]
 - Este proyecto: https://github.com/aspardog/ROLI-dashboard
 
 ¡Disfruta experimentando con el diseño! 🎨

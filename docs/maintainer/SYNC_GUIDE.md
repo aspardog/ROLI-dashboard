@@ -1,4 +1,4 @@
-# Branch Sync Guide for Santiago
+# Branch Sync Guide for Main User
 
 ## Quick Reference
 
@@ -93,4 +93,4 @@ git log main..design --oneline
 
 ## For Claude Code
 
-When Santiago mentions "just merged a PR" or "committed to main", remind him to run `./sync-design.sh` to keep the designer's branch updated.
+When Main User mentions "just merged a PR" or "committed to main", remind him to run `./sync-design.sh` to keep the designer's branch updated.
