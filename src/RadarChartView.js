@@ -6,13 +6,13 @@ import { prepareSVGClone, embedFonts, addWhiteBackground, createLegendItem, down
 import ChartCard from './components/ChartCard';
 
 const YEAR_COLORS = {
-  '2019': '#95a3a6',
-  '2020': '#7f8c8d',
-  '2021': '#34495e',
-  '2022': '#2980b9',
-  '2023': '#8e44ad',
-  '2024': '#27ae60',
-  '2025': '#003B88'
+  '2019': '#FFB52B',
+  '2020': '#226640',
+  '2021': '#9C89ED',
+  '2022': '#FF4D6A',
+  '2023': '#3366FF',
+  '2024': '#BF02AF',
+  '2025': '#181878'
 };
 
 function RadarChartView({

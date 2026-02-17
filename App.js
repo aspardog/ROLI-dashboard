@@ -30,7 +30,7 @@ export default function ROLIDashboard() {
     { value: 'f7', label: 'F7 - Civil Justice' },
     { value: 'f8', label: 'F8 - Criminal Justice' }
   ]);
-  const [selectedRadarYears, setSelectedRadarYears] = useState(['2023', '2024', '2025']);
+  const [selectedRadarYears, setSelectedRadarYears] = useState(['2025', '2024', '2023']);
   const [expandedFactorGroups, setExpandedFactorGroups] = useState({ general: true, factor: true });
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [isHowToUseModalOpen, setIsHowToUseModalOpen] = useState(false);
@@ -409,7 +409,7 @@ export default function ROLIDashboard() {
                         checked={selectedRadarYears.includes(year)}
                         onChange={(e) => {
                           if (e.target.checked) {
-                            setSelectedRadarYears([...selectedRadarYears, year].sort());
+                            setSelectedRadarYears([...selectedRadarYears, year].sort().reverse());
                           } else {
                             setSelectedRadarYears(selectedRadarYears.filter(y => y !== year));
                           }
@@ -432,7 +432,7 @@ export default function ROLIDashboard() {
         <p style={{ fontSize: '12px', color: COLORS.muted }}>
           Source: World Justice Project — Rule of Law Index {
             chartType === 'timeseries' ? '2019–2025' :
-            chartType === 'radar' ? selectedRadarYears.sort().join(', ') :
+            chartType === 'radar' ? [...selectedRadarYears].sort().join(', ') :
             chartType === 'factors' ? selectedYear :
             selectedYear
           }
