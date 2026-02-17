@@ -19,6 +19,39 @@ This file provides context for Claude Code when assisting the designer working o
 
 ---
 
+## CRITICAL: For Claude Code - Always Remind Designer to Sync
+
+**IMPORTANT INSTRUCTION FOR CLAUDE CODE:**
+
+When the designer identifies themselves and starts a new work session, you MUST:
+
+1. **First action:** Remind them to sync their `design` branch with `main` before starting any work
+2. **Execute the sync:** Offer to run the synchronization commands for them
+3. **Verify branch:** Confirm they're on the `design` branch
+
+**Standard greeting when designer starts session:**
+
+"Hi! Before we start working on design changes, let's make sure your `design` branch is synchronized with the latest updates from `main`. This ensures you're working with Santiago's most recent changes. I'll run the sync commands for you."
+
+Then execute:
+```bash
+git checkout design
+git pull origin design
+git pull origin main
+```
+
+**Why this matters:**
+- Santiago frequently merges updates to `main` (new features, bug fixes, data updates)
+- Working on outdated code can create merge conflicts later
+- Syncing first prevents duplicate work and ensures design changes apply to current code
+
+**When to skip sync:**
+- If designer explicitly says they just synced
+- If they're in the middle of resolving a conflict
+- If they're just asking questions (not making changes)
+
+---
+
 ## Files Designer Should Modify
 
 ### 🎨 Primary Design Files (modify freely):
@@ -118,23 +151,29 @@ TS_COLORS = {
 ### Daily Workflow:
 
 ```bash
-# 1. Always start by ensuring you're on design branch
+# 1. ALWAYS start by ensuring you're on design branch
 git checkout design
 
-# 2. Get latest changes
+# 2. Get latest changes from design branch
 git pull origin design
 
-# 3. Make your design changes
+# 3. 🔄 SYNC with main (CRITICAL - do this every session!)
+git pull origin main
+
+# 4. Make your design changes
 # Edit files in VS Code, see changes at localhost:3000
 
-# 4. Save your work
+# 5. Save your work
 git add .
 git commit -m "Descriptive message about what you changed"
 git push origin design
 
-# 5. When ready for Santiago's review
+# 6. When ready for Santiago's review
 # Go to GitHub and create Pull Request: design → main
 ```
+
+**Why sync with main every time?**
+Santiago regularly updates `main` with new features, bug fixes, and data updates. Pulling from `main` ensures you're always working with the latest code, preventing merge conflicts and duplicate work.
 
 ### Important Git Rules:
 - ✅ ALWAYS verify you're on `design` branch (run `git status`)
@@ -214,6 +253,8 @@ style={{
 
 "I'm the designer working on visual improvements for the ROLI dashboard. I need to [your design task]. I should only work on the design branch and modify styling/visual files."
 
+**Note:** When you identify yourself as the designer, Claude will automatically remind you to sync with `main` before starting work. This is intentional and important!
+
 ### Good prompts:
 
 ✅ "I want to change the color scheme to use a blue gradient instead of the current colors"
@@ -285,20 +326,21 @@ Your design changes are successful when:
 ## Quick Reference Card
 
 ```
-┌─────────────────────────────────────────────────┐
-│ DESIGNER QUICK REFERENCE                        │
-├─────────────────────────────────────────────────┤
-│ Branch:        design (ALWAYS)                  │
-│ Can modify:    Styles, colors, spacing, fonts   │
-│ Cannot modify: Logic, data, configuration       │
-│ Main files:    src/constants.js (colors)        │
-│                src/responsive.css (mobile)      │
-│                App.js (inline styles)           │
-│ Workflow:      Edit → Save → Check browser      │
-│                → Commit → Push → PR             │
-│ Test on:       Desktop, tablet, mobile          │
-│                All 4 chart types, both modals   │
-└─────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────┐
+│ DESIGNER QUICK REFERENCE                             │
+├──────────────────────────────────────────────────────┤
+│ Branch:        design (ALWAYS)                       │
+│ Start session: SYNC with main (git pull origin main)│
+│ Can modify:    Styles, colors, spacing, fonts       │
+│ Cannot modify: Logic, data, configuration           │
+│ Main files:    src/constants.js (colors)            │
+│                src/responsive.css (mobile)          │
+│                App.js (inline styles)               │
+│ Workflow:      Sync → Edit → Save → Check browser  │
+│                → Commit → Push → PR                 │
+│ Test on:       Desktop, tablet, mobile              │
+│                All 4 chart types, both modals       │
+└──────────────────────────────────────────────────────┘
 ```
 
 ---
