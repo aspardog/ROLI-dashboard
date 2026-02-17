@@ -212,8 +212,10 @@ git checkout design
 
 ## 📚 Guías completas
 
+- **CLAUDE_CODE_SETUP.md** - 🤖 Cómo instalar y usar Claude Code localmente (tu asistente AI personal)
 - **DESIGN_GUIDE.md** - Tutorial detallado paso a paso
 - **DESIGN_FILES_REFERENCE.md** - Referencia de todos los archivos con ejemplos
+- **DESIGNER_README.md** - Información específica para diseñadoras (Claude Code lee esto automáticamente)
 
 ---
 

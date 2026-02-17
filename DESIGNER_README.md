@@ -249,6 +249,30 @@ style={{
 
 ## When Working with Claude Code
 
+### IMPORTANT: Use Claude Code Locally (Not on GitHub)
+
+**You should use Claude Code on your local computer, NOT via @claude mentions on GitHub.**
+
+**Why?**
+- GitHub @claude mentions use Santiago's API quota and billing
+- You have your own Claude Code account with your own quota
+- Working locally gives you full control and privacy
+
+**How to use Claude Code locally:**
+1. Open your terminal in the project folder
+2. Run: `claude` (if installed) or use the Claude Code CLI
+3. Tell Claude: "I'm the designer working on visual improvements for the ROLI dashboard..."
+4. Claude will help you with design changes using YOUR quota
+
+**What NOT to do:**
+- ❌ Don't mention `@claude` in GitHub Pull Request comments (won't work - restricted to Santiago)
+- ❌ Don't expect Claude to respond in GitHub Issues/PRs (not configured for you)
+
+**What TO do:**
+- ✅ Use Claude Code in your local terminal/VS Code
+- ✅ Ask Santiago to review PRs (he can use @claude if needed)
+- ✅ Work independently with your own Claude Code account
+
 ### Tell Claude your role:
 
 "I'm the designer working on visual improvements for the ROLI dashboard. I need to [your design task]. I should only work on the design branch and modify styling/visual files."
@@ -304,6 +328,7 @@ Before creating a Pull Request, take screenshots:
 - Ask for accessibility improvements (color contrast, font sizes)
 
 ### Resources:
+- `CLAUDE_CODE_SETUP.md` - **How to install and use Claude Code locally (START HERE!)**
 - `DESIGN_FILES_REFERENCE.md` - Quick reference of all files
 - `DESIGN_GUIDE.md` - Complete step-by-step guide
 - `START_HERE.md` - Initial setup guide

@@ -63,9 +63,17 @@ This ensures the designer always works with the latest code. See `SYNC_GUIDE.md`
 
 Always work on the `design` branch. See comprehensive guides:
 - `START_HERE.md` — Quick setup guide
+- `CLAUDE_CODE_SETUP.md` — How to use Claude Code locally (AI assistant)
 - `DESIGNER_README.md` — Designer role context for Claude Code
 - `DESIGN_GUIDE.md` — Complete design workflow
 - `DESIGN_FILES_REFERENCE.md` — File-by-file reference
+
+### Claude Code Integration
+
+This repository has Claude Code integration:
+- **GitHub Actions (@claude):** Only available to maintainer (Santiago), uses maintainer's API quota
+- **Local Claude Code:** Designers should use Claude Code locally with their own accounts
+- See `CLAUDE_CODE_SETUP.md` for setup instructions
 
 ## Tech Stack
 
