@@ -41,6 +41,7 @@ This project has multiple collaborators with different roles and permissions:
 - Can modify core logic, data pipeline, configuration
 - Can work on any branch
 - Can approve and merge Pull Requests
+- **IMPORTANT:** After any merge to `main` or commit to `main`, remind Santiago to run `./sync-design.sh` to sync the designer's branch
 
 **If user role is unclear:**
 - Ask: "Are you the designer or the developer on this project?"
@@ -326,6 +327,37 @@ Edit `COLORS` or `TS_COLORS` in `src/constants.js`. Changes propagate to all com
 2. Update `VARIABLE_OPTIONS` in `src/constants.js`
 3. Update `SUBFACTOR_GROUPS` if adding new factor
 4. Re-run parser
+
+### Syncing Design Branch After Merge to Main (For Santiago)
+
+**CRITICAL:** After merging any PR to `main` or committing directly to `main`, you MUST sync the `design` branch so the designer works with your latest code.
+
+**Quick command:**
+```bash
+./sync-design.sh
+```
+
+This script automatically:
+1. Updates your local `main` branch
+2. Switches to `design` branch
+3. Merges `main` into `design`
+4. Pushes updated `design` to GitHub
+5. Returns you to your original branch
+
+**When to sync:**
+- ✅ Just merged a PR from designer → Run sync
+- ✅ Just committed your own changes to `main` → Run sync
+- ✅ Just pushed to `main` → Run sync
+
+**Why this matters:**
+- Prevents merge conflicts later
+- Designer always works with current code
+- Avoids duplicate work
+- Ensures design changes apply to latest implementation
+
+**For Claude Code:** When assisting Santiago and you see commits/merges to `main`, remind him to run `./sync-design.sh` to keep the designer's branch updated.
+
+See `SYNC_GUIDE.md` for detailed instructions and troubleshooting.
 
 ## Tech Stack
 
