@@ -269,8 +269,8 @@ export default function ROLIDashboard() {
         )}
         {chartType === 'radar' && (
           <>
-            {/* Radar Chart Controls - SHOWN FIRST */}
-            <div className="radar-controls chart-card" style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
+            {/* Radar Controls - Region, Country, Years - ABOVE CHART */}
+            <div className="radar-controls-top chart-card" style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
               <div className="radar-controls-row" style={{ display: 'flex', gap: '24px', marginBottom: '24px' }}>
                 <div style={{ flex: 1 }}>
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Region</label>
@@ -284,106 +284,6 @@ export default function ROLIDashboard() {
                     <option value="__regional_avg__">{selectedRegion === 'global' ? 'Global Average' : 'Regional Average'}</option>
                     {availableCountries.map(c => (<option key={c} value={c}>{c}</option>))}
                   </select>
-                </div>
-              </div>
-
-              <div style={{ marginBottom: '24px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    Factors & Subfactors to Compare
-                  </label>
-                  <span style={{ fontSize: '13px', color: COLORS.muted, fontWeight: '500' }}>
-                    {selectedFactors.length} selected
-                  </span>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {/* Overall Index */}
-                  {(() => {
-                    const groupKey = 'general';
-                    const options = VARIABLE_OPTIONS.filter(o => o.category === groupKey);
-                    const isExpanded = expandedFactorGroups[groupKey];
-                    const selectedCount = options.filter(o => selectedFactors.some(f => f.value === o.value)).length;
-                    const allSelected = selectedCount === options.length;
-
-                    return (
-                      <div style={{ backgroundColor: 'white', borderRadius: '6px', border: '1px solid #e5e5e5', overflow: 'hidden' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', padding: '12px 16px', backgroundColor: isExpanded ? '#fafafa' : 'white', cursor: 'pointer', userSelect: 'none' }} onClick={() => setExpandedFactorGroups({ ...expandedFactorGroups, [groupKey]: !isExpanded })}>
-                          <span style={{ fontSize: '18px', marginRight: '8px', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>▶</span>
-                          <span style={{ flex: 1, fontSize: '14px', fontWeight: '600', color: COLORS.text }}>Overall Index</span>
-                          <span style={{ fontSize: '12px', color: COLORS.muted }}>{selectedCount} / {options.length}</span>
-                        </div>
-                        {isExpanded && (
-                          <div style={{ padding: '12px 16px 12px 48px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '8px', borderTop: '1px solid #f0f0f0' }}>
-                            {options.map(factor => (
-                              <label key={factor.value} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '4px 0' }}>
-                                <input type="checkbox" checked={selectedFactors.some(f => f.value === factor.value)} onChange={(e) => { if (e.target.checked) { setSelectedFactors([...selectedFactors, factor]); } else { setSelectedFactors(selectedFactors.filter(f => f.value !== factor.value)); } }} style={{ cursor: 'pointer', width: '14px', height: '14px' }} />
-                                <span style={{ fontSize: '14px', color: COLORS.text }}>{factor.label}</span>
-                              </label>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })()}
-
-                  {/* Main Factors */}
-                  {(() => {
-                    const groupKey = 'factor';
-                    const options = VARIABLE_OPTIONS.filter(o => o.category === groupKey);
-                    const isExpanded = expandedFactorGroups[groupKey];
-                    const selectedCount = options.filter(o => selectedFactors.some(f => f.value === o.value)).length;
-                    const allSelected = selectedCount === options.length;
-
-                    return (
-                      <div style={{ backgroundColor: 'white', borderRadius: '6px', border: '1px solid #e5e5e5', overflow: 'hidden' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', padding: '12px 16px', backgroundColor: isExpanded ? '#fafafa' : 'white', cursor: 'pointer', userSelect: 'none' }} onClick={() => setExpandedFactorGroups({ ...expandedFactorGroups, [groupKey]: !isExpanded })}>
-                          <span style={{ fontSize: '18px', marginRight: '8px', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>▶</span>
-                          <span style={{ flex: 1, fontSize: '14px', fontWeight: '600', color: COLORS.text }}>Factors</span>
-                          <span style={{ fontSize: '12px', color: COLORS.muted }}>{selectedCount} / {options.length}</span>
-                        </div>
-                        {isExpanded && (
-                          <div style={{ padding: '12px 16px 12px 48px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '8px', borderTop: '1px solid #f0f0f0' }}>
-                            {options.map(factor => (
-                              <label key={factor.value} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '4px 0' }}>
-                                <input type="checkbox" checked={selectedFactors.some(f => f.value === factor.value)} onChange={(e) => { if (e.target.checked) { setSelectedFactors([...selectedFactors, factor]); } else { setSelectedFactors(selectedFactors.filter(f => f.value !== factor.value)); } }} style={{ cursor: 'pointer', width: '14px', height: '14px' }} />
-                                <span style={{ fontSize: '14px', color: COLORS.text }}>{factor.label}</span>
-                              </label>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })()}
-
-                  {/* Subfactors by group */}
-                  {SUBFACTOR_GROUPS.map(group => {
-                    const groupKey = group.category;
-                    const options = VARIABLE_OPTIONS.filter(o => o.category === groupKey);
-                    const isExpanded = expandedFactorGroups[groupKey];
-                    const selectedCount = options.filter(o => selectedFactors.some(f => f.value === o.value)).length;
-                    const allSelected = selectedCount === options.length;
-
-                    return (
-                      <div key={groupKey} style={{ backgroundColor: 'white', borderRadius: '6px', border: '1px solid #e5e5e5', overflow: 'hidden' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', padding: '12px 16px', backgroundColor: isExpanded ? '#fafafa' : 'white', cursor: 'pointer', userSelect: 'none' }} onClick={() => setExpandedFactorGroups({ ...expandedFactorGroups, [groupKey]: !isExpanded })}>
-                          <span style={{ fontSize: '18px', marginRight: '8px', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>▶</span>
-                          <span style={{ flex: 1, fontSize: '14px', fontWeight: '600', color: COLORS.text }}>{group.label} — Subfactors</span>
-                          <span style={{ fontSize: '12px', color: COLORS.muted }}>{selectedCount} / {options.length}</span>
-                        </div>
-                        {isExpanded && (
-                          <div style={{ padding: '12px 16px 12px 48px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '8px', borderTop: '1px solid #f0f0f0' }}>
-                            {options.map(factor => (
-                              <label key={factor.value} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '4px 0' }}>
-                                <input type="checkbox" checked={selectedFactors.some(f => f.value === factor.value)} onChange={(e) => { if (e.target.checked) { setSelectedFactors([...selectedFactors, factor]); } else { setSelectedFactors(selectedFactors.filter(f => f.value !== factor.value)); } }} style={{ cursor: 'pointer', width: '14px', height: '14px' }} />
-                                <span style={{ fontSize: '13px', color: COLORS.text }}>{factor.label}</span>
-                              </label>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
                 </div>
               </div>
 
@@ -411,7 +311,7 @@ export default function ROLIDashboard() {
               </div>
             </div>
 
-            {/* Radar Chart - SHOWN AFTER CONTROLS */}
+            {/* Radar Chart */}
             <RadarChartView
               allData={allData}
               selectedRegion={selectedRegion}
@@ -422,6 +322,104 @@ export default function ROLIDashboard() {
                 (selectedRegion === 'global' ? 'Global Average' : regionLabel + ' Average') :
                 selectedRadarCountry}
             />
+
+            {/* Factors & Subfactors - BELOW CHART */}
+            <div className="radar-factors-panel chart-card" style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <label style={{ fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Factors & Subfactors to Compare
+                </label>
+                <span style={{ fontSize: '13px', color: COLORS.muted, fontWeight: '500' }}>
+                  {selectedFactors.length} selected
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {/* Overall Index */}
+                {(() => {
+                  const groupKey = 'general';
+                  const options = VARIABLE_OPTIONS.filter(o => o.category === groupKey);
+                  const isExpanded = expandedFactorGroups[groupKey];
+                  const selectedCount = options.filter(o => selectedFactors.some(f => f.value === o.value)).length;
+
+                  return (
+                    <div style={{ backgroundColor: 'white', borderRadius: '6px', border: '1px solid #e5e5e5', overflow: 'hidden' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', padding: '12px 16px', backgroundColor: isExpanded ? '#fafafa' : 'white', cursor: 'pointer', userSelect: 'none' }} onClick={() => setExpandedFactorGroups({ ...expandedFactorGroups, [groupKey]: !isExpanded })}>
+                        <span style={{ fontSize: '18px', marginRight: '8px', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>▶</span>
+                        <span style={{ flex: 1, fontSize: '14px', fontWeight: '600', color: COLORS.text }}>Overall Index</span>
+                        <span style={{ fontSize: '12px', color: COLORS.muted }}>{selectedCount} / {options.length}</span>
+                      </div>
+                      {isExpanded && (
+                        <div style={{ padding: '12px 16px 12px 48px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '8px', borderTop: '1px solid #f0f0f0' }}>
+                          {options.map(factor => (
+                            <label key={factor.value} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '4px 0' }}>
+                              <input type="checkbox" checked={selectedFactors.some(f => f.value === factor.value)} onChange={(e) => { if (e.target.checked) { setSelectedFactors([...selectedFactors, factor]); } else { setSelectedFactors(selectedFactors.filter(f => f.value !== factor.value)); } }} style={{ cursor: 'pointer', width: '14px', height: '14px' }} />
+                              <span style={{ fontSize: '14px', color: COLORS.text }}>{factor.label}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                {/* Main Factors */}
+                {(() => {
+                  const groupKey = 'factor';
+                  const options = VARIABLE_OPTIONS.filter(o => o.category === groupKey);
+                  const isExpanded = expandedFactorGroups[groupKey];
+                  const selectedCount = options.filter(o => selectedFactors.some(f => f.value === o.value)).length;
+
+                  return (
+                    <div style={{ backgroundColor: 'white', borderRadius: '6px', border: '1px solid #e5e5e5', overflow: 'hidden' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', padding: '12px 16px', backgroundColor: isExpanded ? '#fafafa' : 'white', cursor: 'pointer', userSelect: 'none' }} onClick={() => setExpandedFactorGroups({ ...expandedFactorGroups, [groupKey]: !isExpanded })}>
+                        <span style={{ fontSize: '18px', marginRight: '8px', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>▶</span>
+                        <span style={{ flex: 1, fontSize: '14px', fontWeight: '600', color: COLORS.text }}>Factors</span>
+                        <span style={{ fontSize: '12px', color: COLORS.muted }}>{selectedCount} / {options.length}</span>
+                      </div>
+                      {isExpanded && (
+                        <div style={{ padding: '12px 16px 12px 48px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '8px', borderTop: '1px solid #f0f0f0' }}>
+                          {options.map(factor => (
+                            <label key={factor.value} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '4px 0' }}>
+                              <input type="checkbox" checked={selectedFactors.some(f => f.value === factor.value)} onChange={(e) => { if (e.target.checked) { setSelectedFactors([...selectedFactors, factor]); } else { setSelectedFactors(selectedFactors.filter(f => f.value !== factor.value)); } }} style={{ cursor: 'pointer', width: '14px', height: '14px' }} />
+                              <span style={{ fontSize: '14px', color: COLORS.text }}>{factor.label}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                {/* Subfactors by group */}
+                {SUBFACTOR_GROUPS.map(group => {
+                  const groupKey = group.category;
+                  const options = VARIABLE_OPTIONS.filter(o => o.category === groupKey);
+                  const isExpanded = expandedFactorGroups[groupKey];
+                  const selectedCount = options.filter(o => selectedFactors.some(f => f.value === o.value)).length;
+
+                  return (
+                    <div key={groupKey} style={{ backgroundColor: 'white', borderRadius: '6px', border: '1px solid #e5e5e5', overflow: 'hidden' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', padding: '12px 16px', backgroundColor: isExpanded ? '#fafafa' : 'white', cursor: 'pointer', userSelect: 'none' }} onClick={() => setExpandedFactorGroups({ ...expandedFactorGroups, [groupKey]: !isExpanded })}>
+                        <span style={{ fontSize: '18px', marginRight: '8px', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>▶</span>
+                        <span style={{ flex: 1, fontSize: '14px', fontWeight: '600', color: COLORS.text }}>{group.label} — Subfactors</span>
+                        <span style={{ fontSize: '12px', color: COLORS.muted }}>{selectedCount} / {options.length}</span>
+                      </div>
+                      {isExpanded && (
+                        <div style={{ padding: '12px 16px 12px 48px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '8px', borderTop: '1px solid #f0f0f0' }}>
+                          {options.map(factor => (
+                            <label key={factor.value} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '4px 0' }}>
+                              <input type="checkbox" checked={selectedFactors.some(f => f.value === factor.value)} onChange={(e) => { if (e.target.checked) { setSelectedFactors([...selectedFactors, factor]); } else { setSelectedFactors(selectedFactors.filter(f => f.value !== factor.value)); } }} style={{ cursor: 'pointer', width: '14px', height: '14px' }} />
+                              <span style={{ fontSize: '13px', color: COLORS.text }}>{factor.label}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </>
         )}
         </Suspense>

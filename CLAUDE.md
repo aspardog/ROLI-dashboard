@@ -50,6 +50,8 @@ This project has multiple collaborators with different roles and permissions:
 
 ## Development Commands
 
+**Prerequisites:** Node.js 16+
+
 ```bash
 # Install dependencies
 npm install
@@ -265,40 +267,6 @@ All scores rounded to 3 decimal places.
 **Country normalization**: Parser maps Excel country names to display names (e.g., "Venezuela, RB" → "Venezuela")
 
 **Dynamic scaling**: Charts adjust height, spacing, and element sizes based on number of selections to prevent overcrowding
-
-## Recent Improvements (2025)
-
-### Factor Comparison Chart Enhancements
-- **Direct Region Selection**: Users can now select regions directly via checkboxes instead of changing global region filter
-  - "Regional Averages" section with Global + 7 regions
-  - "Individual Countries" section with collapsible region groups
-  - Supports comparing any mix of regions/countries (up to 5 total)
-- **Dynamic Spacing**: Chart height and spacing automatically adjust based on number of selections to prevent overcrowding
-- **Left-Aligned Labels**: All factor labels aligned to left for visual consistency
-- **Simplified Controls**: Removed redundant REGION filter, kept only YEAR selector (centered, 300px wide)
-
-### SVG Export Improvements
-- **Unified Legend Position**: All charts now show legends at TOP of exported SVG (previously at bottom)
-- **Larger, More Visible Elements**:
-  - Text increased from 13px to 16px
-  - Color boxes/bars made larger (18px boxes, 4-5px height bars)
-  - Changed text color from COLORS.muted to COLORS.text for better visibility
-- **Perfect Vertical Alignment**: Color elements centered with text using `dominant-baseline='middle'`
-
-### Radar Chart Improvements
-- **Chart-First Layout**: Radar visualization shown BEFORE controls for immediate visual feedback
-- **Cleaner Interface**: Removed "Select All"/"Deselect All" buttons for minimal UI
-- **Better Readability**: Increased radial axis values to 16px font
-- **More Granular Scale**: Added intermediate tick labels (0.0, 0.2, 0.4, 0.6, 0.8, 1.0)
-- **Legend in SVG Export**: Year legend now included in exported SVG files
-
-### Time Series Chart Improvements
-- **Fixed Y-Axis Scale**: Changed from dynamic to fixed 0-1 scale for consistency across comparisons
-- **Standardized Ticks**: Always shows 0.00, 0.20, 0.40, 0.60, 0.80, 1.00
-
-### Top/Bottom Chart Improvements
-- **Increased Legend Size**: Larger boxes (18px) and text (16px) in SVG exports
-- **Top Position**: Legend moved to top of exported SVG
 
 ## Common Tasks
 
