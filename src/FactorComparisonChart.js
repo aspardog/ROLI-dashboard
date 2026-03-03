@@ -225,6 +225,58 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
       subtitle={selectedYear}
       onExport={downloadSVG}
     >
+      {/* Regional Averages Section - above chart */}
+      <div style={{ marginBottom: '20px', padding: '20px', backgroundColor: '#f8f7f4', borderRadius: '8px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <label style={{ fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            Countries to Compare (select up to 5)
+          </label>
+          <span style={{ fontSize: '13px', color: COLORS.muted, fontWeight: '500' }}>
+            {selectedCountries.length} / 5 selected
+          </span>
+        </div>
+        <h3 style={{ fontSize: '14px', fontWeight: '600', color: COLORS.text, marginBottom: '12px' }}>🌍 Regional Averages</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '10px' }}>
+          {/* Global Average */}
+          <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', backgroundColor: 'white', borderRadius: '6px', border: `2px solid ${selectedCountries.includes('__region_global') ? COLORS.top5 : '#e5e5e5'}`, cursor: 'pointer', transition: 'all 0.2s' }}>
+            <input
+              type="checkbox"
+              checked={selectedCountries.includes('__region_global')}
+              onChange={(e) => {
+                if (e.target.checked && selectedCountries.length < 5) {
+                  setSelectedCountries([...selectedCountries, '__region_global']);
+                } else if (!e.target.checked) {
+                  setSelectedCountries(selectedCountries.filter(c => c !== '__region_global'));
+                }
+              }}
+              style={{ cursor: 'pointer', width: '18px', height: '18px', accentColor: COLORS.top5 }}
+            />
+            <span style={{ fontSize: '14px', color: COLORS.text, fontWeight: '600' }}>Global Average</span>
+          </label>
+
+          {/* Individual Regions */}
+          {REGION_OPTIONS.filter(r => r.value !== 'global').map(region => (
+            <label key={region.value} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', backgroundColor: 'white', borderRadius: '6px', border: `2px solid ${selectedCountries.includes(`__region_${region.value}`) ? COLORS.top5 : '#e5e5e5'}`, cursor: 'pointer', transition: 'all 0.2s' }}>
+              <input
+                type="checkbox"
+                checked={selectedCountries.includes(`__region_${region.value}`)}
+                onChange={(e) => {
+                  const regionKey = `__region_${region.value}`;
+                  if (e.target.checked && selectedCountries.length < 5) {
+                    setSelectedCountries([...selectedCountries, regionKey]);
+                  } else if (!e.target.checked) {
+                    setSelectedCountries(selectedCountries.filter(c => c !== regionKey));
+                  }
+                }}
+                disabled={!selectedCountries.includes(`__region_${region.value}`) && selectedCountries.length >= 5}
+                style={{ cursor: selectedCountries.includes(`__region_${region.value}`) || selectedCountries.length < 5 ? 'pointer' : 'not-allowed', width: '18px', height: '18px', accentColor: COLORS.top5 }}
+              />
+              <span style={{ fontSize: '14px', color: selectedCountries.includes(`__region_${region.value}`) || selectedCountries.length < 5 ? COLORS.text : COLORS.muted, fontWeight: '500' }}>{region.label}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
       {/* Legend */}
       <div className="legend-container" style={{ display: 'flex', gap: '20px', marginBottom: '12px', flexWrap: 'wrap' }}>
         {selectedCountries.map((country, index) => (
@@ -291,62 +343,8 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
         </ResponsiveContainer>
       </div>
 
-      {/* Country Selection Controls */}
+      {/* Individual Countries by Region - below chart */}
       <div style={{ marginTop: '24px', padding: '20px', backgroundColor: '#f8f7f4', borderRadius: '8px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <label style={{ fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-            Countries to Compare (select up to 5)
-          </label>
-          <span style={{ fontSize: '13px', color: COLORS.muted, fontWeight: '500' }}>
-            {selectedCountries.length} / 5 selected
-          </span>
-        </div>
-
-        {/* Regional Averages Section */}
-        <div style={{ marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '14px', fontWeight: '600', color: COLORS.text, marginBottom: '12px' }}>🌍 Regional Averages</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '10px' }}>
-            {/* Global Average */}
-            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', backgroundColor: 'white', borderRadius: '6px', border: `2px solid ${selectedCountries.includes('__region_global') ? COLORS.top5 : '#e5e5e5'}`, cursor: 'pointer', transition: 'all 0.2s' }}>
-              <input
-                type="checkbox"
-                checked={selectedCountries.includes('__region_global')}
-                onChange={(e) => {
-                  if (e.target.checked && selectedCountries.length < 5) {
-                    setSelectedCountries([...selectedCountries, '__region_global']);
-                  } else if (!e.target.checked) {
-                    setSelectedCountries(selectedCountries.filter(c => c !== '__region_global'));
-                  }
-                }}
-                style={{ cursor: 'pointer', width: '18px', height: '18px', accentColor: COLORS.top5 }}
-              />
-              <span style={{ fontSize: '14px', color: COLORS.text, fontWeight: '600' }}>Global Average</span>
-            </label>
-
-            {/* Individual Regions */}
-            {REGION_OPTIONS.filter(r => r.value !== 'global').map(region => (
-              <label key={region.value} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', backgroundColor: 'white', borderRadius: '6px', border: `2px solid ${selectedCountries.includes(`__region_${region.value}`) ? COLORS.top5 : '#e5e5e5'}`, cursor: 'pointer', transition: 'all 0.2s' }}>
-                <input
-                  type="checkbox"
-                  checked={selectedCountries.includes(`__region_${region.value}`)}
-                  onChange={(e) => {
-                    const regionKey = `__region_${region.value}`;
-                    if (e.target.checked && selectedCountries.length < 5) {
-                      setSelectedCountries([...selectedCountries, regionKey]);
-                    } else if (!e.target.checked) {
-                      setSelectedCountries(selectedCountries.filter(c => c !== regionKey));
-                    }
-                  }}
-                  disabled={!selectedCountries.includes(`__region_${region.value}`) && selectedCountries.length >= 5}
-                  style={{ cursor: selectedCountries.includes(`__region_${region.value}`) || selectedCountries.length < 5 ? 'pointer' : 'not-allowed', width: '18px', height: '18px', accentColor: COLORS.top5 }}
-                />
-                <span style={{ fontSize: '14px', color: selectedCountries.includes(`__region_${region.value}`) || selectedCountries.length < 5 ? COLORS.text : COLORS.muted, fontWeight: '500' }}>{region.label}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {/* Individual Countries by Region */}
         <div style={{ marginBottom: '12px' }}>
           <h3 style={{ fontSize: '14px', fontWeight: '600', color: COLORS.text, marginBottom: '12px' }}>🏴 Individual Countries</h3>
         </div>
