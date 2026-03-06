@@ -101,8 +101,8 @@ const TS_COLORS = {
   line: '#181878',
   axis: '#514e4b',
   grid: '#BDBDBD',
-  regionalAvg: '#9e9e9e',
-  globalAvg: '#bdbdbd'
+  regionalAvg: '#5ec6c6',
+  globalAvg: '#757575'
 };
 
 export { ACTIVE_YEAR, REGION_OPTIONS, VARIABLE_OPTIONS, SUBFACTOR_GROUPS, COLORS, TS_COLORS };

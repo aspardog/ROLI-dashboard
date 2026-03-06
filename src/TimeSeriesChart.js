@@ -5,14 +5,17 @@ import { TS_COLORS } from './constants';
 import { prepareSVGClone, embedFonts, addWhiteBackground, downloadSVG as downloadSVGHelper, createLegendItem } from './svgExportHelpers';
 import ChartCard from './components/ChartCard';
 
-function TimeSeriesChart({ allData, country, variable, label, selectedRegion, regionLabel, showRegionalAvg = false, showGlobalAvg = false }) {
+function TimeSeriesChart({ allData, country, variable, label, selectedRegion, regionLabel, showRegionalAvg = false, showGlobalAvg = false, countryRegion = null }) {
   const chartRef = useRef(null);
+
+  // Use countryRegion (detected from data) when available, otherwise use selectedRegion
+  const effectiveRegion = countryRegion || (selectedRegion !== 'global' ? selectedRegion : null);
 
   // Calculate regional average series
   const regionalAvgSeries = useMemo(() => {
-    if (!showRegionalAvg || selectedRegion === 'global') return {};
+    if (!showRegionalAvg || !effectiveRegion) return {};
     const filtered = allData.filter(d => {
-      if (d.region !== selectedRegion) return false;
+      if (d.region !== effectiveRegion) return false;
       return d[variable] != null && parseInt(d.year) >= 2019;
     });
     const byYear = {};
@@ -25,7 +28,7 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
       result[year] = Math.round((vals.reduce((s, v) => s + v, 0) / vals.length) * 1000) / 1000;
     }
     return result;
-  }, [allData, variable, selectedRegion, showRegionalAvg]);
+  }, [allData, variable, effectiveRegion, showRegionalAvg]);
 
   // Calculate global average series
   const globalAvgSeries = useMemo(() => {
@@ -75,7 +78,7 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
   }, [series, regionalAvgSeries, globalAvgSeries]);
 
   // Check if we're showing reference lines
-  const hasReferences = (showRegionalAvg && selectedRegion !== 'global') || showGlobalAvg;
+  const hasReferences = (showRegionalAvg && effectiveRegion) || showGlobalAvg;
 
   if (series.length < 2) return null;
 
@@ -103,17 +106,17 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
       // Country legend item
       const countryItems = createLegendItem(xOffset, legendY, TS_COLORS.line, country, 'line', {
         width: 24,
-        height: 3,
+        height: 4,
         textOptions: { fontSize: 14, fontWeight: 600 }
       });
       countryItems.forEach(el => clone.appendChild(el));
       xOffset += 24 + 6 + country.length * 7 + 24;
 
       // Regional Average legend item
-      if (showRegionalAvg && selectedRegion !== 'global') {
+      if (showRegionalAvg) {
         const regionalItems = createLegendItem(xOffset, legendY, TS_COLORS.regionalAvg, 'Regional Average', 'line', {
           width: 24,
-          height: 3,
+          height: 4,
           textOptions: { fontSize: 14, fontWeight: 500 }
         });
         regionalItems.forEach(el => clone.appendChild(el));
@@ -124,7 +127,7 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
       if (showGlobalAvg) {
         const globalItems = createLegendItem(xOffset, legendY, TS_COLORS.globalAvg, 'Global Average', 'line', {
           width: 24,
-          height: 3,
+          height: 4,
           textOptions: { fontSize: 14, fontWeight: 500 }
         });
         globalItems.forEach(el => clone.appendChild(el));
@@ -144,18 +147,18 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
       {hasReferences && (
         <div style={{ display: 'flex', gap: '24px', marginBottom: '16px', paddingLeft: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '24px', height: '3px', backgroundColor: TS_COLORS.line, borderRadius: '2px' }} />
+            <div style={{ width: '24px', height: '4px', backgroundColor: TS_COLORS.line, borderRadius: '2px' }} />
             <span style={{ fontSize: '13px', color: TS_COLORS.axis }}>{country}</span>
           </div>
-          {showRegionalAvg && selectedRegion !== 'global' && (
+          {showRegionalAvg && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '24px', height: '3px', backgroundColor: TS_COLORS.regionalAvg, borderRadius: '2px' }} />
+              <div style={{ width: '24px', height: '4px', backgroundColor: TS_COLORS.regionalAvg, borderRadius: '2px' }} />
               <span style={{ fontSize: '13px', color: TS_COLORS.axis }}>Regional Average</span>
             </div>
           )}
           {showGlobalAvg && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '24px', height: '3px', backgroundColor: TS_COLORS.globalAvg, borderRadius: '2px' }} />
+              <div style={{ width: '24px', height: '4px', backgroundColor: TS_COLORS.globalAvg, borderRadius: '2px' }} />
               <span style={{ fontSize: '13px', color: TS_COLORS.axis }}>Global Average</span>
             </div>
           )}
@@ -187,8 +190,8 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
                 type="linear"
                 dataKey="globalAvg"
                 stroke={TS_COLORS.globalAvg}
-                strokeWidth={2}
-                dot={{ r: 3, fill: TS_COLORS.globalAvg, strokeWidth: 0 }}
+                strokeWidth={2.5}
+                dot={{ r: 4, fill: TS_COLORS.globalAvg, strokeWidth: 0 }}
                 isAnimationActive={false}
               >
                 <LabelList
@@ -212,13 +215,13 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
               </Line>
             )}
             {/* Regional Average line (middle) */}
-            {showRegionalAvg && selectedRegion !== 'global' && (
+            {showRegionalAvg && (
               <Line
                 type="linear"
                 dataKey="regionalAvg"
                 stroke={TS_COLORS.regionalAvg}
-                strokeWidth={2}
-                dot={{ r: 3, fill: TS_COLORS.regionalAvg, strokeWidth: 0 }}
+                strokeWidth={2.5}
+                dot={{ r: 4, fill: TS_COLORS.regionalAvg, strokeWidth: 0 }}
                 isAnimationActive={false}
               >
                 <LabelList
@@ -283,7 +286,8 @@ TimeSeriesChart.propTypes = {
   selectedRegion: PropTypes.string.isRequired,
   regionLabel: PropTypes.string.isRequired,
   showRegionalAvg: PropTypes.bool,
-  showGlobalAvg: PropTypes.bool
+  showGlobalAvg: PropTypes.bool,
+  countryRegion: PropTypes.string
 };
 
 export default memo(TimeSeriesChart);

@@ -67,6 +67,13 @@ export default function ROLIDashboard() {
     return [...set].sort();
   }, [roliData]);
 
+  // Detect the region of the selected country from the data
+  const selectedCountryRegion = useMemo(() => {
+    if (selectedCountry === '__regional_avg__') return null;
+    const countryData = allData.find(d => d.country === selectedCountry);
+    return countryData?.region || null;
+  }, [allData, selectedCountry]);
+
   useEffect(() => {
     if (selectedCountry !== '__regional_avg__' && !availableCountries.includes(selectedCountry)) {
       setSelectedCountry(availableCountries[0] || '');
@@ -214,7 +221,7 @@ export default function ROLIDashboard() {
               {selectedCountry !== '__regional_avg__' && (
                 <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '8px' }}>
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Reference Lines</label>
-                  {selectedRegion !== 'global' && (
+                  {selectedCountryRegion && (
                     <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                       <input
                         type="checkbox"
@@ -287,7 +294,7 @@ export default function ROLIDashboard() {
           </div>
         }>
           {chartType === 'topbottom' && <TopBottomChart allData={allData} selectedRegion={selectedRegion} selectedYear={selectedYear} variable={selectedVariable} label={selectedLabel} regionLabel={regionLabel} />}
-          {chartType === 'timeseries' && selectedCountry && <TimeSeriesChart allData={allData} country={selectedCountry} variable={selectedVariable} label={selectedLabel} selectedRegion={selectedRegion} regionLabel={regionLabel} showRegionalAvg={showRegionalAvg} showGlobalAvg={showGlobalAvg} />}
+          {chartType === 'timeseries' && selectedCountry && <TimeSeriesChart allData={allData} country={selectedCountry} variable={selectedVariable} label={selectedLabel} selectedRegion={selectedRegion} regionLabel={regionLabel} showRegionalAvg={showRegionalAvg} showGlobalAvg={showGlobalAvg} countryRegion={selectedCountryRegion} />}
         {chartType === 'factors' && (
           <FactorComparisonChart
             allData={allData}
