@@ -284,6 +284,10 @@ export default function ROLIDashboard() {
           style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '600', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: chartType === 'timeseries' ? COLORS.top5 : 'white', color: chartType === 'timeseries' ? 'white' : COLORS.muted, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
         >Time Series</button>
         <button
+          onClick={() => setChartType('profile')}
+          style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '600', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: chartType === 'profile' ? COLORS.top5 : 'white', color: chartType === 'profile' ? 'white' : COLORS.muted, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
+        >Country Profile</button>
+        <button
           onClick={() => setChartType('topbottom')}
           style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '600', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: chartType === 'topbottom' ? COLORS.top5 : 'white', color: chartType === 'topbottom' ? 'white' : COLORS.muted, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
         >Top & Bottom Performers</button>
@@ -295,10 +299,6 @@ export default function ROLIDashboard() {
           onClick={() => setChartType('factors')}
           style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '600', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: chartType === 'factors' ? COLORS.top5 : 'white', color: chartType === 'factors' ? 'white' : COLORS.muted, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
         >Factor Comparison</button>
-        <button
-          onClick={() => setChartType('profile')}
-          style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '600', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: chartType === 'profile' ? COLORS.top5 : 'white', color: chartType === 'profile' ? 'white' : COLORS.muted, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
-        >Country Profile</button>
       </div>
 
       {/* Charts */}
