@@ -121,15 +121,15 @@ function CountryProfileChart({ allData, selectedRegion, selectedCountry, selecte
     // Create SVG manually for better control
     const ns = 'http://www.w3.org/2000/svg';
 
-    // Layout constants
-    const colWidth = 220;
-    const rowGap = 30;
-    const colGap = 30;
-    const margin = 20;
-    const titleHeight = 40;
-    const barHeight = 12;
-    const labelHeight = 16;
-    const itemHeight = barHeight + labelHeight + 6;
+    // Layout constants (larger for better export quality)
+    const colWidth = 290;
+    const rowGap = 45;
+    const colGap = 45;
+    const margin = 35;
+    const titleHeight = 55;
+    const barHeight = 16;
+    const labelHeight = 20;
+    const itemHeight = barHeight + labelHeight + 8;
 
     // Calculate heights for each factor column
     const factorHeights = FACTOR_STRUCTURE.map(f => {
@@ -156,8 +156,8 @@ function CountryProfileChart({ allData, selectedRegion, selectedCountry, selecte
     svg.appendChild(bg);
 
     // Title
-    const titleText = createTextElement(svgWidth / 2, margin + 16, `${title} — ${selectedYear}`, {
-      fontSize: 18,
+    const titleText = createTextElement(svgWidth / 2, margin + 20, `${title} — ${selectedYear}`, {
+      fontSize: 22,
       fontWeight: 700,
       fill: COLORS.text,
       'text-anchor': 'middle'
@@ -177,8 +177,8 @@ function CountryProfileChart({ allData, selectedRegion, selectedCountry, selecte
       const y = margin + titleHeight + (row === 0 ? 0 : row1Height + rowGap);
 
       // Factor header
-      const headerText = createTextElement(x, y + 12, factorLabel, {
-        fontSize: 13,
+      const headerText = createTextElement(x, y + 14, factorLabel, {
+        fontSize: 15,
         fontWeight: 700,
         fill: color,
         dominantBaseline: 'middle'
@@ -188,23 +188,23 @@ function CountryProfileChart({ allData, selectedRegion, selectedCountry, selecte
       // Header underline
       const underline = createSVGElement('line', {
         x1: x,
-        y1: y + 22,
-        x2: x + colWidth - 40,
-        y2: y + 22,
+        y1: y + 28,
+        x2: x + colWidth - 50,
+        y2: y + 28,
         stroke: color,
-        'stroke-width': 2
+        'stroke-width': 2.5
       });
       svg.appendChild(underline);
 
       // Subfactors
       subfactors.forEach((sf, sfIndex) => {
-        const sfY = y + 30 + sfIndex * itemHeight;
+        const sfY = y + 38 + sfIndex * itemHeight;
         const value = profileData[sf];
-        const barWidth = value != null ? (colWidth - 50) * value : 0;
+        const barWidth = value != null ? (colWidth - 55) * value : 0;
 
         // Label
-        const label = createTextElement(x, sfY + 10, SUBFACTOR_SHORT_LABELS[sf], {
-          fontSize: 11,
+        const label = createTextElement(x, sfY + 12, SUBFACTOR_SHORT_LABELS[sf], {
+          fontSize: 13,
           fontWeight: 400,
           fill: COLORS.text,
           dominantBaseline: 'middle'
@@ -215,10 +215,10 @@ function CountryProfileChart({ allData, selectedRegion, selectedCountry, selecte
         const bgBar = createSVGElement('rect', {
           x: x,
           y: sfY + labelHeight,
-          width: colWidth - 50,
+          width: colWidth - 55,
           height: barHeight,
           fill: '#e8e8e8',
-          rx: 2
+          rx: 3
         });
         svg.appendChild(bgBar);
 
@@ -230,15 +230,15 @@ function CountryProfileChart({ allData, selectedRegion, selectedCountry, selecte
             width: barWidth,
             height: barHeight,
             fill: color,
-            rx: 2
+            rx: 3
           });
           svg.appendChild(valueBar);
         }
 
         // Value text
-        const valueText = createTextElement(x + colWidth - 40, sfY + labelHeight + barHeight / 2,
+        const valueText = createTextElement(x + colWidth - 45, sfY + labelHeight + barHeight / 2,
           value != null ? value.toFixed(2) : '—', {
-          fontSize: 11,
+          fontSize: 13,
           fontWeight: 600,
           fill: COLORS.text,
           dominantBaseline: 'middle'
