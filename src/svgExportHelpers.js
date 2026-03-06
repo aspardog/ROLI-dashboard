@@ -40,8 +40,14 @@ export function createTextElement(x, y, content, options = {}) {
 
 /**
  * Prepares SVG clone with proper dimensions and viewBox
+ * @param {SVGElement} svg - The SVG element to clone
+ * @param {number} legendHeight - Height reserved for legend
+ * @param {string} legendPosition - 'top' or 'bottom'
+ * @param {Object} options - Additional options
+ * @param {number} options.scale - Scale factor for the output (default: 1)
+ * @param {number} options.targetSize - Target size for square output (overrides scale)
  */
-export function prepareSVGClone(svg, legendHeight = 60, legendPosition = 'top') {
+export function prepareSVGClone(svg, legendHeight = 60, legendPosition = 'top', options = {}) {
   const bbox = svg.getBBox();
   const pad = 8;
   const ns = 'http://www.w3.org/2000/svg';
@@ -51,13 +57,29 @@ export function prepareSVGClone(svg, legendHeight = 60, legendPosition = 'top') 
   const vbW = bbox.width + pad * 2;
   const vbH = bbox.height + pad * 2 + legendHeight;
 
+  // Calculate output dimensions
+  let outW = vbW;
+  let outH = vbH;
+
+  if (options.targetSize) {
+    // For square output, use targetSize for both dimensions
+    // The viewBox stays the same, so content scales to fit
+    const maxDim = Math.max(vbW, vbH);
+    const scale = options.targetSize / maxDim;
+    outW = vbW * scale;
+    outH = vbH * scale;
+  } else if (options.scale && options.scale !== 1) {
+    outW = vbW * options.scale;
+    outH = vbH * options.scale;
+  }
+
   const clone = svg.cloneNode(true);
-  clone.setAttribute('width', vbW);
-  clone.setAttribute('height', vbH);
+  clone.setAttribute('width', outW);
+  clone.setAttribute('height', outH);
   clone.setAttribute('viewBox', `${vbX} ${vbY} ${vbW} ${vbH}`);
   clone.setAttribute('xmlns', ns);
 
-  return { clone, vbX, vbY, vbW, vbH, bbox, ns };
+  return { clone, vbX, vbY, vbW, vbH, outW, outH, bbox, ns };
 }
 
 /**

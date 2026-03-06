@@ -167,11 +167,13 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
     return countries.length > 0 && countries.every(c => selectedCountries.includes(c));
   };
 
-  async function downloadSVG() {
+  async function downloadSVG(format = 'full') {
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
 
-    const { clone, vbX, vbY } = prepareSVGClone(svg, 60, 'top');
+    // Bipanel: smaller square output (500px target)
+    const options = format === 'bipanel' ? { targetSize: 500 } : {};
+    const { clone, vbX, vbY } = prepareSVGClone(svg, 60, 'top', options);
     await embedFonts(clone);
 
     // Add legend items for each country/region
@@ -187,9 +189,10 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
       currentX += label.length * 9 + 50;
     });
 
+    const suffix = format === 'bipanel' ? '_bipanel' : '';
     const fileName = selectedCountries.length === 1
-      ? `ROLI_Factors_${getCountryLabel(selectedCountries[0])}_${selectedYear}.svg`
-      : `ROLI_Factors_Comparison_${selectedYear}.svg`;
+      ? `ROLI_Factors_${getCountryLabel(selectedCountries[0])}_${selectedYear}${suffix}.svg`
+      : `ROLI_Factors_Comparison_${selectedYear}${suffix}.svg`;
     downloadSVGHelper(clone, fileName);
   }
 

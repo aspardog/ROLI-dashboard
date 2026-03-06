@@ -28,11 +28,13 @@ function TopBottomChart({ allData, selectedRegion, selectedYear, variable, label
 
   const chartRef = useRef(null);
 
-  async function downloadSVG() {
+  async function downloadSVG(format = 'full') {
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
 
-    const { clone, vbX, vbY } = prepareSVGClone(svg, 60, 'top');
+    // Bipanel: smaller square output (500px target)
+    const options = format === 'bipanel' ? { targetSize: 500 } : {};
+    const { clone, vbX, vbY } = prepareSVGClone(svg, 60, 'top', options);
     await embedFonts(clone);
 
     // Add legend items
@@ -51,7 +53,8 @@ function TopBottomChart({ allData, selectedRegion, selectedYear, variable, label
       avgItems.forEach(el => clone.appendChild(el));
     }
 
-    downloadSVGHelper(clone, `ROLI_${regionLabel}_${variable}_${selectedYear}.svg`);
+    const suffix = format === 'bipanel' ? '_bipanel' : '';
+    downloadSVGHelper(clone, `ROLI_${regionLabel}_${variable}_${selectedYear}${suffix}.svg`);
   }
 
   return (

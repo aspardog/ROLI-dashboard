@@ -89,12 +89,14 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
 
   const title = country === '__regional_avg__' ? (selectedRegion === 'global' ? 'Global Average' : `${regionLabel} — Regional Average`) : country;
 
-  async function downloadSVG() {
+  async function downloadSVG(format = 'full') {
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
 
     const legendHeight = hasReferences ? 40 : 0;
-    const { clone, bbox } = prepareSVGClone(svg, legendHeight, 'top');
+    // Bipanel: smaller square output (500px target)
+    const options = format === 'bipanel' ? { targetSize: 500 } : {};
+    const { clone, bbox } = prepareSVGClone(svg, legendHeight, 'top', options);
     await embedFonts(clone);
 
     // Add legend if showing reference lines
@@ -133,7 +135,8 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
       }
     }
 
-    downloadSVGHelper(clone, `ROLI_${title}_${variable}.svg`);
+    const suffix = format === 'bipanel' ? '_bipanel' : '';
+    downloadSVGHelper(clone, `ROLI_${title}_${variable}${suffix}.svg`);
   }
 
   return (

@@ -117,23 +117,32 @@ function CountryProfileChart({ allData, selectedRegion, selectedCountry, selecte
     );
   };
 
-  async function downloadSVG() {
+  async function downloadSVG(format = 'full') {
     // Create SVG manually for better control
     const ns = 'http://www.w3.org/2000/svg';
 
+    // Scale factor for bipanel (smaller output)
+    const scale = format === 'bipanel' ? 0.55 : 1;
+
     // Layout constants (larger for better export quality)
-    const colWidth = 290;
-    const rowGap = 45;
-    const colGap = 45;
-    const margin = 35;
-    const titleHeight = 55;
-    const barHeight = 16;
-    const labelHeight = 20;
-    const itemHeight = barHeight + labelHeight + 8;
+    const colWidth = 290 * scale;
+    const rowGap = 45 * scale;
+    const colGap = 45 * scale;
+    const margin = 35 * scale;
+    const titleHeight = 55 * scale;
+    const barHeight = 16 * scale;
+    const labelHeight = 20 * scale;
+    const itemHeight = barHeight + labelHeight + 8 * scale;
+
+    // Font sizes scale
+    const titleFontSize = Math.round(22 * scale);
+    const headerFontSize = Math.round(15 * scale);
+    const labelFontSize = Math.round(13 * scale);
+    const valueFontSize = Math.round(13 * scale);
 
     // Calculate heights for each factor column
     const factorHeights = FACTOR_STRUCTURE.map(f => {
-      const headerHeight = 30;
+      const headerHeight = 30 * scale;
       const contentHeight = f.subfactors.length * itemHeight;
       return headerHeight + contentHeight;
     });
@@ -152,8 +161,8 @@ function CountryProfileChart({ allData, selectedRegion, selectedCountry, selecte
     svg.setAttribute('xmlns', ns);
 
     // Title
-    const titleText = createTextElement(svgWidth / 2, margin + 20, `${title} — ${selectedYear}`, {
-      fontSize: 22,
+    const titleText = createTextElement(svgWidth / 2, margin + 20 * scale, `${title} — ${selectedYear}`, {
+      fontSize: titleFontSize,
       fontWeight: 700,
       fill: COLORS.text,
       'text-anchor': 'middle'
@@ -173,8 +182,8 @@ function CountryProfileChart({ allData, selectedRegion, selectedCountry, selecte
       const y = margin + titleHeight + (row === 0 ? 0 : row1Height + rowGap);
 
       // Factor header
-      const headerText = createTextElement(x, y + 14, factorLabel, {
-        fontSize: 15,
+      const headerText = createTextElement(x, y + 14 * scale, factorLabel, {
+        fontSize: headerFontSize,
         fontWeight: 700,
         fill: color,
         dominantBaseline: 'middle'
@@ -184,23 +193,23 @@ function CountryProfileChart({ allData, selectedRegion, selectedCountry, selecte
       // Header underline
       const underline = createSVGElement('line', {
         x1: x,
-        y1: y + 28,
-        x2: x + colWidth - 50,
-        y2: y + 28,
+        y1: y + 28 * scale,
+        x2: x + colWidth - 50 * scale,
+        y2: y + 28 * scale,
         stroke: color,
-        'stroke-width': 2.5
+        'stroke-width': 2.5 * scale
       });
       svg.appendChild(underline);
 
       // Subfactors
       subfactors.forEach((sf, sfIndex) => {
-        const sfY = y + 38 + sfIndex * itemHeight;
+        const sfY = y + 38 * scale + sfIndex * itemHeight;
         const value = profileData[sf];
-        const barWidth = value != null ? (colWidth - 55) * value : 0;
+        const barWidth = value != null ? (colWidth - 55 * scale) * value : 0;
 
         // Label
-        const label = createTextElement(x, sfY + 12, SUBFACTOR_SHORT_LABELS[sf], {
-          fontSize: 13,
+        const label = createTextElement(x, sfY + 12 * scale, SUBFACTOR_SHORT_LABELS[sf], {
+          fontSize: labelFontSize,
           fontWeight: 400,
           fill: COLORS.text,
           dominantBaseline: 'middle'
@@ -211,10 +220,10 @@ function CountryProfileChart({ allData, selectedRegion, selectedCountry, selecte
         const bgBar = createSVGElement('rect', {
           x: x,
           y: sfY + labelHeight,
-          width: colWidth - 55,
+          width: colWidth - 55 * scale,
           height: barHeight,
           fill: '#e8e8e8',
-          rx: 3
+          rx: 3 * scale
         });
         svg.appendChild(bgBar);
 
@@ -226,15 +235,15 @@ function CountryProfileChart({ allData, selectedRegion, selectedCountry, selecte
             width: barWidth,
             height: barHeight,
             fill: color,
-            rx: 3
+            rx: 3 * scale
           });
           svg.appendChild(valueBar);
         }
 
         // Value text
-        const valueText = createTextElement(x + colWidth - 45, sfY + labelHeight + barHeight / 2,
+        const valueText = createTextElement(x + colWidth - 45 * scale, sfY + labelHeight + barHeight / 2,
           value != null ? value.toFixed(2) : '—', {
-          fontSize: 13,
+          fontSize: valueFontSize,
           fontWeight: 600,
           fill: COLORS.text,
           dominantBaseline: 'middle'
@@ -246,7 +255,8 @@ function CountryProfileChart({ allData, selectedRegion, selectedCountry, selecte
     // Embed fonts
     await embedFonts(svg);
 
-    downloadSVGHelper(svg, `ROLI_Profile_${title.replace(/\s+/g, '_')}_${selectedYear}.svg`);
+    const suffix = format === 'bipanel' ? '_bipanel' : '';
+    downloadSVGHelper(svg, `ROLI_Profile_${title.replace(/\s+/g, '_')}_${selectedYear}${suffix}.svg`);
   }
 
   return (

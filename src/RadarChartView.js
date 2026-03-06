@@ -70,11 +70,13 @@ function RadarChartView({
     return radarPoints;
   }, [allData, selectedRegion, selectedCountry, selectedFactors, selectedYears]);
 
-  async function downloadSVG() {
+  async function downloadSVG(format = 'full') {
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
 
-    const { clone, vbX, vbY } = prepareSVGClone(svg, 60, 'top');
+    // Bipanel: smaller square output (500px target)
+    const options = format === 'bipanel' ? { targetSize: 500 } : {};
+    const { clone, vbX, vbY } = prepareSVGClone(svg, 60, 'top', options);
     await embedFonts(clone);
 
     // Add legend items for each year
@@ -89,7 +91,8 @@ function RadarChartView({
       currentX += year.length * 10 + 70;
     });
 
-    downloadSVGHelper(clone, `ROLI_Radar_${countryLabel}_${selectedYears.join('_')}.svg`);
+    const suffix = format === 'bipanel' ? '_bipanel' : '';
+    downloadSVGHelper(clone, `ROLI_Radar_${countryLabel}_${selectedYears.join('_')}${suffix}.svg`);
   }
 
   if (radarData.length === 0) {
