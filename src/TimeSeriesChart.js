@@ -93,10 +93,10 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
 
-    // Bipanel: fixed dimensions 13cm x 10cm with minimal padding
+    // Bipanel: compact square format with tight padding
     const isBipanel = format === 'bipanel';
-    const options = isBipanel ? { widthCm: '13cm', heightCm: '10cm', padding: 4 } : {};
-    const legendHeight = isBipanel ? 30 : (hasReferences ? 40 : 0);
+    const options = isBipanel ? { scale: 0.55, tight: true } : {};
+    const legendHeight = isBipanel ? 25 : (hasReferences ? 40 : 0);
     const { clone, bbox } = prepareSVGClone(svg, legendHeight, 'top', options);
     await embedFonts(clone);
 
