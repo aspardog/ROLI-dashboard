@@ -17,6 +17,8 @@ export default function ROLIDashboard() {
   const [selectedRegion, setSelectedRegion] = useState('global');
   const [selectedVariable, setSelectedVariable] = useState('roli');
   const [selectedCountry, setSelectedCountry] = useState('__regional_avg__');
+  const [showRegionalAvg, setShowRegionalAvg] = useState(false);
+  const [showGlobalAvg, setShowGlobalAvg] = useState(false);
   const [chartType, setChartType] = useState('timeseries');
   const [selectedYear, setSelectedYear] = useState('2025');
   const [selectedRadarCountry, setSelectedRadarCountry] = useState('__regional_avg__');
@@ -201,13 +203,40 @@ export default function ROLIDashboard() {
             </div>
           )}
           {chartType === 'timeseries' && (
-            <div style={{ flex: 1 }}>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Country</label>
-              <select value={selectedCountry} onChange={(e) => setSelectedCountry(e.target.value)} style={{ width: '100%', padding: '14px 16px', fontSize: '16px', border: '2px solid #e5e5e5', borderRadius: '8px', backgroundColor: 'white', color: COLORS.text, cursor: 'pointer', outline: 'none', fontWeight: '500' }}>
-                <option value="__regional_avg__">{selectedRegion === 'global' ? 'Global Average' : 'Regional Average'}</option>
-                {availableCountries.map(c => (<option key={c} value={c}>{c}</option>))}
-              </select>
-            </div>
+            <>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Country</label>
+                <select value={selectedCountry} onChange={(e) => setSelectedCountry(e.target.value)} style={{ width: '100%', padding: '14px 16px', fontSize: '16px', border: '2px solid #e5e5e5', borderRadius: '8px', backgroundColor: 'white', color: COLORS.text, cursor: 'pointer', outline: 'none', fontWeight: '500' }}>
+                  <option value="__regional_avg__">{selectedRegion === 'global' ? 'Global Average' : 'Regional Average'}</option>
+                  {availableCountries.map(c => (<option key={c} value={c}>{c}</option>))}
+                </select>
+              </div>
+              {selectedCountry !== '__regional_avg__' && (
+                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '8px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Reference Lines</label>
+                  {selectedRegion !== 'global' && (
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={showRegionalAvg}
+                        onChange={(e) => setShowRegionalAvg(e.target.checked)}
+                        style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+                      />
+                      <span style={{ fontSize: '14px', color: COLORS.text }}>Regional Average</span>
+                    </label>
+                  )}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={showGlobalAvg}
+                      onChange={(e) => setShowGlobalAvg(e.target.checked)}
+                      style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+                    />
+                    <span style={{ fontSize: '14px', color: COLORS.text }}>Global Average</span>
+                  </label>
+                </div>
+              )}
+            </>
           )}
         </div>
       )}
@@ -258,7 +287,7 @@ export default function ROLIDashboard() {
           </div>
         }>
           {chartType === 'topbottom' && <TopBottomChart allData={allData} selectedRegion={selectedRegion} selectedYear={selectedYear} variable={selectedVariable} label={selectedLabel} regionLabel={regionLabel} />}
-          {chartType === 'timeseries' && selectedCountry && <TimeSeriesChart allData={allData} country={selectedCountry} variable={selectedVariable} label={selectedLabel} selectedRegion={selectedRegion} regionLabel={regionLabel} />}
+          {chartType === 'timeseries' && selectedCountry && <TimeSeriesChart allData={allData} country={selectedCountry} variable={selectedVariable} label={selectedLabel} selectedRegion={selectedRegion} regionLabel={regionLabel} showRegionalAvg={showRegionalAvg} showGlobalAvg={showGlobalAvg} />}
         {chartType === 'factors' && (
           <FactorComparisonChart
             allData={allData}

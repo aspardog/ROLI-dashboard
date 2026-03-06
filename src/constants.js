@@ -97,6 +97,12 @@ const COLORS = {
   divider: '#333333',
 };
 
-const TS_COLORS = { line: '#181878', axis: '#514e4b', grid: '#BDBDBD' };
+const TS_COLORS = {
+  line: '#181878',
+  axis: '#514e4b',
+  grid: '#BDBDBD',
+  regionalAvg: '#9e9e9e',
+  globalAvg: '#bdbdbd'
+};
 
 export { ACTIVE_YEAR, REGION_OPTIONS, VARIABLE_OPTIONS, SUBFACTOR_GROUPS, COLORS, TS_COLORS };
