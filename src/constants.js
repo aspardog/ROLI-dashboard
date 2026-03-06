@@ -101,8 +101,8 @@ const TS_COLORS = {
   line: '#181878',
   axis: '#514e4b',
   grid: '#BDBDBD',
-  regionalAvg: '#5ec6c6',
-  globalAvg: '#757575'
+  regionalAvg: '#757575',
+  globalAvg: '#5ec6c6'
 };
 
 // Factor colors for Country Profile chart (matching WJP style)
