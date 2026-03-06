@@ -94,8 +94,8 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
     if (!svg) return;
 
     const legendHeight = hasReferences ? 40 : 0;
-    // Bipanel: uniform scaling to maintain proportions
-    const options = format === 'bipanel' ? { scale: 0.65 } : {};
+    // Bipanel: fixed dimensions 13cm x 10cm
+    const options = format === 'bipanel' ? { widthCm: '13cm', heightCm: '10cm' } : {};
     const { clone, bbox } = prepareSVGClone(svg, legendHeight, 'top', options);
     await embedFonts(clone);
 

@@ -45,8 +45,8 @@ export function createTextElement(x, y, content, options = {}) {
  * @param {string} legendPosition - 'top' or 'bottom'
  * @param {Object} options - Additional options
  * @param {number} options.scale - Uniform scale factor (default: 1)
- * @param {number} options.scaleX - Horizontal scale factor (overrides scale for width)
- * @param {number} options.scaleY - Vertical scale factor (overrides scale for height)
+ * @param {string} options.widthCm - Fixed width in cm (e.g., "13cm")
+ * @param {string} options.heightCm - Fixed height in cm (e.g., "10cm")
  */
 export function prepareSVGClone(svg, legendHeight = 60, legendPosition = 'top', options = {}) {
   const bbox = svg.getBBox();
@@ -59,10 +59,16 @@ export function prepareSVGClone(svg, legendHeight = 60, legendPosition = 'top', 
   const vbH = bbox.height + pad * 2 + legendHeight;
 
   // Calculate output dimensions
-  const scaleX = options.scaleX || options.scale || 1;
-  const scaleY = options.scaleY || options.scale || 1;
-  const outW = vbW * scaleX;
-  const outH = vbH * scaleY;
+  let outW, outH;
+  if (options.widthCm && options.heightCm) {
+    // Use fixed dimensions in cm
+    outW = options.widthCm;
+    outH = options.heightCm;
+  } else {
+    const scale = options.scale || 1;
+    outW = vbW * scale;
+    outH = vbH * scale;
+  }
 
   const clone = svg.cloneNode(true);
   clone.setAttribute('width', outW);
