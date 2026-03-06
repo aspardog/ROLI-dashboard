@@ -44,8 +44,9 @@ export function createTextElement(x, y, content, options = {}) {
  * @param {number} legendHeight - Height reserved for legend
  * @param {string} legendPosition - 'top' or 'bottom'
  * @param {Object} options - Additional options
- * @param {number} options.scale - Scale factor for the output (default: 1)
- * @param {number} options.targetSize - Target size for square output (overrides scale)
+ * @param {number} options.scale - Uniform scale factor (default: 1)
+ * @param {number} options.scaleX - Horizontal scale factor (overrides scale for width)
+ * @param {number} options.scaleY - Vertical scale factor (overrides scale for height)
  */
 export function prepareSVGClone(svg, legendHeight = 60, legendPosition = 'top', options = {}) {
   const bbox = svg.getBBox();
@@ -58,20 +59,10 @@ export function prepareSVGClone(svg, legendHeight = 60, legendPosition = 'top', 
   const vbH = bbox.height + pad * 2 + legendHeight;
 
   // Calculate output dimensions
-  let outW = vbW;
-  let outH = vbH;
-
-  if (options.targetSize) {
-    // For square output, use targetSize for both dimensions
-    // The viewBox stays the same, so content scales to fit
-    const maxDim = Math.max(vbW, vbH);
-    const scale = options.targetSize / maxDim;
-    outW = vbW * scale;
-    outH = vbH * scale;
-  } else if (options.scale && options.scale !== 1) {
-    outW = vbW * options.scale;
-    outH = vbH * options.scale;
-  }
+  const scaleX = options.scaleX || options.scale || 1;
+  const scaleY = options.scaleY || options.scale || 1;
+  const outW = vbW * scaleX;
+  const outH = vbH * scaleY;
 
   const clone = svg.cloneNode(true);
   clone.setAttribute('width', outW);
