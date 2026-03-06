@@ -105,29 +105,29 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
 
       // Country legend item
       const countryItems = createLegendItem(xOffset, legendY, TS_COLORS.line, country, 'line', {
-        width: 24,
-        height: 4,
+        width: 28,
+        height: 5,
         textOptions: { fontSize: 14, fontWeight: 600 }
       });
       countryItems.forEach(el => clone.appendChild(el));
-      xOffset += 24 + 6 + country.length * 7 + 24;
+      xOffset += 28 + 6 + country.length * 7 + 24;
 
       // Regional Average legend item
       if (showRegionalAvg) {
         const regionalItems = createLegendItem(xOffset, legendY, TS_COLORS.regionalAvg, 'Regional Average', 'line', {
-          width: 24,
-          height: 4,
+          width: 28,
+          height: 5,
           textOptions: { fontSize: 14, fontWeight: 500 }
         });
         regionalItems.forEach(el => clone.appendChild(el));
-        xOffset += 24 + 6 + 120 + 24;
+        xOffset += 28 + 6 + 120 + 24;
       }
 
       // Global Average legend item
       if (showGlobalAvg) {
         const globalItems = createLegendItem(xOffset, legendY, TS_COLORS.globalAvg, 'Global Average', 'line', {
-          width: 24,
-          height: 4,
+          width: 28,
+          height: 5,
           textOptions: { fontSize: 14, fontWeight: 500 }
         });
         globalItems.forEach(el => clone.appendChild(el));
@@ -147,18 +147,18 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
       {hasReferences && (
         <div style={{ display: 'flex', gap: '24px', marginBottom: '16px', paddingLeft: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '24px', height: '4px', backgroundColor: TS_COLORS.line, borderRadius: '2px' }} />
+            <div style={{ width: '28px', height: '5px', backgroundColor: TS_COLORS.line, borderRadius: '3px' }} />
             <span style={{ fontSize: '13px', color: TS_COLORS.axis }}>{country}</span>
           </div>
           {showRegionalAvg && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '24px', height: '4px', backgroundColor: TS_COLORS.regionalAvg, borderRadius: '2px' }} />
+              <div style={{ width: '28px', height: '5px', backgroundColor: TS_COLORS.regionalAvg, borderRadius: '3px' }} />
               <span style={{ fontSize: '13px', color: TS_COLORS.axis }}>Regional Average</span>
             </div>
           )}
           {showGlobalAvg && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '24px', height: '4px', backgroundColor: TS_COLORS.globalAvg, borderRadius: '2px' }} />
+              <div style={{ width: '28px', height: '5px', backgroundColor: TS_COLORS.globalAvg, borderRadius: '3px' }} />
               <span style={{ fontSize: '13px', color: TS_COLORS.axis }}>Global Average</span>
             </div>
           )}
@@ -190,8 +190,8 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
                 type="linear"
                 dataKey="globalAvg"
                 stroke={TS_COLORS.globalAvg}
-                strokeWidth={2.5}
-                dot={{ r: 4, fill: TS_COLORS.globalAvg, strokeWidth: 0 }}
+                strokeWidth={3.5}
+                dot={{ r: 5, fill: TS_COLORS.globalAvg, strokeWidth: 0 }}
                 isAnimationActive={false}
               >
                 <LabelList
@@ -220,8 +220,8 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
                 type="linear"
                 dataKey="regionalAvg"
                 stroke={TS_COLORS.regionalAvg}
-                strokeWidth={2.5}
-                dot={{ r: 4, fill: TS_COLORS.regionalAvg, strokeWidth: 0 }}
+                strokeWidth={3.5}
+                dot={{ r: 5, fill: TS_COLORS.regionalAvg, strokeWidth: 0 }}
                 isAnimationActive={false}
               >
                 <LabelList
@@ -249,8 +249,8 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
               type="linear"
               dataKey="value"
               stroke={TS_COLORS.line}
-              strokeWidth={2.5}
-              dot={{ r: 4, fill: TS_COLORS.line, strokeWidth: 0 }}
+              strokeWidth={4}
+              dot={{ r: 6, fill: TS_COLORS.line, strokeWidth: 0 }}
               isAnimationActive={false}
             >
               <LabelList
