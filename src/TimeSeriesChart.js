@@ -2,7 +2,7 @@ import { useMemo, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, ResponsiveContainer, LabelList } from 'recharts';
 import { TS_COLORS } from './constants';
-import { prepareSVGClone, embedFonts, addWhiteBackground, downloadSVG as downloadSVGHelper, createLegendItem } from './svgExportHelpers';
+import { prepareSVGClone, embedFonts, downloadSVG as downloadSVGHelper, createLegendItem } from './svgExportHelpers';
 import ChartCard from './components/ChartCard';
 
 function TimeSeriesChart({ allData, country, variable, label, selectedRegion, regionLabel, showRegionalAvg = false, showGlobalAvg = false, countryRegion = null }) {
@@ -94,9 +94,8 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
     if (!svg) return;
 
     const legendHeight = hasReferences ? 40 : 0;
-    const { clone, vbX, vbY, vbW, vbH, bbox } = prepareSVGClone(svg, legendHeight, 'top');
+    const { clone, bbox } = prepareSVGClone(svg, legendHeight, 'top');
     await embedFonts(clone);
-    addWhiteBackground(clone, vbX, vbY, vbW, vbH);
 
     // Add legend if showing reference lines
     if (hasReferences) {

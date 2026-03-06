@@ -233,10 +233,9 @@ export async function exportChartAsSVG(chartRef, filename, legendConfig) {
   const svg = chartRef.current?.querySelector('svg');
   if (!svg) return;
 
-  const { clone, vbX, vbY, vbW, vbH } = prepareSVGClone(svg, legendConfig.height, legendConfig.position);
+  const { clone } = prepareSVGClone(svg, legendConfig.height, legendConfig.position);
 
   await embedFonts(clone);
-  addWhiteBackground(clone, vbX, vbY, vbW, vbH);
 
   // Add legend items
   if (legendConfig.items) {

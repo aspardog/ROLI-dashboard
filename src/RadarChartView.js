@@ -2,7 +2,7 @@ import { useMemo, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import { COLORS } from './constants';
-import { prepareSVGClone, embedFonts, addWhiteBackground, createLegendItem, downloadSVG as downloadSVGHelper } from './svgExportHelpers';
+import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper } from './svgExportHelpers';
 import ChartCard from './components/ChartCard';
 
 const YEAR_COLORS = {
@@ -74,9 +74,8 @@ function RadarChartView({
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
 
-    const { clone, vbX, vbY, vbW, vbH } = prepareSVGClone(svg, 60, 'top');
+    const { clone, vbX, vbY } = prepareSVGClone(svg, 60, 'top');
     await embedFonts(clone);
-    addWhiteBackground(clone, vbX, vbY, vbW, vbH);
 
     // Add legend items for each year
     const lx = vbX + 24;

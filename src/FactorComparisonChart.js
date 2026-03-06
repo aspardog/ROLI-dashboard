@@ -2,7 +2,7 @@ import { useMemo, useRef, useState, memo } from 'react';
 import PropTypes from 'prop-types';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, LabelList, ReferenceLine } from 'recharts';
 import { COLORS, REGION_OPTIONS } from './constants';
-import { prepareSVGClone, embedFonts, addWhiteBackground, createLegendItem, downloadSVG as downloadSVGHelper } from './svgExportHelpers';
+import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper } from './svgExportHelpers';
 import ChartCard from './components/ChartCard';
 
 const FACTORS = [
@@ -171,9 +171,8 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
 
-    const { clone, vbX, vbY, vbW, vbH } = prepareSVGClone(svg, 60, 'top');
+    const { clone, vbX, vbY } = prepareSVGClone(svg, 60, 'top');
     await embedFonts(clone);
-    addWhiteBackground(clone, vbX, vbY, vbW, vbH);
 
     // Add legend items for each country/region
     const lx = vbX + 24;

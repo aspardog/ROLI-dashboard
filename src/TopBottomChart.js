@@ -2,7 +2,7 @@ import { useMemo, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { BarChart, Bar, XAxis, YAxis, Cell, ResponsiveContainer, LabelList, ReferenceLine } from 'recharts';
 import { COLORS } from './constants';
-import { prepareSVGClone, embedFonts, addWhiteBackground, createLegendItem, downloadSVG as downloadSVGHelper } from './svgExportHelpers';
+import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper } from './svgExportHelpers';
 import ChartCard from './components/ChartCard';
 
 function TopBottomChart({ allData, selectedRegion, selectedYear, variable, label, regionLabel }) {
@@ -32,9 +32,8 @@ function TopBottomChart({ allData, selectedRegion, selectedYear, variable, label
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
 
-    const { clone, vbX, vbY, vbW, vbH } = prepareSVGClone(svg, 60, 'top');
+    const { clone, vbX, vbY } = prepareSVGClone(svg, 60, 'top');
     await embedFonts(clone);
-    addWhiteBackground(clone, vbX, vbY, vbW, vbH);
 
     // Add legend items
     const lx = vbX + 24;

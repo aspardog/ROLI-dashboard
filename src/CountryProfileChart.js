@@ -151,10 +151,6 @@ function CountryProfileChart({ allData, selectedRegion, selectedCountry, selecte
     svg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
     svg.setAttribute('xmlns', ns);
 
-    // White background
-    const bg = createSVGElement('rect', { x: 0, y: 0, width: svgWidth, height: svgHeight, fill: 'white' });
-    svg.appendChild(bg);
-
     // Title
     const titleText = createTextElement(svgWidth / 2, margin + 20, `${title} — ${selectedYear}`, {
       fontSize: 22,
