@@ -171,8 +171,8 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
 
-    // Bipanel: smaller square output (500px target)
-    const options = format === 'bipanel' ? { targetSize: 500 } : {};
+    // Bipanel: smaller output with 60% scale
+    const options = format === 'bipanel' ? { scale: 0.6 } : {};
     const { clone, vbX, vbY } = prepareSVGClone(svg, 60, 'top', options);
     await embedFonts(clone);
 
