@@ -200,10 +200,23 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
                     if (value == null) return null;
                     const isFirst = index === 0;
                     const isLast = index === chartData.length - 1;
+                    const dataPoint = chartData[index];
+                    const mainValue = dataPoint.value;
+                    const regionalValue = dataPoint.regionalAvg;
+
+                    // Check proximity to main value and regional value
+                    const closeToMain = Math.abs(value - mainValue) < 0.06;
+                    const closeToRegional = showRegionalAvg && regionalValue != null && Math.abs(value - regionalValue) < 0.04;
+
+                    // Position: if close to main, go further down; if regional is between, go even further
+                    let yOffset = 22;
+                    if (closeToMain) yOffset = 38;
+                    if (closeToRegional && regionalValue > value) yOffset = 52;
+
                     return (
                       <text
                         x={isFirst ? x + 6 : isLast ? x - 6 : x}
-                        y={y + 20}
+                        y={y + yOffset}
                         textAnchor={isFirst ? 'start' : isLast ? 'end' : 'middle'}
                         fontSize={13}
                         fontWeight={500}
@@ -230,10 +243,24 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
                     if (value == null) return null;
                     const isFirst = index === 0;
                     const isLast = index === chartData.length - 1;
+                    const dataPoint = chartData[index];
+                    const mainValue = dataPoint.value;
+                    const globalValue = dataPoint.globalAvg;
+
+                    // Check proximity to main value
+                    const closeToMain = Math.abs(value - mainValue) < 0.06;
+                    const closeToGlobal = showGlobalAvg && globalValue != null && Math.abs(value - globalValue) < 0.04;
+
+                    // Position: if close to main, go further down
+                    let yOffset = 22;
+                    if (closeToMain) yOffset = 38;
+                    // If also close to global and global is below, stack even further
+                    if (closeToGlobal && globalValue < value) yOffset = 52;
+
                     return (
                       <text
                         x={isFirst ? x + 6 : isLast ? x - 6 : x}
-                        y={y + 20}
+                        y={y + yOffset}
                         textAnchor={isFirst ? 'start' : isLast ? 'end' : 'middle'}
                         fontSize={13}
                         fontWeight={500}
@@ -258,10 +285,22 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
                 content={({ x, y, value, index }) => {
                   const isFirst = index === 0;
                   const isLast  = index === chartData.length - 1;
+                  const dataPoint = chartData[index];
+                  const globalValue = dataPoint.globalAvg;
+                  const regionalValue = dataPoint.regionalAvg;
+
+                  // Check if any reference line is very close and ABOVE the main value
+                  const globalAboveAndClose = showGlobalAvg && globalValue != null && globalValue > value && Math.abs(value - globalValue) < 0.06;
+                  const regionalAboveAndClose = showRegionalAvg && regionalValue != null && regionalValue > value && Math.abs(value - regionalValue) < 0.06;
+
+                  // If reference line is above and close, move main label further up
+                  let yOffset = -14;
+                  if (globalAboveAndClose || regionalAboveAndClose) yOffset = -28;
+
                   return (
                     <text
                       x={isFirst ? x + 6 : isLast ? x - 6 : x}
-                      y={y - 12}
+                      y={y + yOffset}
                       textAnchor={isFirst ? 'start' : isLast ? 'end' : 'middle'}
                       fontSize={16}
                       fontWeight={700}
