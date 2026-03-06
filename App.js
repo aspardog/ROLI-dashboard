@@ -9,6 +9,7 @@ const TopBottomChart = lazy(() => import('./src/TopBottomChart'));
 const TimeSeriesChart = lazy(() => import('./src/TimeSeriesChart'));
 const RadarChartView = lazy(() => import('./src/RadarChartView'));
 const FactorComparisonChart = lazy(() => import('./src/FactorComparisonChart'));
+const CountryProfileChart = lazy(() => import('./src/CountryProfileChart'));
 
 export default function ROLIDashboard() {
   const [allData, setAllData] = useState([]);
@@ -22,6 +23,8 @@ export default function ROLIDashboard() {
   const [chartType, setChartType] = useState('timeseries');
   const [selectedYear, setSelectedYear] = useState('2025');
   const [selectedRadarCountry, setSelectedRadarCountry] = useState('__regional_avg__');
+  const [selectedProfileCountry, setSelectedProfileCountry] = useState('__regional_avg__');
+  const [selectedProfileRegion, setSelectedProfileRegion] = useState('global');
   const [selectedFactors, setSelectedFactors] = useState([
     { value: 'f1', label: 'F1 - Constraints on Government Power' },
     { value: 'f2', label: 'F2 - Absence of Corruption' },
@@ -73,6 +76,14 @@ export default function ROLIDashboard() {
     const countryData = allData.find(d => d.country === selectedCountry);
     return countryData?.region || null;
   }, [allData, selectedCountry]);
+
+  // Available countries for profile chart (based on profile region selection)
+  const profileAvailableCountries = useMemo(() => {
+    const byYear = allData.filter(d => d.year === ACTIVE_YEAR);
+    const filtered = selectedProfileRegion === 'global' ? byYear : byYear.filter(d => d.region === selectedProfileRegion);
+    const set = new Set(filtered.map(d => d.country));
+    return [...set].sort();
+  }, [allData, selectedProfileRegion]);
 
   useEffect(() => {
     if (selectedCountry !== '__regional_avg__' && !availableCountries.includes(selectedCountry)) {
@@ -171,7 +182,7 @@ export default function ROLIDashboard() {
       <HowToUseModal isOpen={isHowToUseModalOpen} onClose={() => setIsHowToUseModalOpen(false)} />
 
       {/* Controls */}
-      {chartType !== 'radar' && chartType !== 'factors' && (
+      {chartType !== 'radar' && chartType !== 'factors' && chartType !== 'profile' && (
         <div className="controls-container" style={{ maxWidth: '1100px', margin: '0 auto 40px', backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', display: 'flex', gap: '24px' }}>
           <div style={{ flex: 1 }}>
             <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Region</label>
@@ -284,6 +295,10 @@ export default function ROLIDashboard() {
           onClick={() => setChartType('factors')}
           style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '600', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: chartType === 'factors' ? COLORS.top5 : 'white', color: chartType === 'factors' ? 'white' : COLORS.muted, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
         >Factor Comparison</button>
+        <button
+          onClick={() => setChartType('profile')}
+          style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '600', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: chartType === 'profile' ? COLORS.top5 : 'white', color: chartType === 'profile' ? 'white' : COLORS.muted, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
+        >Country Profile</button>
       </div>
 
       {/* Charts */}
@@ -458,6 +473,36 @@ export default function ROLIDashboard() {
             </div>
           </>
         )}
+        {chartType === 'profile' && (
+          <>
+            {/* Profile Controls */}
+            <div className="profile-controls chart-card" style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
+              <div style={{ display: 'flex', gap: '24px' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Region</label>
+                  <select value={selectedProfileRegion} onChange={(e) => { setSelectedProfileRegion(e.target.value); setSelectedProfileCountry('__regional_avg__'); }} style={{ width: '100%', padding: '14px 16px', fontSize: '16px', border: '2px solid #e5e5e5', borderRadius: '8px', backgroundColor: 'white', color: COLORS.text, cursor: 'pointer', outline: 'none', fontWeight: '500' }}>
+                    {REGION_OPTIONS.map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
+                  </select>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Country/Region</label>
+                  <select value={selectedProfileCountry} onChange={(e) => setSelectedProfileCountry(e.target.value)} style={{ width: '100%', padding: '14px 16px', fontSize: '16px', border: '2px solid #e5e5e5', borderRadius: '8px', backgroundColor: 'white', color: COLORS.text, cursor: 'pointer', outline: 'none', fontWeight: '500' }}>
+                    <option value="__regional_avg__">{selectedProfileRegion === 'global' ? 'Global Average' : 'Regional Average'}</option>
+                    {profileAvailableCountries.map(c => (<option key={c} value={c}>{c}</option>))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Profile Chart */}
+            <CountryProfileChart
+              allData={allData}
+              selectedRegion={selectedProfileRegion}
+              selectedCountry={selectedProfileCountry}
+              selectedYear={ACTIVE_YEAR}
+            />
+          </>
+        )}
         </Suspense>
       </div>
 
@@ -467,6 +512,7 @@ export default function ROLIDashboard() {
           Source: World Justice Project — Rule of Law Index {
             chartType === 'timeseries' ? '2019–2025' :
             chartType === 'radar' ? [...selectedRadarYears].sort().join(', ') :
+            chartType === 'profile' ? ACTIVE_YEAR :
             chartType === 'factors' ? selectedYear :
             selectedYear
           }

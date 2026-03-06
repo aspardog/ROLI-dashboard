@@ -105,4 +105,75 @@ const TS_COLORS = {
   globalAvg: '#757575'
 };
 
-export { ACTIVE_YEAR, REGION_OPTIONS, VARIABLE_OPTIONS, SUBFACTOR_GROUPS, COLORS, TS_COLORS };
+// Factor colors for Country Profile chart (matching WJP style)
+const FACTOR_COLORS = {
+  f1: '#1a6b6b',  // Constraints on Government Power - Teal
+  f2: '#7cb342',  // Absence of Corruption - Lime green
+  f3: '#00838f',  // Open Government - Cyan/teal
+  f4: '#607d8b',  // Fundamental Rights - Blue grey
+  f5: '#7b1fa2',  // Order and Security - Purple
+  f6: '#43a047',  // Regulatory Enforcement - Green
+  f7: '#fb8c00',  // Civil Justice - Orange
+  f8: '#e53935',  // Criminal Justice - Red
+};
+
+// Short labels for profile chart (matching WJP style)
+const FACTOR_SHORT_LABELS = {
+  f1: '1. Gov. Power Constraints',
+  f2: '2. Absence of Corruption',
+  f3: '3. Open Government',
+  f4: '4. Fundamental Rights',
+  f5: '5. Order and Security',
+  f6: '6. Regulatory Enforcement',
+  f7: '7. Civil Justice',
+  f8: '8. Criminal Justice',
+};
+
+const SUBFACTOR_SHORT_LABELS = {
+  sf11: '1.1 Limits by legislature',
+  sf12: '1.2 Limits by judiciary',
+  sf13: '1.3 Independent auditing',
+  sf14: '1.4 Sanctions for official misconduct',
+  sf15: '1.5 Non-governmental checks',
+  sf16: '1.6 Lawful transition of power',
+  sf21: '2.1 In the executive branch',
+  sf22: '2.2 In the judiciary',
+  sf23: '2.3 In the police/military',
+  sf24: '2.4 In the legislature',
+  sf31: '3.1 Publicized laws and gov\'t data',
+  sf32: '3.2 Right to information',
+  sf33: '3.3 Civic participation',
+  sf34: '3.4 Complaint mechanisms',
+  sf41: '4.1 No discrimination',
+  sf42: '4.2 Right to life and security',
+  sf43: '4.3 Due process of law',
+  sf44: '4.4 Freedom of expression',
+  sf45: '4.5 Freedom of religion',
+  sf46: '4.6 Right to privacy',
+  sf47: '4.7 Freedom of association',
+  sf48: '4.8 Labor rights',
+  sf51: '5.1 Absence of crime',
+  sf52: '5.2 Absence of civil conflict',
+  sf53: '5.3 Absence of violent redress',
+  sf61: '6.1 Effective regulatory enforcement',
+  sf62: '6.2 No improper influence',
+  sf63: '6.3 No unreasonable delay',
+  sf64: '6.4 Respect for due process',
+  sf65: '6.5 No exprop. w/out adeq. comp.',
+  sf71: '7.1 Accessibility and affordability',
+  sf72: '7.2 No discrimination',
+  sf73: '7.3 No corruption',
+  sf74: '7.4 No improper gov\'t influence',
+  sf75: '7.5 No unreasonable delay',
+  sf76: '7.6 Effective enforcement',
+  sf77: '7.7 Impartial and effective ADRs',
+  sf81: '8.1 Effective investigations',
+  sf82: '8.2 Timely and effective adjudication',
+  sf83: '8.3 Effective correctional system',
+  sf84: '8.4 No discrimination',
+  sf85: '8.5 No corruption',
+  sf86: '8.6 No improper gov\'t influence',
+  sf87: '8.7 Due process of law',
+};
+
+export { ACTIVE_YEAR, REGION_OPTIONS, VARIABLE_OPTIONS, SUBFACTOR_GROUPS, COLORS, TS_COLORS, FACTOR_COLORS, FACTOR_SHORT_LABELS, SUBFACTOR_SHORT_LABELS };
