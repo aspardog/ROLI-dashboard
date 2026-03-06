@@ -16,7 +16,7 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
     if (!showRegionalAvg || !effectiveRegion) return {};
     const filtered = allData.filter(d => {
       if (d.region !== effectiveRegion) return false;
-      return d[variable] != null && parseInt(d.year) >= 2019;
+      return d[variable] != null && parseInt(d.year) >= 2020;
     });
     const byYear = {};
     for (const d of filtered) {
@@ -33,7 +33,7 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
   // Calculate global average series
   const globalAvgSeries = useMemo(() => {
     if (!showGlobalAvg) return {};
-    const filtered = allData.filter(d => d[variable] != null && parseInt(d.year) >= 2019);
+    const filtered = allData.filter(d => d[variable] != null && parseInt(d.year) >= 2020);
     const byYear = {};
     for (const d of filtered) {
       if (!byYear[d.year]) byYear[d.year] = [];
@@ -50,7 +50,7 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
     if (country === '__regional_avg__') {
       const filtered = allData.filter(d => {
         if (selectedRegion !== 'global' && d.region !== selectedRegion) return false;
-        return d[variable] != null && parseInt(d.year) >= 2019;
+        return d[variable] != null && parseInt(d.year) >= 2020;
       });
       const byYear = {};
       for (const d of filtered) {
@@ -62,7 +62,7 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
         .map(([year, vals]) => ({ year, value: Math.round((vals.reduce((s, v) => s + v, 0) / vals.length) * 1000) / 1000 }));
     }
     return allData
-      .filter(d => d.country === country && d[variable] != null && parseInt(d.year) >= 2019)
+      .filter(d => d.country === country && d[variable] != null && parseInt(d.year) >= 2020)
       .sort((a, b) => a.year.localeCompare(b.year))
       .map(d => ({ year: d.year, value: d[variable] }));
   }, [allData, country, variable, selectedRegion]);
@@ -143,7 +143,7 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
   return (
     <ChartCard
       title={`${title} — ${label}`}
-      subtitle="2019–2025"
+      subtitle="2020–2025"
       onExport={downloadSVG}
     >
       {/* Legend for reference lines */}
