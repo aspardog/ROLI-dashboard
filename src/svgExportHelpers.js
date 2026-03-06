@@ -47,16 +47,17 @@ export function createTextElement(x, y, content, options = {}) {
  * @param {number} options.scale - Uniform scale factor (default: 1)
  * @param {string} options.widthCm - Fixed width in cm (e.g., "13cm")
  * @param {string} options.heightCm - Fixed height in cm (e.g., "10cm")
+ * @param {number} options.padding - Custom padding (default: 8)
  */
 export function prepareSVGClone(svg, legendHeight = 60, legendPosition = 'top', options = {}) {
   const bbox = svg.getBBox();
-  const pad = 8;
+  const pad = options.padding !== undefined ? options.padding : 8;
   const ns = 'http://www.w3.org/2000/svg';
 
-  const vbX = bbox.x - pad;
-  const vbY = legendPosition === 'top' ? bbox.y - pad - legendHeight : bbox.y - pad;
-  const vbW = bbox.width + pad * 2;
-  const vbH = bbox.height + pad * 2 + legendHeight;
+  let vbX = bbox.x - pad;
+  let vbY = legendPosition === 'top' ? bbox.y - pad - legendHeight : bbox.y - pad;
+  let vbW = bbox.width + pad * 2;
+  let vbH = bbox.height + pad * 2 + legendHeight;
 
   // Calculate output dimensions
   let outW, outH;
@@ -64,6 +65,24 @@ export function prepareSVGClone(svg, legendHeight = 60, legendPosition = 'top', 
     // Use fixed dimensions in cm
     outW = options.widthCm;
     outH = options.heightCm;
+
+    // Adjust viewBox to match target aspect ratio (fill the space)
+    const targetRatio = 13 / 10; // widthCm / heightCm
+    const currentRatio = vbW / vbH;
+
+    if (currentRatio > targetRatio) {
+      // Current is wider - need to increase vbH to match ratio
+      const newVbH = vbW / targetRatio;
+      const diff = newVbH - vbH;
+      vbY -= diff / 2;
+      vbH = newVbH;
+    } else {
+      // Current is taller - need to increase vbW to match ratio
+      const newVbW = vbH * targetRatio;
+      const diff = newVbW - vbW;
+      vbX -= diff / 2;
+      vbW = newVbW;
+    }
   } else {
     const scale = options.scale || 1;
     outW = vbW * scale;

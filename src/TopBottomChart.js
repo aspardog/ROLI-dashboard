@@ -32,9 +32,11 @@ function TopBottomChart({ allData, selectedRegion, selectedYear, variable, label
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
 
-    // Bipanel: fixed dimensions 13cm x 10cm
-    const options = format === 'bipanel' ? { widthCm: '13cm', heightCm: '10cm' } : {};
-    const { clone, vbX, vbY } = prepareSVGClone(svg, 60, 'top', options);
+    // Bipanel: fixed dimensions 13cm x 10cm with minimal padding
+    const isBipanel = format === 'bipanel';
+    const options = isBipanel ? { widthCm: '13cm', heightCm: '10cm', padding: 4 } : {};
+    const legendHeight = isBipanel ? 30 : 60;
+    const { clone, vbX, vbY } = prepareSVGClone(svg, legendHeight, 'top', options);
     await embedFonts(clone);
 
     // Add legend items
