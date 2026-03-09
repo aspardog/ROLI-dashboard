@@ -172,7 +172,7 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
     if (!svg) return;
 
     const legendHeight = 60;
-    const { clone, vbX, vbY } = prepareSVGClone(svg, legendHeight, 'top', {});
+    const { clone, vbX, vbY } = prepareSVGClone(svg, legendHeight, 'top', { scale: 0.5 });
     await embedFonts(clone);
 
     // Add legend items for each country/region
