@@ -1,9 +1,12 @@
-import { useMemo, useRef, useState, memo } from 'react';
+import { useMemo, useRef, useState, useCallback, memo } from 'react';
 import PropTypes from 'prop-types';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, LabelList, ReferenceLine } from 'recharts';
 import { COLORS, REGION_OPTIONS } from './constants';
 import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper } from './svgExportHelpers';
 import ChartCard from './components/ChartCard';
+
+// Bipanel scale factor for dynamic heights
+const BIPANEL_SCALE = 0.65;
 
 const FACTORS = [
   { key: 'f1', label: 'Constraints on Government Power' },
@@ -65,6 +68,7 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
   const chartRef = useRef(null);
   const [selectedCountries, setSelectedCountries] = useState(['__region_global']);
   const [expandedRegions, setExpandedRegions] = useState({});
+  const [exportMode, setExportMode] = useState(null);
 
   // Group countries by region
   const countriesByRegion = useMemo(() => {
@@ -167,15 +171,14 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
     return countries.length > 0 && countries.every(c => selectedCountries.includes(c));
   };
 
-  async function downloadSVG(format = 'full') {
+  // Actual SVG capture and download logic
+  const captureAndDownload = useCallback(async (format) => {
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
 
-    // Bipanel: compact square format with tight padding
     const isBipanel = format === 'bipanel';
-    const options = isBipanel ? { scale: 0.55, tight: true } : {};
-    const legendHeight = isBipanel ? 25 : 60;
-    const { clone, vbX, vbY } = prepareSVGClone(svg, legendHeight, 'top', options);
+    const legendHeight = 60;
+    const { clone, vbX, vbY } = prepareSVGClone(svg, legendHeight, 'top', {});
     await embedFonts(clone);
 
     // Add legend items for each country/region
@@ -191,12 +194,24 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
       currentX += label.length * 9 + 50;
     });
 
-    const suffix = format === 'bipanel' ? '_bipanel' : '';
+    const suffix = isBipanel ? '_bipanel' : '';
     const fileName = selectedCountries.length === 1
       ? `ROLI_Factors_${getCountryLabel(selectedCountries[0])}_${selectedYear}${suffix}.svg`
       : `ROLI_Factors_Comparison_${selectedYear}${suffix}.svg`;
     downloadSVGHelper(clone, fileName);
-  }
+  }, [selectedCountries, selectedYear]);
+
+  // Download handler - transforms chart for bipanel, then captures
+  const downloadSVG = useCallback(async (format = 'full') => {
+    if (format === 'bipanel') {
+      setExportMode('bipanel');
+      await new Promise(resolve => setTimeout(resolve, 100));
+      await captureAndDownload(format);
+      setExportMode(null);
+    } else {
+      await captureAndDownload(format);
+    }
+  }, [captureAndDownload]);
 
   if (chartData.length === 0) {
     return (
@@ -291,7 +306,7 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
         ))}
       </div>
 
-      <div ref={chartRef} className="bar-chart-container" style={{ width: '100%', height: `${chartHeight}px`, maxWidth: '1200px', margin: '0 auto' }}>
+      <div ref={chartRef} className="bar-chart-container" style={{ width: '100%', height: `${exportMode === 'bipanel' ? Math.round(chartHeight * BIPANEL_SCALE) : chartHeight}px`, maxWidth: exportMode === 'bipanel' ? '700px' : '1200px', margin: '0 auto' }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={chartData}
