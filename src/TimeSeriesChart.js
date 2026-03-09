@@ -167,7 +167,7 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
           )}
         </div>
       )}
-      <div ref={chartRef} style={{ maxWidth: '500px' }}>
+      <div ref={chartRef} style={{ maxWidth: '600px' }}>
         <ResponsiveContainer width="100%" height={400}>
           <LineChart data={chartData} margin={{ top: 24, right: 32, left: 16, bottom: 8 }}>
             <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke={TS_COLORS.grid} />
