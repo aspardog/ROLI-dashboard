@@ -70,12 +70,13 @@ function RadarChartView({
     return radarPoints;
   }, [allData, selectedRegion, selectedCountry, selectedFactors, selectedYears]);
 
-  async function downloadSVG() {
+  async function downloadSVG(format = 'full') {
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
 
+    const isBipanel = format === 'bipanel';
     const legendHeight = 60;
-    const { clone, vbX, vbY } = prepareSVGClone(svg, legendHeight, 'top', { scale: 0.5 });
+    const { clone, vbX, vbY } = prepareSVGClone(svg, legendHeight, 'top', { scale: isBipanel ? 0.5 : 1 });
     await embedFonts(clone);
 
     // Add legend items for each year
@@ -90,7 +91,8 @@ function RadarChartView({
       currentX += year.length * 10 + 70;
     });
 
-    downloadSVGHelper(clone, `ROLI_Radar_${countryLabel}_${selectedYears.join('_')}.svg`);
+    const suffix = isBipanel ? '_bipanel' : '';
+    downloadSVGHelper(clone, `ROLI_Radar_${countryLabel}_${selectedYears.join('_')}${suffix}.svg`);
   }
 
   if (radarData.length === 0) {
@@ -108,7 +110,6 @@ function RadarChartView({
       title="Comparative Radar Chart"
       subtitle={countryLabel}
       onExport={downloadSVG}
-      exportOptions={['full']}
     >
       {/* Legend */}
       <div className="legend-container" style={{ display: 'flex', gap: '20px', marginBottom: '20px', flexWrap: 'wrap' }}>
