@@ -87,16 +87,10 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
   // Check if we're showing reference lines
   const hasReferences = (showRegionalAvg && effectiveRegion) || showGlobalAvg;
 
-  if (series.length < 2) return null;
-
-  // Fixed scale from 0 to 1
-  const yMin = 0;
-  const yMax = 1;
-  const yTicks = [0, 0.2, 0.4, 0.6, 0.8, 1.0];
-
+  // Title must be calculated before early return for use in useCallback
   const title = country === '__regional_avg__' ? (selectedRegion === 'global' ? 'Global Average' : `${regionLabel} — Regional Average`) : country;
 
-  // Actual SVG capture and download logic
+  // Actual SVG capture and download logic (must be before early return)
   const captureAndDownload = useCallback(async (format) => {
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
@@ -147,7 +141,7 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
   }, [hasReferences, country, showRegionalAvg, showGlobalAvg, title, variable]);
 
   // Download handler - transforms chart for bipanel, then captures
-  async function downloadSVG(format = 'full') {
+  const downloadSVG = useCallback(async (format = 'full') => {
     if (format === 'bipanel') {
       // Set to bipanel mode, wait for re-render, then capture
       setExportMode('bipanel');
@@ -160,7 +154,14 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
       // Full size - capture directly
       await captureAndDownload(format);
     }
-  }
+  }, [captureAndDownload]);
+
+  if (series.length < 2) return null;
+
+  // Fixed scale from 0 to 1
+  const yMin = 0;
+  const yMax = 1;
+  const yTicks = [0, 0.2, 0.4, 0.6, 0.8, 1.0];
 
   return (
     <ChartCard
