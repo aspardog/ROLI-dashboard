@@ -1,18 +1,11 @@
-import { useMemo, useRef, useState, useCallback, memo } from 'react';
+import { useMemo, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { BarChart, Bar, XAxis, YAxis, Cell, ResponsiveContainer, LabelList, ReferenceLine } from 'recharts';
 import { COLORS } from './constants';
 import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper } from './svgExportHelpers';
 import ChartCard from './components/ChartCard';
 
-// Chart dimension configurations
-const CHART_SIZES = {
-  full: { height: '600px', maxWidth: '840px' },
-  bipanel: { height: '400px', maxWidth: '550px' }
-};
-
 function TopBottomChart({ allData, selectedRegion, selectedYear, variable, label, regionLabel }) {
-  const [exportMode, setExportMode] = useState(null);
   const data = useMemo(() => {
     const byYear = allData.filter(d => d.year === selectedYear);
     return selectedRegion === 'global' ? byYear : byYear.filter(d => d.region === selectedRegion);
@@ -35,12 +28,10 @@ function TopBottomChart({ allData, selectedRegion, selectedYear, variable, label
 
   const chartRef = useRef(null);
 
-  // Actual SVG capture and download logic
-  const captureAndDownload = useCallback(async (format) => {
+  async function downloadSVG() {
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
 
-    const isBipanel = format === 'bipanel';
     const legendHeight = 60;
     const { clone, vbX, vbY } = prepareSVGClone(svg, legendHeight, 'top', {});
     await embedFonts(clone);
@@ -61,27 +52,15 @@ function TopBottomChart({ allData, selectedRegion, selectedYear, variable, label
       avgItems.forEach(el => clone.appendChild(el));
     }
 
-    const suffix = isBipanel ? '_bipanel' : '';
-    downloadSVGHelper(clone, `ROLI_${regionLabel}_${variable}_${selectedYear}${suffix}.svg`);
-  }, [splitCount, average, regionLabel, variable, selectedYear]);
-
-  // Download handler - transforms chart for bipanel, then captures
-  const downloadSVG = useCallback(async (format = 'full') => {
-    if (format === 'bipanel') {
-      setExportMode('bipanel');
-      await new Promise(resolve => setTimeout(resolve, 100));
-      await captureAndDownload(format);
-      setExportMode(null);
-    } else {
-      await captureAndDownload(format);
-    }
-  }, [captureAndDownload]);
+    downloadSVGHelper(clone, `ROLI_${regionLabel}_${variable}_${selectedYear}.svg`);
+  }
 
   return (
     <ChartCard
       title={`Top and Bottom Performers in ${label}`}
       subtitle={regionLabel}
       onExport={downloadSVG}
+      exportOptions={['full']}
     >
       <div style={{ display: 'flex', gap: '16px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', paddingTop: '20px', width: '140px', flexShrink: 0 }}>
@@ -100,7 +79,7 @@ function TopBottomChart({ allData, selectedRegion, selectedYear, variable, label
             </div>
           )}
         </div>
-        <div ref={chartRef} className="bar-chart-container" style={{ flex: 1, height: exportMode ? CHART_SIZES[exportMode].height : CHART_SIZES.full.height, maxWidth: exportMode ? CHART_SIZES[exportMode].maxWidth : CHART_SIZES.full.maxWidth }}>
+        <div ref={chartRef} className="bar-chart-container" style={{ flex: 1, height: '600px', maxWidth: '840px' }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} layout="vertical" margin={{ top: 10, right: 60, left: 10, bottom: 10 }}
             customized={({ xAxisMap, yAxisMap }) => {

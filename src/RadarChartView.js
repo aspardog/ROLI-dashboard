@@ -1,15 +1,9 @@
-import { useMemo, useRef, useState, useCallback, memo } from 'react';
+import { useMemo, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import { COLORS } from './constants';
 import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper } from './svgExportHelpers';
 import ChartCard from './components/ChartCard';
-
-// Chart dimension configurations
-const CHART_SIZES = {
-  full: { height: '800px' },
-  bipanel: { height: '500px' }
-};
 
 const YEAR_COLORS = {
   '2019': '#FFB52B',
@@ -30,7 +24,6 @@ function RadarChartView({
   countryLabel
 }) {
   const chartRef = useRef(null);
-  const [exportMode, setExportMode] = useState(null);
 
   const radarData = useMemo(() => {
     if (!selectedCountry || selectedFactors.length === 0 || selectedYears.length === 0) {
@@ -77,12 +70,10 @@ function RadarChartView({
     return radarPoints;
   }, [allData, selectedRegion, selectedCountry, selectedFactors, selectedYears]);
 
-  // Actual SVG capture and download logic
-  const captureAndDownload = useCallback(async (format) => {
+  async function downloadSVG() {
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
 
-    const isBipanel = format === 'bipanel';
     const legendHeight = 60;
     const { clone, vbX, vbY } = prepareSVGClone(svg, legendHeight, 'top', {});
     await embedFonts(clone);
@@ -99,21 +90,8 @@ function RadarChartView({
       currentX += year.length * 10 + 70;
     });
 
-    const suffix = isBipanel ? '_bipanel' : '';
-    downloadSVGHelper(clone, `ROLI_Radar_${countryLabel}_${selectedYears.join('_')}${suffix}.svg`);
-  }, [selectedYears, countryLabel]);
-
-  // Download handler - transforms chart for bipanel, then captures
-  const downloadSVG = useCallback(async (format = 'full') => {
-    if (format === 'bipanel') {
-      setExportMode('bipanel');
-      await new Promise(resolve => setTimeout(resolve, 100));
-      await captureAndDownload(format);
-      setExportMode(null);
-    } else {
-      await captureAndDownload(format);
-    }
-  }, [captureAndDownload]);
+    downloadSVGHelper(clone, `ROLI_Radar_${countryLabel}_${selectedYears.join('_')}.svg`);
+  }
 
   if (radarData.length === 0) {
     return (
@@ -130,6 +108,7 @@ function RadarChartView({
       title="Comparative Radar Chart"
       subtitle={countryLabel}
       onExport={downloadSVG}
+      exportOptions={['full']}
     >
       {/* Legend */}
       <div className="legend-container" style={{ display: 'flex', gap: '20px', marginBottom: '20px', flexWrap: 'wrap' }}>
@@ -141,7 +120,7 @@ function RadarChartView({
         ))}
       </div>
 
-      <div ref={chartRef} className="radar-chart-container" style={{ width: '100%', height: exportMode ? CHART_SIZES[exportMode].height : CHART_SIZES.full.height, margin: '0 -40px' }}>
+      <div ref={chartRef} className="radar-chart-container" style={{ width: '100%', height: '800px', margin: '0 -40px' }}>
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart data={radarData} margin={{ top: 60, right: 60, bottom: 60, left: 60 }}>
             <PolarGrid stroke="#d1cfd1" strokeDasharray="5 5" />
