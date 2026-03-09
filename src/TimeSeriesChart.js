@@ -168,8 +168,8 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
         </div>
       )}
       <div ref={chartRef}>
-        <ResponsiveContainer width="100%" height={280}>
-          <LineChart data={chartData} margin={{ top: 20, right: 24, left: 8, bottom: 8 }}>
+        <ResponsiveContainer width="100%" height={500}>
+          <LineChart data={chartData} margin={{ top: 24, right: 32, left: 16, bottom: 8 }}>
             <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke={TS_COLORS.grid} />
             <XAxis
               dataKey="year"
