@@ -28,13 +28,12 @@ function TopBottomChart({ allData, selectedRegion, selectedYear, variable, label
 
   const chartRef = useRef(null);
 
-  async function downloadSVG(format = 'full') {
+  async function downloadSVG() {
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
 
-    const isBipanel = format === 'bipanel';
     const legendHeight = 60;
-    const { clone, vbX, vbY } = prepareSVGClone(svg, legendHeight, 'top', { scale: isBipanel ? 0.5 : 1 });
+    const { clone, vbX, vbY } = prepareSVGClone(svg, legendHeight, 'top', {});
     await embedFonts(clone);
 
     // Add legend items
@@ -53,8 +52,7 @@ function TopBottomChart({ allData, selectedRegion, selectedYear, variable, label
       avgItems.forEach(el => clone.appendChild(el));
     }
 
-    const suffix = isBipanel ? '_bipanel' : '';
-    downloadSVGHelper(clone, `ROLI_${regionLabel}_${variable}_${selectedYear}${suffix}.svg`);
+    downloadSVGHelper(clone, `ROLI_${regionLabel}_${variable}_${selectedYear}.svg`);
   }
 
   return (
@@ -62,6 +60,7 @@ function TopBottomChart({ allData, selectedRegion, selectedYear, variable, label
       title={`Top and Bottom Performers in ${label}`}
       subtitle={regionLabel}
       onExport={downloadSVG}
+      exportOptions={['full']}
     >
       <div style={{ display: 'flex', gap: '16px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', paddingTop: '20px', width: '140px', flexShrink: 0 }}>

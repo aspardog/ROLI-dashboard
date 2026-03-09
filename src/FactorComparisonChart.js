@@ -167,13 +167,12 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
     return countries.length > 0 && countries.every(c => selectedCountries.includes(c));
   };
 
-  async function downloadSVG(format = 'full') {
+  async function downloadSVG() {
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
 
-    const isBipanel = format === 'bipanel';
     const legendHeight = 60;
-    const { clone, vbX, vbY } = prepareSVGClone(svg, legendHeight, 'top', { scale: isBipanel ? 0.5 : 1 });
+    const { clone, vbX, vbY } = prepareSVGClone(svg, legendHeight, 'top', {});
     await embedFonts(clone);
 
     // Add legend items for each country/region
@@ -189,10 +188,9 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
       currentX += label.length * 9 + 50;
     });
 
-    const suffix = isBipanel ? '_bipanel' : '';
     const fileName = selectedCountries.length === 1
-      ? `ROLI_Factors_${getCountryLabel(selectedCountries[0])}_${selectedYear}${suffix}.svg`
-      : `ROLI_Factors_Comparison_${selectedYear}${suffix}.svg`;
+      ? `ROLI_Factors_${getCountryLabel(selectedCountries[0])}_${selectedYear}.svg`
+      : `ROLI_Factors_Comparison_${selectedYear}.svg`;
     downloadSVGHelper(clone, fileName);
   }
 
@@ -226,6 +224,7 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
       title="Factor Comparison"
       subtitle={selectedYear}
       onExport={downloadSVG}
+      exportOptions={['full']}
     >
       {/* Regional Averages Section - above chart */}
       <div style={{ marginBottom: '20px', padding: '20px', backgroundColor: '#f8f7f4', borderRadius: '8px' }}>
