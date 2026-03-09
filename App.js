@@ -4,17 +4,6 @@ import InfoModal from './src/InfoModal';
 import HowToUseModal from './src/HowToUseModal';
 import './src/responsive.css';
 
-// WJP Logo SVG Component
-const WJPLogo = () => (
-  <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="50" cy="50" r="45" stroke="#5C2D91" strokeWidth="3" fill="none"/>
-    <ellipse cx="50" cy="50" rx="20" ry="45" stroke="#5C2D91" strokeWidth="2" fill="none"/>
-    <line x1="5" y1="50" x2="95" y2="50" stroke="#5C2D91" strokeWidth="2"/>
-    <line x1="50" y1="5" x2="50" y2="95" stroke="#5C2D91" strokeWidth="2"/>
-    <ellipse cx="50" cy="30" rx="38" ry="12" stroke="#5C2D91" strokeWidth="1.5" fill="none"/>
-    <ellipse cx="50" cy="70" rx="38" ry="12" stroke="#5C2D91" strokeWidth="1.5" fill="none"/>
-  </svg>
-);
 
 // Lazy load chart components for better initial bundle size
 const TopBottomChart = lazy(() => import('./src/TopBottomChart'));
@@ -138,23 +127,7 @@ export default function ROLIDashboard() {
 
   return (
     <div className="dashboard-container" style={{ minHeight: '100vh', backgroundColor: COLORS.background, fontFamily: "'Inter Tight', sans-serif" }}>
-      {/* WJP Top Header Bar */}
-      <header className="wjp-header" style={{ backgroundColor: COLORS.white, borderBottom: '1px solid #e5e5e5', padding: '12px 24px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <WJPLogo />
-            <span style={{ fontSize: '18px', fontWeight: '600', color: COLORS.primary, fontFamily: "'Inter Tight', sans-serif" }}>World Justice Project</span>
-          </div>
-          <nav style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-            <a href="https://worldjusticeproject.org/about-us" target="_blank" rel="noopener noreferrer" style={{ color: COLORS.primary, textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>ABOUT US</a>
-            <a href="https://worldjusticeproject.org/our-work" target="_blank" rel="noopener noreferrer" style={{ color: COLORS.primary, textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>OUR WORK</a>
-            <a href="https://worldjusticeproject.org/rule-of-law-index" target="_blank" rel="noopener noreferrer" style={{ color: COLORS.primary, textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>INDEX</a>
-            <a href="https://worldjusticeproject.org/news" target="_blank" rel="noopener noreferrer" style={{ color: COLORS.primary, textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>NEWS</a>
-          </nav>
-        </div>
-      </header>
-
-      {/* WJP Secondary Navigation Bar */}
+      {/* WJP Navigation Bar */}
       <div className="wjp-secondary-nav" style={{ backgroundColor: COLORS.secondary, padding: '12px 24px' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>

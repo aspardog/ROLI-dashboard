@@ -9,20 +9,7 @@
     overflow-x: hidden;
   }
 
-  /* WJP Header adjustments for mobile */
-  .wjp-header {
-    padding: 10px 12px !important;
-  }
-
-  .wjp-header > div {
-    flex-direction: column !important;
-    gap: 12px !important;
-  }
-
-  .wjp-header nav {
-    display: none !important; /* Hide nav on mobile */
-  }
-
+  /* WJP Navigation bar adjustments for mobile */
   .wjp-secondary-nav {
     padding: 10px 12px !important;
   }
