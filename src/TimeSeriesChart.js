@@ -1,12 +1,19 @@
-import { useMemo, useRef, memo } from 'react';
+import { useMemo, useRef, useState, useCallback, memo } from 'react';
 import PropTypes from 'prop-types';
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, ResponsiveContainer, LabelList } from 'recharts';
 import { TS_COLORS } from './constants';
 import { prepareSVGClone, embedFonts, downloadSVG as downloadSVGHelper, createLegendItem } from './svgExportHelpers';
 import ChartCard from './components/ChartCard';
 
+// Chart dimension configurations
+const CHART_SIZES = {
+  full: { width: '100%', height: 500, maxWidth: undefined },
+  bipanel: { width: '100%', height: 400, maxWidth: '600px' }
+};
+
 function TimeSeriesChart({ allData, country, variable, label, selectedRegion, regionLabel, showRegionalAvg = false, showGlobalAvg = false, countryRegion = null }) {
   const chartRef = useRef(null);
+  const [exportMode, setExportMode] = useState(null);
 
   // Use countryRegion (detected from data) when available, otherwise use selectedRegion
   const effectiveRegion = countryRegion || (selectedRegion !== 'global' ? selectedRegion : null);
@@ -89,15 +96,14 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
 
   const title = country === '__regional_avg__' ? (selectedRegion === 'global' ? 'Global Average' : `${regionLabel} — Regional Average`) : country;
 
-  async function downloadSVG(format = 'full') {
+  // Actual SVG capture and download logic
+  const captureAndDownload = useCallback(async (format) => {
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
 
-    // Bipanel: compact square format with tight padding
     const isBipanel = format === 'bipanel';
-    const options = isBipanel ? { scale: 0.55, tight: true } : {};
-    const legendHeight = isBipanel ? 25 : (hasReferences ? 40 : 0);
-    const { clone, bbox } = prepareSVGClone(svg, legendHeight, 'top', options);
+    const legendHeight = hasReferences ? 40 : 0;
+    const { clone, bbox } = prepareSVGClone(svg, legendHeight, 'top', {});
     await embedFonts(clone);
 
     // Add legend if showing reference lines
@@ -136,8 +142,24 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
       }
     }
 
-    const suffix = format === 'bipanel' ? '_bipanel' : '';
+    const suffix = isBipanel ? '_bipanel' : '';
     downloadSVGHelper(clone, `ROLI_${title}_${variable}${suffix}.svg`);
+  }, [hasReferences, country, showRegionalAvg, showGlobalAvg, title, variable]);
+
+  // Download handler - transforms chart for bipanel, then captures
+  async function downloadSVG(format = 'full') {
+    if (format === 'bipanel') {
+      // Set to bipanel mode, wait for re-render, then capture
+      setExportMode('bipanel');
+      // Wait for React to re-render with new dimensions
+      await new Promise(resolve => setTimeout(resolve, 100));
+      await captureAndDownload(format);
+      // Restore to full size
+      setExportMode(null);
+    } else {
+      // Full size - capture directly
+      await captureAndDownload(format);
+    }
   }
 
   return (
@@ -167,8 +189,8 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
           )}
         </div>
       )}
-      <div ref={chartRef} style={{ maxWidth: '600px' }}>
-        <ResponsiveContainer width="100%" height={400}>
+      <div ref={chartRef} style={{ maxWidth: exportMode ? CHART_SIZES[exportMode].maxWidth : CHART_SIZES.full.maxWidth }}>
+        <ResponsiveContainer width="100%" height={exportMode ? CHART_SIZES[exportMode].height : CHART_SIZES.full.height}>
           <LineChart data={chartData} margin={{ top: 24, right: 32, left: 16, bottom: 8 }}>
             <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke={TS_COLORS.grid} />
             <XAxis
