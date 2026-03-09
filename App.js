@@ -4,6 +4,18 @@ import InfoModal from './src/InfoModal';
 import HowToUseModal from './src/HowToUseModal';
 import './src/responsive.css';
 
+// WJP Logo SVG Component
+const WJPLogo = () => (
+  <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="50" cy="50" r="45" stroke="#5C2D91" strokeWidth="3" fill="none"/>
+    <ellipse cx="50" cy="50" rx="20" ry="45" stroke="#5C2D91" strokeWidth="2" fill="none"/>
+    <line x1="5" y1="50" x2="95" y2="50" stroke="#5C2D91" strokeWidth="2"/>
+    <line x1="50" y1="5" x2="50" y2="95" stroke="#5C2D91" strokeWidth="2"/>
+    <ellipse cx="50" cy="30" rx="38" ry="12" stroke="#5C2D91" strokeWidth="1.5" fill="none"/>
+    <ellipse cx="50" cy="70" rx="38" ry="12" stroke="#5C2D91" strokeWidth="1.5" fill="none"/>
+  </svg>
+);
+
 // Lazy load chart components for better initial bundle size
 const TopBottomChart = lazy(() => import('./src/TopBottomChart'));
 const TimeSeriesChart = lazy(() => import('./src/TimeSeriesChart'));
@@ -125,57 +137,64 @@ export default function ROLIDashboard() {
   }
 
   return (
-    <div className="dashboard-container" style={{ minHeight: '100vh', backgroundColor: COLORS.background, fontFamily: "'Inter Tight', sans-serif", padding: '32px 24px' }}>
-      {/* Header Banner */}
-      <div className="dashboard-header" style={{ maxWidth: '1100px', margin: '0 auto 32px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
-          <div className="accent-bar" style={{ width: '6px', height: '48px', backgroundColor: COLORS.top5, borderRadius: '3px' }} />
-          <h1 style={{ fontSize: '32px', fontWeight: '700', color: COLORS.text, margin: 0, letterSpacing: '-0.5px' }}>Rule of Law Index – Data Visualization Tool</h1>
+    <div className="dashboard-container" style={{ minHeight: '100vh', backgroundColor: COLORS.background, fontFamily: "'Inter Tight', sans-serif" }}>
+      {/* WJP Top Header Bar */}
+      <header className="wjp-header" style={{ backgroundColor: COLORS.white, borderBottom: '1px solid #e5e5e5', padding: '12px 24px' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <WJPLogo />
+            <span style={{ fontSize: '18px', fontWeight: '600', color: COLORS.primary, fontFamily: "'Inter Tight', sans-serif" }}>World Justice Project</span>
+          </div>
+          <nav style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+            <a href="https://worldjusticeproject.org/about-us" target="_blank" rel="noopener noreferrer" style={{ color: COLORS.primary, textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>ABOUT US</a>
+            <a href="https://worldjusticeproject.org/our-work" target="_blank" rel="noopener noreferrer" style={{ color: COLORS.primary, textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>OUR WORK</a>
+            <a href="https://worldjusticeproject.org/rule-of-law-index" target="_blank" rel="noopener noreferrer" style={{ color: COLORS.primary, textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>INDEX</a>
+            <a href="https://worldjusticeproject.org/news" target="_blank" rel="noopener noreferrer" style={{ color: COLORS.primary, textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>NEWS</a>
+          </nav>
         </div>
-        <div style={{ margin: '16px 0 0 22px', maxWidth: '900px' }}>
-          <p style={{ fontSize: '15px', lineHeight: '1.6', color: COLORS.text, margin: '0' }}>
-            Interactive dashboard for the <strong>World Justice Project Rule of Law Index</strong>. Explore results and <strong>download publication-ready visuals</strong> for presentations and reports.
-          </p>
-          <div style={{ display: 'flex', gap: '16px', marginTop: '12px', flexWrap: 'wrap' }}>
-            <button
-              onClick={() => setIsInfoModalOpen(true)}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: COLORS.top5,
-                fontWeight: '600',
-                fontSize: '15px',
-                cursor: 'pointer',
-                padding: 0,
-                textDecoration: 'underline',
-                fontFamily: 'inherit'
-              }}
-              onMouseOver={(e) => e.target.style.color = '#0056b3'}
-              onMouseOut={(e) => e.target.style.color = COLORS.top5}
-            >
-              Learn about the Index →
-            </button>
-            <button
-              onClick={() => setIsHowToUseModalOpen(true)}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: COLORS.top5,
-                fontWeight: '600',
-                fontSize: '15px',
-                cursor: 'pointer',
-                padding: 0,
-                textDecoration: 'underline',
-                fontFamily: 'inherit'
-              }}
-              onMouseOver={(e) => e.target.style.color = '#0056b3'}
-              onMouseOut={(e) => e.target.style.color = COLORS.top5}
-            >
-              How to use this dashboard →
-            </button>
+      </header>
+
+      {/* WJP Secondary Navigation Bar */}
+      <div className="wjp-secondary-nav" style={{ backgroundColor: COLORS.secondary, padding: '12px 24px' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+            <span style={{ color: COLORS.white, fontSize: '15px', fontWeight: '500', opacity: 0.9 }}>WJP Rule of Law Index®</span>
+            <nav style={{ display: 'flex', gap: '24px' }}>
+              <button onClick={() => setIsInfoModalOpen(true)} style={{ background: 'none', border: 'none', color: COLORS.white, fontSize: '14px', fontWeight: '500', cursor: 'pointer', padding: 0 }}>About</button>
+              <button onClick={() => setIsHowToUseModalOpen(true)} style={{ background: 'none', border: 'none', color: COLORS.white, fontSize: '14px', fontWeight: '500', cursor: 'pointer', padding: 0 }}>How to Use</button>
+            </nav>
           </div>
         </div>
       </div>
+
+      {/* Main Content */}
+      <div style={{ padding: '32px 24px' }}>
+        {/* Header Banner */}
+        <div className="dashboard-header" style={{ maxWidth: '1100px', margin: '0 auto 32px', textAlign: 'center' }}>
+          <h1 style={{
+            fontSize: '36px',
+            fontWeight: '400',
+            color: COLORS.primary,
+            margin: '0 0 16px 0',
+            fontFamily: "Georgia, 'Times New Roman', serif",
+            lineHeight: '1.3'
+          }}>
+            Rule of Law Index
+          </h1>
+          <h2 style={{
+            fontSize: '24px',
+            fontWeight: '400',
+            color: COLORS.primary,
+            margin: '0 0 20px 0',
+            fontFamily: "Georgia, 'Times New Roman', serif",
+            fontStyle: 'italic'
+          }}>
+            Data Visualization Tool
+          </h2>
+          <p style={{ fontSize: '16px', lineHeight: '1.7', color: COLORS.text, margin: '0 auto', maxWidth: '700px' }}>
+            Interactive dashboard for the <em>WJP Rule of Law Index®</em>. Explore results and download publication-ready visuals for presentations and reports.
+          </p>
+        </div>
 
       {/* Info Modals */}
       <InfoModal isOpen={isInfoModalOpen} onClose={() => setIsInfoModalOpen(false)} />
@@ -183,7 +202,7 @@ export default function ROLIDashboard() {
 
       {/* Controls */}
       {chartType !== 'radar' && chartType !== 'factors' && chartType !== 'profile' && (
-        <div className="controls-container" style={{ maxWidth: '1100px', margin: '0 auto 40px', backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', display: 'flex', gap: '24px' }}>
+        <div className="controls-container" style={{ maxWidth: '1100px', margin: '0 auto 40px', backgroundColor: COLORS.backgroundAlt, borderRadius: '8px', padding: '24px', border: '1px solid #e5e5e5', display: 'flex', gap: '24px' }}>
           <div style={{ flex: 1 }}>
             <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Region</label>
             <select value={selectedRegion} onChange={(e) => setSelectedRegion(e.target.value)} style={{ width: '100%', padding: '14px 16px', fontSize: '16px', border: '2px solid #e5e5e5', borderRadius: '8px', backgroundColor: 'white', color: COLORS.text, cursor: 'pointer', outline: 'none', fontWeight: '500' }}>
@@ -261,7 +280,7 @@ export default function ROLIDashboard() {
 
       {/* Factor Comparison Controls */}
       {chartType === 'factors' && (
-        <div className="controls-container" style={{ maxWidth: '1100px', margin: '0 auto 40px', backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', display: 'flex', justifyContent: 'center' }}>
+        <div className="controls-container" style={{ maxWidth: '1100px', margin: '0 auto 40px', backgroundColor: COLORS.backgroundAlt, borderRadius: '8px', padding: '24px', border: '1px solid #e5e5e5', display: 'flex', justifyContent: 'center' }}>
           <div style={{ width: '300px' }}>
             <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Year</label>
             <select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)} style={{ width: '100%', padding: '14px 16px', fontSize: '16px', border: '2px solid #e5e5e5', borderRadius: '8px', backgroundColor: 'white', color: COLORS.text, cursor: 'pointer', outline: 'none', fontWeight: '500' }}>
@@ -278,26 +297,26 @@ export default function ROLIDashboard() {
       )}
 
       {/* Chart type toggle */}
-      <div className="chart-toggle-container" style={{ maxWidth: '1100px', margin: '0 auto 24px', display: 'flex', gap: '8px' }}>
+      <div className="chart-toggle-container" style={{ maxWidth: '1100px', margin: '0 auto 24px', display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
         <button
           onClick={() => setChartType('timeseries')}
-          style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '600', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: chartType === 'timeseries' ? COLORS.top5 : 'white', color: chartType === 'timeseries' ? 'white' : COLORS.muted, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
+          style={{ padding: '12px 24px', fontSize: '14px', fontWeight: '600', borderRadius: '6px', border: chartType === 'timeseries' ? 'none' : `2px solid ${COLORS.primary}`, cursor: 'pointer', backgroundColor: chartType === 'timeseries' ? COLORS.primary : 'white', color: chartType === 'timeseries' ? 'white' : COLORS.primary, transition: 'all 0.2s' }}
         >Time Series</button>
         <button
           onClick={() => setChartType('profile')}
-          style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '600', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: chartType === 'profile' ? COLORS.top5 : 'white', color: chartType === 'profile' ? 'white' : COLORS.muted, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
+          style={{ padding: '12px 24px', fontSize: '14px', fontWeight: '600', borderRadius: '6px', border: chartType === 'profile' ? 'none' : `2px solid ${COLORS.primary}`, cursor: 'pointer', backgroundColor: chartType === 'profile' ? COLORS.primary : 'white', color: chartType === 'profile' ? 'white' : COLORS.primary, transition: 'all 0.2s' }}
         >Country Profile</button>
         <button
           onClick={() => setChartType('topbottom')}
-          style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '600', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: chartType === 'topbottom' ? COLORS.top5 : 'white', color: chartType === 'topbottom' ? 'white' : COLORS.muted, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
+          style={{ padding: '12px 24px', fontSize: '14px', fontWeight: '600', borderRadius: '6px', border: chartType === 'topbottom' ? 'none' : `2px solid ${COLORS.primary}`, cursor: 'pointer', backgroundColor: chartType === 'topbottom' ? COLORS.primary : 'white', color: chartType === 'topbottom' ? 'white' : COLORS.primary, transition: 'all 0.2s' }}
         >Top & Bottom Performers</button>
         <button
           onClick={() => setChartType('radar')}
-          style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '600', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: chartType === 'radar' ? COLORS.top5 : 'white', color: chartType === 'radar' ? 'white' : COLORS.muted, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
+          style={{ padding: '12px 24px', fontSize: '14px', fontWeight: '600', borderRadius: '6px', border: chartType === 'radar' ? 'none' : `2px solid ${COLORS.primary}`, cursor: 'pointer', backgroundColor: chartType === 'radar' ? COLORS.primary : 'white', color: chartType === 'radar' ? 'white' : COLORS.primary, transition: 'all 0.2s' }}
         >Radar Chart</button>
         <button
           onClick={() => setChartType('factors')}
-          style={{ padding: '10px 20px', fontSize: '14px', fontWeight: '600', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: chartType === 'factors' ? COLORS.top5 : 'white', color: chartType === 'factors' ? 'white' : COLORS.muted, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
+          style={{ padding: '12px 24px', fontSize: '14px', fontWeight: '600', borderRadius: '6px', border: chartType === 'factors' ? 'none' : `2px solid ${COLORS.primary}`, cursor: 'pointer', backgroundColor: chartType === 'factors' ? COLORS.primary : 'white', color: chartType === 'factors' ? 'white' : COLORS.primary, transition: 'all 0.2s' }}
         >Factor Comparison</button>
       </div>
 
@@ -321,7 +340,7 @@ export default function ROLIDashboard() {
         {chartType === 'radar' && (
           <>
             {/* Radar Controls - Region, Country, Years - ABOVE CHART */}
-            <div className="radar-controls-top chart-card" style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
+            <div className="radar-controls-top chart-card" style={{ backgroundColor: COLORS.backgroundAlt, borderRadius: '8px', padding: '24px', border: '1px solid #e5e5e5', marginBottom: '24px' }}>
               <div className="radar-controls-row" style={{ display: 'flex', gap: '24px', marginBottom: '24px' }}>
                 <div style={{ flex: 1 }}>
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Region</label>
@@ -375,7 +394,7 @@ export default function ROLIDashboard() {
             />
 
             {/* Factors & Subfactors - BELOW CHART */}
-            <div className="radar-factors-panel chart-card" style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
+            <div className="radar-factors-panel chart-card" style={{ backgroundColor: COLORS.backgroundAlt, borderRadius: '8px', padding: '24px', border: '1px solid #e5e5e5', marginBottom: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <label style={{ fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                   Factors & Subfactors to Compare
@@ -476,7 +495,7 @@ export default function ROLIDashboard() {
         {chartType === 'profile' && (
           <>
             {/* Profile Controls */}
-            <div className="profile-controls chart-card" style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
+            <div className="profile-controls chart-card" style={{ backgroundColor: COLORS.backgroundAlt, borderRadius: '8px', padding: '24px', border: '1px solid #e5e5e5', marginBottom: '24px' }}>
               <div style={{ display: 'flex', gap: '24px' }}>
                 <div style={{ flex: 1 }}>
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Region</label>
@@ -507,9 +526,9 @@ export default function ROLIDashboard() {
       </div>
 
       {/* Footer */}
-      <div className="dashboard-footer" style={{ maxWidth: '1100px', margin: '24px auto 0', textAlign: 'center' }}>
-        <p style={{ fontSize: '12px', color: COLORS.muted }}>
-          Source: World Justice Project — Rule of Law Index {
+      <div className="dashboard-footer" style={{ maxWidth: '1100px', margin: '40px auto 0', textAlign: 'center', paddingBottom: '40px' }}>
+        <p style={{ fontSize: '13px', color: COLORS.muted, marginBottom: '8px' }}>
+          Source: World Justice Project — Rule of Law Index® {
             chartType === 'timeseries' ? '2019–2025' :
             chartType === 'radar' ? [...selectedRadarYears].sort().join(', ') :
             chartType === 'profile' ? ACTIVE_YEAR :
@@ -517,7 +536,11 @@ export default function ROLIDashboard() {
             selectedYear
           }
         </p>
+        <p style={{ fontSize: '12px', color: COLORS.muted }}>
+          © {new Date().getFullYear()} World Justice Project. All rights reserved.
+        </p>
       </div>
+      </div>{/* Close main content padding div */}
     </div>
   );
 }

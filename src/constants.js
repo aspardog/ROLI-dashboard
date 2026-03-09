@@ -89,12 +89,17 @@ const SUBFACTOR_GROUPS = [
 ];
 
 const COLORS = {
-  top5: '#003B88',
-  bottom5: '#fa4d57',
-  background: '#f8f7f4',
+  // WJP Brand Colors
+  primary: '#5C2D91',      // WJP Purple - for titles and primary actions
+  secondary: '#181878',    // WJP Navy - for secondary navigation
+  top5: '#5C2D91',         // Purple for highlights
+  bottom5: '#fa4d57',      // Red for contrast
+  background: '#FFFFFF',   // Clean white background
+  backgroundAlt: '#f8f7f4', // Alternate background for sections
   text: '#1a1a1a',
   muted: '#6b6b6b',
-  divider: '#333333',
+  divider: '#e5e5e5',
+  white: '#FFFFFF',
 };
 
 const TS_COLORS = {
