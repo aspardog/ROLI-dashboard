@@ -1,74 +1,96 @@
 import { useMemo, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, LabelList } from 'recharts';
 import { COLORS } from './constants';
 import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper } from './svgExportHelpers';
 import ChartCard from './components/ChartCard';
 
-const YEAR_COLORS = {
-  '2019': '#FFB52B',
-  '2020': '#226640',
-  '2021': '#9C89ED',
-  '2022': '#FF4D6A',
-  '2023': '#3366FF',
-  '2024': '#BF02AF',
-  '2025': '#181878'
-};
+// 8 Factors
+const FACTORS = [
+  { key: 'f1', label: 'Constraints on Government Power' },
+  { key: 'f2', label: 'Absence of Corruption' },
+  { key: 'f3', label: 'Open Government' },
+  { key: 'f4', label: 'Fundamental Rights' },
+  { key: 'f5', label: 'Order and Security' },
+  { key: 'f6', label: 'Regulatory Enforcement' },
+  { key: 'f7', label: 'Civil Justice' },
+  { key: 'f8', label: 'Criminal Justice' }
+];
+
+// Colors for different entities
+const ENTITY_COLORS = [
+  '#5C2D91', // Purple
+  '#BF02AF', // Magenta
+  '#3366FF', // Blue
+  '#FF4D6A', // Pink
+  '#FFB52B', // Orange
+  '#34C759', // Green
+  '#FF9500', // Dark Orange
+  '#5856D6', // Indigo
+];
 
 function RadarChartView({
   allData,
-  selectedRegion,
-  selectedCountry,
-  selectedFactors,
-  selectedYears,
-  countryLabel
+  selectedEntities,
+  selectedYears
 }) {
   const chartRef = useRef(null);
 
-  const radarData = useMemo(() => {
-    if (!selectedCountry || selectedFactors.length === 0 || selectedYears.length === 0) {
-      return [];
+  // Get label for an entity
+  const getEntityLabel = (entity) => {
+    if (entity === '__region_global') return 'Global Average';
+    if (entity.startsWith('__region_')) {
+      const regionName = entity.replace('__region_', '');
+      return regionName;
     }
+    return entity; // Country name
+  };
 
-    // Filter data for selected country/region
-    const countryData = selectedCountry === '__regional_avg__'
-      ? (selectedRegion === 'global' ? allData : allData.filter(d => d.region === selectedRegion))
-      : allData.filter(d => d.country === selectedCountry);
+  // Calculate chart data
+  const chartData = useMemo(() => {
+    if (selectedEntities.length === 0 || selectedYears.length === 0) return [];
 
-    // Build radar data structure
-    const radarPoints = selectedFactors.map(factor => {
-      // Extract description only (remove the number prefix)
-      const description = factor.label.includes(' - ')
-        ? factor.label.split(' - ')[1]  // Get text after " - "
-        : factor.label;  // If no " - ", use full label
+    // Use the most recent selected year for the comparison
+    const year = selectedYears.sort().reverse()[0];
+    const yearData = allData.filter(d => d.year === year);
 
-      const point = {
-        factor: description,
-        fullLabel: factor.label  // Store full label for reference
-      };
+    // Build data for each factor
+    return FACTORS.map(factor => {
+      const row = { label: factor.label, factor: factor.key };
 
-      selectedYears.forEach(year => {
-        if (selectedCountry === '__regional_avg__') {
-          // Calculate average for the region
-          const yearData = countryData.filter(d => d.year === year && d[factor.value] != null);
-          if (yearData.length > 0) {
-            const avg = yearData.reduce((sum, d) => sum + d[factor.value], 0) / yearData.length;
-            point[year] = Math.round(avg * 1000) / 1000;
-          } else {
-            point[year] = 0;
-          }
+      selectedEntities.forEach((entity) => {
+        if (entity === '__region_global') {
+          // Global average
+          const validData = yearData.filter(d => d[factor.key] != null);
+          row[entity] = validData.length > 0
+            ? Math.round((validData.reduce((sum, d) => sum + d[factor.key], 0) / validData.length) * 100) / 100
+            : 0;
+        } else if (entity.startsWith('__region_')) {
+          // Regional average
+          const regionName = entity.replace('__region_', '');
+          const regionData = yearData.filter(d => d.region === regionName && d[factor.key] != null);
+          row[entity] = regionData.length > 0
+            ? Math.round((regionData.reduce((sum, d) => sum + d[factor.key], 0) / regionData.length) * 100) / 100
+            : 0;
         } else {
-          // Get value for specific country
-          const yearData = countryData.find(d => d.year === year);
-          point[year] = yearData && yearData[factor.value] != null ? yearData[factor.value] : 0;
+          // Individual country
+          const countryData = yearData.find(d => d.country === entity);
+          row[entity] = countryData?.[factor.key] ?? 0;
         }
       });
 
-      return point;
+      return row;
     });
+  }, [allData, selectedEntities, selectedYears]);
 
-    return radarPoints;
-  }, [allData, selectedRegion, selectedCountry, selectedFactors, selectedYears]);
+  // Get the title based on selected entities
+  const chartTitle = useMemo(() => {
+    if (selectedEntities.length === 0) return 'Comparative Chart';
+    if (selectedEntities.length === 1) {
+      return getEntityLabel(selectedEntities[0]);
+    }
+    return `Comparing ${selectedEntities.length} Categories`;
+  }, [selectedEntities]);
 
   async function downloadSVG() {
     const svg = chartRef.current?.querySelector('svg');
@@ -78,166 +100,111 @@ function RadarChartView({
     const { clone, vbX, vbY } = prepareSVGClone(svg, legendHeight, 'top', {});
     await embedFonts(clone);
 
-    // Add legend items for each year
+    // Add legend items
     const lx = vbX + 24;
     const ly = vbY + 20;
     let currentX = lx;
 
-    selectedYears.forEach(year => {
-      const color = YEAR_COLORS[year];
-      const legendItems = createLegendItem(currentX, ly, color, year, 'line', { width: 30, height: 4 });
+    selectedEntities.forEach((entity, index) => {
+      const label = getEntityLabel(entity);
+      const color = ENTITY_COLORS[index % ENTITY_COLORS.length];
+      const legendItems = createLegendItem(currentX, ly, color, label, 'rect', { width: 16, height: 16 });
       legendItems.forEach(el => clone.appendChild(el));
-      currentX += year.length * 10 + 70;
+      currentX += label.length * 8 + 50;
     });
 
-    downloadSVGHelper(clone, `ROLI_Radar_${countryLabel}_${selectedYears.join('_')}.svg`);
+    const year = selectedYears.sort().reverse()[0];
+    downloadSVGHelper(clone, `ROLI_Comparison_${year}.svg`);
   }
 
-  if (radarData.length === 0) {
+  if (chartData.length === 0 || selectedEntities.length === 0) {
     return (
       <ChartCard
-        title="Radar Chart"
+        title="Comparative Chart"
         isEmpty={true}
-        emptyMessage="Please select a country, factors, and years to display the chart."
+        emptyMessage="Please select categories to compare."
       />
     );
   }
 
+  // Dynamic sizing based on number of entities
+  const barSize = selectedEntities.length === 1 ? 28 :
+                  selectedEntities.length === 2 ? 22 :
+                  selectedEntities.length === 3 ? 18 :
+                  selectedEntities.length === 4 ? 16 : 14;
+
+  const chartHeight = selectedEntities.length <= 2 ? 500 :
+                      selectedEntities.length === 3 ? 600 :
+                      selectedEntities.length === 4 ? 700 : 800;
+
+  const categoryGap = selectedEntities.length <= 2 ? '30%' :
+                      selectedEntities.length === 3 ? '40%' :
+                      selectedEntities.length === 4 ? '50%' : '60%';
+
   return (
     <ChartCard
-      title="Comparative Radar Chart"
-      subtitle={countryLabel}
+      title={chartTitle}
+      subtitle={`Comparative Radar Chart`}
       onExport={downloadSVG}
       exportOptions={['full']}
     >
       {/* Legend */}
-      <div className="legend-container" style={{ display: 'flex', gap: '20px', marginBottom: '20px', flexWrap: 'wrap' }}>
-        {selectedYears.map(year => (
-          <div key={year} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '20px', height: '3px', backgroundColor: YEAR_COLORS[year], borderRadius: '2px' }} />
-            <span style={{ fontSize: '15px', color: COLORS.muted, fontWeight: '500' }}>{year}</span>
+      <div className="legend-container" style={{ display: 'flex', gap: '24px', marginBottom: '16px', flexWrap: 'wrap' }}>
+        {selectedEntities.map((entity, index) => (
+          <div key={entity} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ width: '16px', height: '16px', backgroundColor: ENTITY_COLORS[index % ENTITY_COLORS.length], borderRadius: '2px' }} />
+            <span style={{ fontSize: '14px', color: COLORS.text, fontWeight: '500' }}>{getEntityLabel(entity)}</span>
           </div>
         ))}
       </div>
 
-      <div ref={chartRef} className="radar-chart-container" style={{ width: '100%', height: '800px', margin: '0 -40px' }}>
+      <div ref={chartRef} className="bar-chart-container" style={{ width: '100%', height: `${chartHeight}px` }}>
         <ResponsiveContainer width="100%" height="100%">
-          <RadarChart data={radarData} margin={{ top: 60, right: 60, bottom: 60, left: 60 }}>
-            <PolarGrid stroke="#d1cfd1" strokeDasharray="5 5" />
-            <PolarAngleAxis
-              dataKey="factor"
-              tick={({ payload, x, y, textAnchor, index }) => {
-                const dataPoint = radarData[index];
-                if (!dataPoint) return null;
-
-                // Calculate values text with colors
-                const valuesText = selectedYears.map((year) => {
-                  const value = dataPoint[year];
-                  return { year, value, color: YEAR_COLORS[year] };
-                });
-
-                // Get the label text (already just the description)
-                const labelText = payload.value || '';
-
-                // Determine if we need to wrap label text
-                const maxCharsPerLine = 22;
-                const labelLines = [];
-                if (labelText.length > maxCharsPerLine) {
-                  const words = labelText.split(' ');
-                  let currentLine = '';
-                  words.forEach(word => {
-                    if ((currentLine + ' ' + word).trim().length <= maxCharsPerLine) {
-                      currentLine = currentLine ? currentLine + ' ' + word : word;
-                    } else {
-                      if (currentLine) labelLines.push(currentLine);
-                      currentLine = word;
-                    }
-                  });
-                  if (currentLine) labelLines.push(currentLine);
-                } else {
-                  labelLines.push(labelText);
-                }
-
-                // Calculate total height needed for label
-                const labelHeight = labelLines.length * 16;
-
-                return (
-                  <g>
-                    {/* Values line above the label */}
-                    <text
-                      x={x}
-                      y={y - labelHeight - 8}
-                      textAnchor={textAnchor}
-                      fill={COLORS.text}
-                      fontSize={16}
-                      fontWeight={600}
-                    >
-                      {valuesText.map((item, i) => (
-                        <tspan key={item.year} fill={item.color}>
-                          {item.value != null ? item.value.toFixed(2) : '—'}
-                          {i < valuesText.length - 1 && <tspan fill={COLORS.muted}> | </tspan>}
-                        </tspan>
-                      ))}
-                    </text>
-                    {/* Label lines */}
-                    {labelLines.map((line, i) => (
-                      <text
-                        key={i}
-                        x={x}
-                        y={y - labelHeight + 16 + (i * 16)}
-                        textAnchor={textAnchor}
-                        fill={COLORS.text}
-                        fontSize={16}
-                        fontWeight={500}
-                      >
-                        {line}
-                      </text>
-                    ))}
-                  </g>
-                );
-              }}
-            />
-            <PolarRadiusAxis
-              angle={90}
+          <BarChart
+            data={chartData}
+            layout="vertical"
+            margin={{ top: 20, right: 80, left: 10, bottom: 20 }}
+            barCategoryGap={categoryGap}
+          >
+            <XAxis
+              type="number"
               domain={[0, 1]}
-              ticks={[0, 0.2, 0.4, 0.6, 0.8, 1.0]}
-              tick={(props) => {
-                const { x, y, payload, cx, cy } = props;
-                // Move tick inside the radar by adjusting position
-                const dx = x - cx;
-                const dy = y - cy;
-                const angle = Math.atan2(dy, dx);
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                const newDistance = distance - 12; // Move 12px inward
-                const newX = cx + Math.cos(angle) * newDistance;
-                const newY = cy + Math.sin(angle) * newDistance;
-
-                return (
-                  <text
-                    x={newX}
-                    y={newY + 4}
-                    fill={COLORS.muted}
-                    fontSize={16}
-                    textAnchor="middle"
-                  >
-                    {payload.value.toFixed(1)}
-                  </text>
-                );
-              }}
+              ticks={[0, 0.25, 0.5, 0.75, 1]}
+              tickFormatter={(v) => v.toFixed(2)}
+              tick={{ fontSize: 13, fill: COLORS.text }}
               axisLine={false}
+              tickLine={false}
             />
-            {selectedYears.map(year => (
-              <Radar
-                key={year}
-                name={year}
-                dataKey={year}
-                stroke={YEAR_COLORS[year]}
-                fill={YEAR_COLORS[year]}
-                fillOpacity={0.1}
-                strokeWidth={2.5}
-              />
+            <YAxis
+              type="category"
+              dataKey="label"
+              tick={{ fontSize: 14, fill: COLORS.text, fontWeight: 500 }}
+              axisLine={false}
+              tickLine={false}
+              width={180}
+            />
+
+            {selectedEntities.map((entity, index) => (
+              <Bar
+                key={entity}
+                dataKey={entity}
+                fill={ENTITY_COLORS[index % ENTITY_COLORS.length]}
+                radius={[0, 4, 4, 0]}
+                barSize={barSize}
+              >
+                <LabelList
+                  dataKey={entity}
+                  position="right"
+                  formatter={(value) => value ? value.toFixed(2) : ''}
+                  style={{
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    fill: COLORS.text
+                  }}
+                />
+              </Bar>
             ))}
-          </RadarChart>
+          </BarChart>
         </ResponsiveContainer>
       </div>
     </ChartCard>
@@ -246,14 +213,8 @@ function RadarChartView({
 
 RadarChartView.propTypes = {
   allData: PropTypes.arrayOf(PropTypes.object).isRequired,
-  selectedRegion: PropTypes.string.isRequired,
-  selectedCountry: PropTypes.string.isRequired,
-  selectedFactors: PropTypes.arrayOf(PropTypes.shape({
-    value: PropTypes.string.isRequired,
-    label: PropTypes.string.isRequired
-  })).isRequired,
-  selectedYears: PropTypes.arrayOf(PropTypes.string).isRequired,
-  countryLabel: PropTypes.string.isRequired
+  selectedEntities: PropTypes.arrayOf(PropTypes.string).isRequired,
+  selectedYears: PropTypes.arrayOf(PropTypes.string).isRequired
 };
 
 export default memo(RadarChartView);

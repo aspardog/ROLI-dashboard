@@ -1,7 +1,7 @@
-import { useMemo, useRef, useState, memo } from 'react';
+import { useMemo, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, LabelList, ReferenceLine } from 'recharts';
-import { COLORS, REGION_OPTIONS } from './constants';
+import { COLORS } from './constants';
 import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper } from './svgExportHelpers';
 import ChartCard from './components/ChartCard';
 
@@ -61,37 +61,8 @@ const CustomYAxisTick = ({ x, y, payload }) => {
   );
 };
 
-function FactorComparisonChart({ allData, selectedRegion, selectedYear, availableCountries }) {
+function FactorComparisonChart({ allData, selectedRegion, selectedYear, availableCountries, selectedCountries = ['__region_global'] }) {
   const chartRef = useRef(null);
-  const [selectedCountries, setSelectedCountries] = useState(['__region_global']);
-  const [expandedRegions, setExpandedRegions] = useState({});
-
-  // Group countries by region
-  const countriesByRegion = useMemo(() => {
-    const yearData = allData.filter(d => d.year === selectedYear);
-    const groups = {};
-
-    // Initialize all regions
-    REGION_OPTIONS.forEach(region => {
-      if (region.value !== 'global') {
-        groups[region.value] = [];
-      }
-    });
-
-    // Group countries
-    yearData.forEach(d => {
-      if (d.region && groups[d.region] && !groups[d.region].includes(d.country)) {
-        groups[d.region].push(d.country);
-      }
-    });
-
-    // Sort countries within each region
-    Object.keys(groups).forEach(region => {
-      groups[region].sort();
-    });
-
-    return groups;
-  }, [allData, selectedYear]);
 
   const chartData = useMemo(() => {
     if (selectedCountries.length === 0) return [];
@@ -133,38 +104,6 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
       return `${regionName} Average`;
     }
     return country;
-  };
-
-  const toggleRegion = (region) => {
-    setExpandedRegions(prev => ({
-      ...prev,
-      [region]: !prev[region]
-    }));
-  };
-
-  const selectAllInRegion = (region) => {
-    const countries = countriesByRegion[region] || [];
-    const newSelected = [...selectedCountries];
-    let addedCount = 0;
-
-    countries.forEach(country => {
-      if (!newSelected.includes(country) && newSelected.length + addedCount < 5) {
-        newSelected.push(country);
-        addedCount++;
-      }
-    });
-
-    setSelectedCountries(newSelected);
-  };
-
-  const deselectAllInRegion = (region) => {
-    const countries = countriesByRegion[region] || [];
-    setSelectedCountries(selectedCountries.filter(c => !countries.includes(c)));
-  };
-
-  const isRegionFullySelected = (region) => {
-    const countries = countriesByRegion[region] || [];
-    return countries.length > 0 && countries.every(c => selectedCountries.includes(c));
   };
 
   async function downloadSVG() {
@@ -226,58 +165,6 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
       onExport={downloadSVG}
       exportOptions={['full']}
     >
-      {/* Regional Averages Section - above chart */}
-      <div style={{ marginBottom: '20px', padding: '20px', backgroundColor: '#f8f7f4', borderRadius: '8px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <label style={{ fontSize: '13px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-            Countries to Compare (select up to 5)
-          </label>
-          <span style={{ fontSize: '13px', color: COLORS.muted, fontWeight: '500' }}>
-            {selectedCountries.length} / 5 selected
-          </span>
-        </div>
-        <h3 style={{ fontSize: '14px', fontWeight: '600', color: COLORS.text, marginBottom: '12px' }}>🌍 Regional Averages</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '10px' }}>
-          {/* Global Average */}
-          <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', backgroundColor: 'white', borderRadius: '6px', border: `2px solid ${selectedCountries.includes('__region_global') ? COLORS.top5 : '#e5e5e5'}`, cursor: 'pointer', transition: 'all 0.2s' }}>
-            <input
-              type="checkbox"
-              checked={selectedCountries.includes('__region_global')}
-              onChange={(e) => {
-                if (e.target.checked && selectedCountries.length < 5) {
-                  setSelectedCountries([...selectedCountries, '__region_global']);
-                } else if (!e.target.checked) {
-                  setSelectedCountries(selectedCountries.filter(c => c !== '__region_global'));
-                }
-              }}
-              style={{ cursor: 'pointer', width: '18px', height: '18px', accentColor: COLORS.top5 }}
-            />
-            <span style={{ fontSize: '14px', color: COLORS.text, fontWeight: '600' }}>Global Average</span>
-          </label>
-
-          {/* Individual Regions */}
-          {REGION_OPTIONS.filter(r => r.value !== 'global').map(region => (
-            <label key={region.value} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', backgroundColor: 'white', borderRadius: '6px', border: `2px solid ${selectedCountries.includes(`__region_${region.value}`) ? COLORS.top5 : '#e5e5e5'}`, cursor: 'pointer', transition: 'all 0.2s' }}>
-              <input
-                type="checkbox"
-                checked={selectedCountries.includes(`__region_${region.value}`)}
-                onChange={(e) => {
-                  const regionKey = `__region_${region.value}`;
-                  if (e.target.checked && selectedCountries.length < 5) {
-                    setSelectedCountries([...selectedCountries, regionKey]);
-                  } else if (!e.target.checked) {
-                    setSelectedCountries(selectedCountries.filter(c => c !== regionKey));
-                  }
-                }}
-                disabled={!selectedCountries.includes(`__region_${region.value}`) && selectedCountries.length >= 5}
-                style={{ cursor: selectedCountries.includes(`__region_${region.value}`) || selectedCountries.length < 5 ? 'pointer' : 'not-allowed', width: '18px', height: '18px', accentColor: COLORS.top5 }}
-              />
-              <span style={{ fontSize: '14px', color: selectedCountries.includes(`__region_${region.value}`) || selectedCountries.length < 5 ? COLORS.text : COLORS.muted, fontWeight: '500' }}>{region.label}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-
       {/* Legend */}
       <div className="legend-container" style={{ display: 'flex', gap: '20px', marginBottom: '12px', flexWrap: 'wrap' }}>
         {selectedCountries.map((country, index) => (
@@ -343,82 +230,6 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
           </BarChart>
         </ResponsiveContainer>
       </div>
-
-      {/* Individual Countries by Region - below chart */}
-      <div style={{ marginTop: '24px', padding: '20px', backgroundColor: '#f8f7f4', borderRadius: '8px' }}>
-        <div style={{ marginBottom: '12px' }}>
-          <h3 style={{ fontSize: '14px', fontWeight: '600', color: COLORS.text, marginBottom: '12px' }}>🏴 Individual Countries</h3>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {REGION_OPTIONS.filter(r => r.value !== 'global').map(region => {
-            const countries = countriesByRegion[region.value] || [];
-            if (countries.length === 0) return null;
-
-            const isExpanded = expandedRegions[region.value];
-            const fullySelected = isRegionFullySelected(region.value);
-
-            return (
-              <div key={region.value} style={{ backgroundColor: 'white', borderRadius: '6px', border: '1px solid #e5e5e5', overflow: 'hidden' }}>
-                {/* Region Header */}
-                <div style={{ display: 'flex', alignItems: 'center', padding: '12px 16px', backgroundColor: isExpanded ? '#fafafa' : 'white', cursor: 'pointer', userSelect: 'none' }} onClick={() => toggleRegion(region.value)}>
-                  <span style={{ fontSize: '18px', marginRight: '8px', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>▶</span>
-                  <span style={{ flex: 1, fontSize: '14px', fontWeight: '600', color: COLORS.text }}>{region.label}</span>
-                  <span style={{ fontSize: '12px', color: COLORS.muted, marginRight: '12px' }}>
-                    {countries.filter(c => selectedCountries.includes(c)).length} / {countries.length}
-                  </span>
-                  {fullySelected && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deselectAllInRegion(region.value);
-                      }}
-                      style={{ padding: '4px 10px', fontSize: '11px', fontWeight: '600', color: COLORS.muted, backgroundColor: 'transparent', border: '1px solid #d0d0d0', borderRadius: '4px', cursor: 'pointer' }}
-                    >
-                      Deselect All
-                    </button>
-                  )}
-                  {!fullySelected && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        selectAllInRegion(region.value);
-                      }}
-                      disabled={selectedCountries.length >= 5}
-                      style={{ padding: '4px 10px', fontSize: '11px', fontWeight: '600', color: selectedCountries.length >= 5 ? '#ccc' : COLORS.top5, backgroundColor: 'transparent', border: `1px solid ${selectedCountries.length >= 5 ? '#e5e5e5' : COLORS.top5}`, borderRadius: '4px', cursor: selectedCountries.length >= 5 ? 'not-allowed' : 'pointer' }}
-                    >
-                      Select All
-                    </button>
-                  )}
-                </div>
-
-                {/* Country List */}
-                {isExpanded && (
-                  <div style={{ padding: '12px 16px 12px 48px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '8px', borderTop: '1px solid #f0f0f0' }}>
-                    {countries.map(country => (
-                      <label key={country} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '4px 0' }}>
-                        <input
-                          type="checkbox"
-                          checked={selectedCountries.includes(country)}
-                          onChange={(e) => {
-                            if (e.target.checked && selectedCountries.length < 5) {
-                              setSelectedCountries([...selectedCountries, country]);
-                            } else if (!e.target.checked) {
-                              setSelectedCountries(selectedCountries.filter(c => c !== country));
-                            }
-                          }}
-                          disabled={!selectedCountries.includes(country) && selectedCountries.length >= 5}
-                          style={{ cursor: selectedCountries.includes(country) || selectedCountries.length < 5 ? 'pointer' : 'not-allowed', width: '14px', height: '14px' }}
-                        />
-                        <span style={{ fontSize: '14px', color: selectedCountries.includes(country) || selectedCountries.length < 5 ? COLORS.text : COLORS.muted }}>{country}</span>
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
     </ChartCard>
   );
 }
@@ -427,7 +238,8 @@ FactorComparisonChart.propTypes = {
   allData: PropTypes.arrayOf(PropTypes.object).isRequired,
   selectedRegion: PropTypes.string.isRequired,
   selectedYear: PropTypes.string.isRequired,
-  availableCountries: PropTypes.arrayOf(PropTypes.string).isRequired
+  availableCountries: PropTypes.arrayOf(PropTypes.string).isRequired,
+  selectedCountries: PropTypes.arrayOf(PropTypes.string)
 };
 
 export default memo(FactorComparisonChart);

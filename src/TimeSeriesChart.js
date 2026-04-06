@@ -11,7 +11,7 @@ const CHART_SIZES = {
   bipanel: { width: '100%', height: 400, maxWidth: '600px' }
 };
 
-function TimeSeriesChart({ allData, country, variable, label, selectedRegion, regionLabel, showRegionalAvg = false, showGlobalAvg = false, countryRegion = null }) {
+function TimeSeriesChart({ allData, country, variable, label, selectedRegion, regionLabel, showRegionalAvg = false, showGlobalAvg = false, countryRegion = null, yearRange = [2020, 2025] }) {
   const chartRef = useRef(null);
   const [exportMode, setExportMode] = useState(null);
 
@@ -21,9 +21,11 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
   // Calculate regional average series
   const regionalAvgSeries = useMemo(() => {
     if (!showRegionalAvg || !effectiveRegion) return {};
+    const [startYear, endYear] = yearRange;
     const filtered = allData.filter(d => {
       if (d.region !== effectiveRegion) return false;
-      return d[variable] != null && parseInt(d.year) >= 2020;
+      const yr = parseInt(d.year);
+      return d[variable] != null && yr >= startYear && yr <= endYear;
     });
     const byYear = {};
     for (const d of filtered) {
@@ -35,12 +37,16 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
       result[year] = Math.round((vals.reduce((s, v) => s + v, 0) / vals.length) * 1000) / 1000;
     }
     return result;
-  }, [allData, variable, effectiveRegion, showRegionalAvg]);
+  }, [allData, variable, effectiveRegion, showRegionalAvg, yearRange]);
 
   // Calculate global average series
   const globalAvgSeries = useMemo(() => {
     if (!showGlobalAvg) return {};
-    const filtered = allData.filter(d => d[variable] != null && parseInt(d.year) >= 2020);
+    const [startYear, endYear] = yearRange;
+    const filtered = allData.filter(d => {
+      const yr = parseInt(d.year);
+      return d[variable] != null && yr >= startYear && yr <= endYear;
+    });
     const byYear = {};
     for (const d of filtered) {
       if (!byYear[d.year]) byYear[d.year] = [];
@@ -51,13 +57,15 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
       result[year] = Math.round((vals.reduce((s, v) => s + v, 0) / vals.length) * 1000) / 1000;
     }
     return result;
-  }, [allData, variable, showGlobalAvg]);
+  }, [allData, variable, showGlobalAvg, yearRange]);
 
   const series = useMemo(() => {
+    const [startYear, endYear] = yearRange;
     if (country === '__regional_avg__') {
       const filtered = allData.filter(d => {
         if (selectedRegion !== 'global' && d.region !== selectedRegion) return false;
-        return d[variable] != null && parseInt(d.year) >= 2020;
+        const yr = parseInt(d.year);
+        return d[variable] != null && yr >= startYear && yr <= endYear;
       });
       const byYear = {};
       for (const d of filtered) {
@@ -69,10 +77,13 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
         .map(([year, vals]) => ({ year, value: Math.round((vals.reduce((s, v) => s + v, 0) / vals.length) * 1000) / 1000 }));
     }
     return allData
-      .filter(d => d.country === country && d[variable] != null && parseInt(d.year) >= 2020)
+      .filter(d => {
+        const yr = parseInt(d.year);
+        return d.country === country && d[variable] != null && yr >= startYear && yr <= endYear;
+      })
       .sort((a, b) => a.year.localeCompare(b.year))
       .map(d => ({ year: d.year, value: d[variable] }));
-  }, [allData, country, variable, selectedRegion]);
+  }, [allData, country, variable, selectedRegion, yearRange]);
 
   // Combined data for chart (merges country data with averages)
   const chartData = useMemo(() => {
@@ -87,8 +98,11 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
   // Check if we're showing reference lines
   const hasReferences = (showRegionalAvg && effectiveRegion) || showGlobalAvg;
 
-  // Title must be calculated before early return for use in useCallback
-  const title = country === '__regional_avg__' ? (selectedRegion === 'global' ? 'Global Average' : `${regionLabel} — Regional Average`) : country;
+  // Title for country/region display (used in export filename and legend)
+  const countryTitle = country === '__regional_avg__' ? (selectedRegion === 'global' ? 'Global Average' : `${regionLabel} Average`) : country;
+  // Chart title is the variable label, subtitle includes country and year range
+  const chartTitle = label;
+  const chartSubtitle = `${countryTitle} ${yearRange[0]}–${yearRange[1]}`;
 
   // Actual SVG capture and download logic (must be before early return)
   const captureAndDownload = useCallback(async (format) => {
@@ -137,8 +151,8 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
     }
 
     const suffix = isBipanel ? '_bipanel' : '';
-    downloadSVGHelper(clone, `ROLI_${title}_${variable}${suffix}.svg`);
-  }, [hasReferences, country, showRegionalAvg, showGlobalAvg, title, variable]);
+    downloadSVGHelper(clone, `ROLI_${countryTitle}_${variable}${suffix}.svg`);
+  }, [hasReferences, country, showRegionalAvg, showGlobalAvg, countryTitle, variable]);
 
   // Download handler - transforms chart for bipanel, then captures
   const downloadSVG = useCallback(async (format = 'full') => {
@@ -165,8 +179,8 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
 
   return (
     <ChartCard
-      title={`${title} — ${label}`}
-      subtitle="2020–2025"
+      title={chartTitle}
+      subtitle={chartSubtitle}
       onExport={downloadSVG}
     >
       {/* Legend for reference lines */}
@@ -224,14 +238,15 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
                   dataKey="globalAvg"
                   content={({ x, y, value, index }) => {
                     if (value == null) return null;
+                    const dataPoint = chartData[index];
+                    if (!dataPoint) return null;
                     const isFirst = index === 0;
                     const isLast = index === chartData.length - 1;
-                    const dataPoint = chartData[index];
                     const mainValue = dataPoint.value;
                     const regionalValue = dataPoint.regionalAvg;
 
                     // Check proximity to main value and regional value
-                    const closeToMain = Math.abs(value - mainValue) < 0.06;
+                    const closeToMain = mainValue != null && Math.abs(value - mainValue) < 0.06;
                     const closeToRegional = showRegionalAvg && regionalValue != null && Math.abs(value - regionalValue) < 0.04;
 
                     // Position: if close to main, go further down; if regional is between, go even further
@@ -267,9 +282,10 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
                   dataKey="regionalAvg"
                   content={({ x, y, value, index }) => {
                     if (value == null) return null;
+                    const dataPoint = chartData[index];
+                    if (!dataPoint) return null;
                     const isFirst = index === 0;
                     const isLast = index === chartData.length - 1;
-                    const dataPoint = chartData[index];
                     const mainValue = dataPoint.value;
                     const globalValue = dataPoint.globalAvg;
 
@@ -309,9 +325,11 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
               <LabelList
                 dataKey="value"
                 content={({ x, y, value, index }) => {
+                  if (value == null) return null;
+                  const dataPoint = chartData[index];
+                  if (!dataPoint) return null;
                   const isFirst = index === 0;
                   const isLast  = index === chartData.length - 1;
-                  const dataPoint = chartData[index];
                   const globalValue = dataPoint.globalAvg;
                   const regionalValue = dataPoint.regionalAvg;
 
