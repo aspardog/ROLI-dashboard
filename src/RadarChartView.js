@@ -84,7 +84,7 @@ const CustomAxisTick = ({ payload, x, y, cx, cy, data }) => {
 
 function RadarChartView({
   allData,
-  selectedEntities,
+  selectedEntity,
   selectedYears
 }) {
   const chartRef = useRef(null);
@@ -99,35 +99,33 @@ function RadarChartView({
     return entity; // Country name
   };
 
-  // Calculate chart data for radar format
+  // Calculate chart data for radar format (uses most recent year for tick labels)
   const chartData = useMemo(() => {
-    if (selectedEntities.length === 0 || selectedYears.length === 0) return [];
+    if (!selectedEntity || selectedYears.length === 0) return [];
 
-    // Use the first selected entity and first selected year
-    const entity = selectedEntities[0];
-    const year = selectedYears.sort().reverse()[0]; // Most recent year
+    const year = [...selectedYears].sort().reverse()[0]; // Most recent year
     const yearData = allData.filter(d => d.year === year);
 
     // Build data for each factor
     return RADAR_FACTORS.map(factor => {
       let value = 0;
 
-      if (entity === '__region_global') {
+      if (selectedEntity === '__region_global') {
         // Global average
         const validData = yearData.filter(d => d[factor.key] != null);
         value = validData.length > 0
           ? Math.round((validData.reduce((sum, d) => sum + d[factor.key], 0) / validData.length) * 100) / 100
           : 0;
-      } else if (entity.startsWith('__region_')) {
+      } else if (selectedEntity.startsWith('__region_')) {
         // Regional average
-        const regionName = entity.replace('__region_', '');
+        const regionName = selectedEntity.replace('__region_', '');
         const regionData = yearData.filter(d => d.region === regionName && d[factor.key] != null);
         value = regionData.length > 0
           ? Math.round((regionData.reduce((sum, d) => sum + d[factor.key], 0) / regionData.length) * 100) / 100
           : 0;
       } else {
         // Individual country
-        const countryData = yearData.find(d => d.country === entity);
+        const countryData = yearData.find(d => d.country === selectedEntity);
         value = countryData?.[factor.key] ?? 0;
       }
 
@@ -138,13 +136,12 @@ function RadarChartView({
         fullMark: 1
       };
     });
-  }, [allData, selectedEntities, selectedYears]);
+  }, [allData, selectedEntity, selectedYears]);
 
   // Data for multiple years (for overlay)
   const multiYearData = useMemo(() => {
-    if (selectedEntities.length === 0 || selectedYears.length === 0) return [];
+    if (!selectedEntity || selectedYears.length === 0) return [];
 
-    const entity = selectedEntities[0];
     const sortedYears = [...selectedYears].sort();
 
     return sortedYears.map(year => {
@@ -153,19 +150,19 @@ function RadarChartView({
       const factorData = RADAR_FACTORS.map(factor => {
         let value = 0;
 
-        if (entity === '__region_global') {
+        if (selectedEntity === '__region_global') {
           const validData = yearData.filter(d => d[factor.key] != null);
           value = validData.length > 0
             ? Math.round((validData.reduce((sum, d) => sum + d[factor.key], 0) / validData.length) * 100) / 100
             : 0;
-        } else if (entity.startsWith('__region_')) {
-          const regionName = entity.replace('__region_', '');
+        } else if (selectedEntity.startsWith('__region_')) {
+          const regionName = selectedEntity.replace('__region_', '');
           const regionData = yearData.filter(d => d.region === regionName && d[factor.key] != null);
           value = regionData.length > 0
             ? Math.round((regionData.reduce((sum, d) => sum + d[factor.key], 0) / regionData.length) * 100) / 100
             : 0;
         } else {
-          const countryData = yearData.find(d => d.country === entity);
+          const countryData = yearData.find(d => d.country === selectedEntity);
           value = countryData?.[factor.key] ?? 0;
         }
 
@@ -174,7 +171,7 @@ function RadarChartView({
 
       return { year, data: factorData };
     });
-  }, [allData, selectedEntities, selectedYears]);
+  }, [allData, selectedEntity, selectedYears]);
 
   // Combined data for multi-year radar
   const combinedData = useMemo(() => {
@@ -197,11 +194,11 @@ function RadarChartView({
     return combined;
   }, [multiYearData]);
 
-  // Get the title based on selected entities
+  // Get the title based on selected entity
   const chartTitle = useMemo(() => {
-    if (selectedEntities.length === 0) return 'Comparative Radar Chart';
-    return getEntityLabel(selectedEntities[0]);
-  }, [selectedEntities]);
+    if (!selectedEntity) return 'Comparative Radar Chart';
+    return getEntityLabel(selectedEntity);
+  }, [selectedEntity]);
 
   async function downloadSVG() {
     const svg = chartRef.current?.querySelector('svg');
@@ -227,12 +224,12 @@ function RadarChartView({
     downloadSVGHelper(clone, `ROLI_Radar_${chartTitle.replace(/\s+/g, '_')}.svg`);
   }
 
-  if (chartData.length === 0 || selectedEntities.length === 0) {
+  if (chartData.length === 0 || !selectedEntity) {
     return (
       <ChartCard
         title="Comparative Radar Chart"
         isEmpty={true}
-        emptyMessage="Please select categories to compare."
+        emptyMessage="Please select a country or region."
       />
     );
   }
@@ -309,7 +306,7 @@ function RadarChartView({
 
 RadarChartView.propTypes = {
   allData: PropTypes.arrayOf(PropTypes.object).isRequired,
-  selectedEntities: PropTypes.arrayOf(PropTypes.string).isRequired,
+  selectedEntity: PropTypes.string.isRequired,
   selectedYears: PropTypes.arrayOf(PropTypes.string).isRequired
 };
 

@@ -49,8 +49,7 @@ export default function ROLIDashboard() {
   const [expandedFactorGroups, setExpandedFactorGroups] = useState({ factor: true });
   const [radarYearsExpanded, setRadarYearsExpanded] = useState(true);
   const [selectedRadarYears, setSelectedRadarYears] = useState(['2025']); // Multiple years for comparison
-  const [radarCompareEntities, setRadarCompareEntities] = useState(['__region_global']); // Regions/countries to compare in radar
-  const [expandedRadarRegions, setExpandedRadarRegions] = useState({}); // Accordion state for radar region selector
+  const [selectedRadarEntity, setSelectedRadarEntity] = useState('__region_global'); // Single entity for radar chart
   const [factorCompareCountries, setFactorCompareCountries] = useState(['__region_global']); // Countries/regions for Factor Comparison
   const [expandedFactorRegions, setExpandedFactorRegions] = useState({}); // Accordion state for Factor Comparison country selector
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
@@ -408,118 +407,119 @@ export default function ROLIDashboard() {
           {/* Factor Comparison Controls */}
           {chartType === 'factors' && (
             <>
-              {/* Year Dropdown */}
+              {/* Years Section - Collapsible with two columns */}
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Year</label>
-                <div style={{ position: 'relative' }}>
-                  <select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
-                    <option value="2025">2025</option>
-                    <option value="2024">2024</option>
-                    <option value="2023">2023</option>
-                    <option value="2022">2022</option>
-                    <option value="2021">2021</option>
-                    <option value="2020">2020</option>
-                    <option value="2019">2019</option>
-                  </select>
-                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
-                  </div>
+                <div
+                  onClick={() => setRadarYearsExpanded(!radarYearsExpanded)}
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', marginBottom: radarYearsExpanded ? '12px' : '0' }}
+                >
+                  <label style={{ fontSize: '11px', fontWeight: '600', color: COLORS.primary, textTransform: 'uppercase', letterSpacing: '0.5px', cursor: 'pointer' }}>Years</label>
+                  <span style={{ fontSize: '16px', color: COLORS.primary, fontWeight: '300' }}>{radarYearsExpanded ? '−' : '+'}</span>
                 </div>
-              </div>
-
-              {/* Countries to Compare */}
-              <div style={{ marginBottom: '20px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                  <label style={{ fontSize: '11px', fontWeight: '600', color: COLORS.primary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Countries to Compare</label>
-                  <span style={{ fontSize: '12px', color: COLORS.muted, fontWeight: '500' }}>{factorCompareCountries.length}/5</span>
-                </div>
-
-                {/* Regional Averages */}
-                <div style={{ marginBottom: '16px' }}>
-                  <div style={{ fontSize: '13px', fontWeight: '600', color: COLORS.text, marginBottom: '8px' }}>Regional Averages</div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', padding: '10px 12px', backgroundColor: factorCompareCountries.includes('__region_global') ? '#f3f0f7' : 'white', borderRadius: '4px', border: `1px solid ${factorCompareCountries.includes('__region_global') ? COLORS.primary : '#e5e5e5'}` }}>
-                      <input
-                        type="checkbox"
-                        checked={factorCompareCountries.includes('__region_global')}
-                        onChange={(e) => {
-                          if (e.target.checked && factorCompareCountries.length < 5) {
-                            setFactorCompareCountries([...factorCompareCountries, '__region_global']);
-                          } else if (!e.target.checked) {
-                            setFactorCompareCountries(factorCompareCountries.filter(c => c !== '__region_global'));
-                          }
-                        }}
-                        style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: COLORS.primary }}
-                      />
-                      <span style={{ fontSize: '14px', color: COLORS.text, fontWeight: '500' }}>Global Average</span>
-                    </label>
-                    {REGION_OPTIONS.filter(r => r.value !== 'global').map(region => (
-                      <label key={region.value} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: factorCompareCountries.length >= 5 && !factorCompareCountries.includes(`__region_${region.value}`) ? 'not-allowed' : 'pointer', padding: '10px 12px', backgroundColor: factorCompareCountries.includes(`__region_${region.value}`) ? '#f3f0f7' : 'white', borderRadius: '4px', border: `1px solid ${factorCompareCountries.includes(`__region_${region.value}`) ? COLORS.primary : '#e5e5e5'}` }}>
+                {radarYearsExpanded && (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 16px' }}>
+                    {['2020', '2021', '2022', '2023', '2024', '2025'].map(year => (
+                      <label key={year} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                         <input
-                          type="checkbox"
-                          checked={factorCompareCountries.includes(`__region_${region.value}`)}
-                          onChange={(e) => {
-                            const key = `__region_${region.value}`;
-                            if (e.target.checked && factorCompareCountries.length < 5) {
-                              setFactorCompareCountries([...factorCompareCountries, key]);
-                            } else if (!e.target.checked) {
-                              setFactorCompareCountries(factorCompareCountries.filter(c => c !== key));
-                            }
-                          }}
-                          disabled={!factorCompareCountries.includes(`__region_${region.value}`) && factorCompareCountries.length >= 5}
-                          style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: COLORS.primary }}
+                          type="radio"
+                          name="factorYear"
+                          checked={selectedYear === year}
+                          onChange={() => setSelectedYear(year)}
+                          style={{ cursor: 'pointer', width: '14px', height: '14px', accentColor: COLORS.primary }}
                         />
-                        <span style={{ fontSize: '14px', color: factorCompareCountries.length >= 5 && !factorCompareCountries.includes(`__region_${region.value}`) ? COLORS.muted : COLORS.text }}>{region.label}</span>
+                        <span style={{ fontSize: '13px', color: COLORS.text }}>{year}</span>
                       </label>
                     ))}
                   </div>
-                </div>
+                )}
+              </div>
 
-                {/* Individual Countries (Accordion by Region) */}
-                <div>
-                  <div style={{ fontSize: '13px', fontWeight: '600', color: COLORS.text, marginBottom: '8px' }}>Individual Countries</div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    {REGION_OPTIONS.filter(r => r.value !== 'global').map(region => {
-                      const regionCountries = allData.filter(d => d.year === selectedYear && d.region === region.value).map(d => d.country).filter((v, i, a) => a.indexOf(v) === i).sort();
-                      if (regionCountries.length === 0) return null;
-                      const isExpanded = expandedFactorRegions[region.value];
-                      const selectedCount = regionCountries.filter(c => factorCompareCountries.includes(c)).length;
-                      return (
-                        <div key={region.value} style={{ backgroundColor: 'white', borderRadius: '4px', border: '1px solid #e5e5e5', overflow: 'hidden' }}>
-                          <div
+              {/* Categories to Compare */}
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.primary, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Categories to Compare</label>
+
+                {/* Global Average */}
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '8px' }}>
+                  <input
+                    type="checkbox"
+                    checked={factorCompareCountries.includes('__region_global')}
+                    onChange={(e) => {
+                      if (e.target.checked && factorCompareCountries.length < 5) {
+                        setFactorCompareCountries([...factorCompareCountries, '__region_global']);
+                      } else if (!e.target.checked) {
+                        setFactorCompareCountries(factorCompareCountries.filter(c => c !== '__region_global'));
+                      }
+                    }}
+                    style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: COLORS.primary }}
+                  />
+                  <span style={{ fontSize: '14px', color: COLORS.primary, fontWeight: '600' }}>Global Average</span>
+                </label>
+
+                {/* Regions with expandable countries */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  {REGION_OPTIONS.filter(r => r.value !== 'global').map(region => {
+                    const regionKey = `__region_${region.value}`;
+                    const regionCountries = allData.filter(d => d.year === selectedYear && d.region === region.value).map(d => d.country).filter((v, i, a) => a.indexOf(v) === i).sort();
+                    const isExpanded = expandedFactorRegions[region.value];
+                    const isRegionSelected = factorCompareCountries.includes(regionKey);
+
+                    return (
+                      <div key={region.value}>
+                        {/* Region Header */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: isExpanded ? '8px' : '0' }}>
+                          <input
+                            type="checkbox"
+                            checked={isRegionSelected}
+                            onChange={(e) => {
+                              if (e.target.checked && factorCompareCountries.length < 5) {
+                                setFactorCompareCountries([...factorCompareCountries, regionKey]);
+                              } else if (!e.target.checked) {
+                                setFactorCompareCountries(factorCompareCountries.filter(c => c !== regionKey));
+                              }
+                            }}
+                            disabled={!isRegionSelected && factorCompareCountries.length >= 5}
+                            style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: COLORS.primary }}
+                          />
+                          <span
                             onClick={() => setExpandedFactorRegions({ ...expandedFactorRegions, [region.value]: !isExpanded })}
-                            style={{ display: 'flex', alignItems: 'center', padding: '10px 12px', cursor: 'pointer', backgroundColor: isExpanded ? '#fafafa' : 'white' }}
+                            style={{ flex: 1, fontSize: '14px', color: COLORS.primary, fontWeight: '500', cursor: 'pointer', textDecoration: 'underline' }}
                           >
-                            <span style={{ fontSize: '12px', marginRight: '8px', color: COLORS.text }}>▶</span>
-                            <span style={{ flex: 1, fontSize: '14px', fontWeight: '500', color: COLORS.text }}>{region.label}</span>
-                            <span style={{ fontSize: '12px', color: COLORS.muted }}>{selectedCount}/{regionCountries.length}</span>
-                          </div>
-                          {isExpanded && (
-                            <div style={{ padding: '8px 12px 12px 36px', borderTop: '1px solid #f0f0f0', display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '200px', overflowY: 'auto' }}>
-                              {regionCountries.map(country => (
-                                <label key={country} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: factorCompareCountries.length >= 5 && !factorCompareCountries.includes(country) ? 'not-allowed' : 'pointer' }}>
-                                  <input
-                                    type="checkbox"
-                                    checked={factorCompareCountries.includes(country)}
-                                    onChange={(e) => {
-                                      if (e.target.checked && factorCompareCountries.length < 5) {
-                                        setFactorCompareCountries([...factorCompareCountries, country]);
-                                      } else if (!e.target.checked) {
-                                        setFactorCompareCountries(factorCompareCountries.filter(c => c !== country));
-                                      }
-                                    }}
-                                    disabled={!factorCompareCountries.includes(country) && factorCompareCountries.length >= 5}
-                                    style={{ cursor: 'pointer', width: '14px', height: '14px', accentColor: COLORS.primary }}
-                                  />
-                                  <span style={{ fontSize: '13px', color: factorCompareCountries.length >= 5 && !factorCompareCountries.includes(country) ? COLORS.muted : COLORS.text }}>{country}</span>
-                                </label>
-                              ))}
-                            </div>
-                          )}
+                            {region.label}
+                          </span>
+                          <span
+                            onClick={() => setExpandedFactorRegions({ ...expandedFactorRegions, [region.value]: !isExpanded })}
+                            style={{ fontSize: '14px', color: COLORS.primary, cursor: 'pointer', fontWeight: '300' }}
+                          >
+                            {isExpanded ? '−' : '+'}
+                          </span>
                         </div>
-                      );
-                    })}
-                  </div>
+
+                        {/* Countries in Region */}
+                        {isExpanded && (
+                          <div style={{ paddingLeft: '24px', display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '8px', maxHeight: '200px', overflowY: 'auto' }}>
+                            {regionCountries.map(country => (
+                              <label key={country} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: factorCompareCountries.length >= 5 && !factorCompareCountries.includes(country) ? 'not-allowed' : 'pointer' }}>
+                                <input
+                                  type="checkbox"
+                                  checked={factorCompareCountries.includes(country)}
+                                  onChange={(e) => {
+                                    if (e.target.checked && factorCompareCountries.length < 5) {
+                                      setFactorCompareCountries([...factorCompareCountries, country]);
+                                    } else if (!e.target.checked) {
+                                      setFactorCompareCountries(factorCompareCountries.filter(c => c !== country));
+                                    }
+                                  }}
+                                  disabled={!factorCompareCountries.includes(country) && factorCompareCountries.length >= 5}
+                                  style={{ cursor: 'pointer', width: '14px', height: '14px', accentColor: COLORS.primary }}
+                                />
+                                <span style={{ fontSize: '13px', color: factorCompareCountries.length >= 5 && !factorCompareCountries.includes(country) ? COLORS.muted : COLORS.text }}>{country}</span>
+                              </label>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </>
@@ -528,6 +528,68 @@ export default function ROLIDashboard() {
           {/* Radar Controls */}
           {chartType === 'radar' && (
             <>
+              {/* Region Dropdown */}
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Region</label>
+                <div style={{ position: 'relative' }}>
+                  <select
+                    value={selectedRadarEntity.startsWith('__region_') ? selectedRadarEntity.replace('__region_', '') : (() => {
+                      // Find the region of the selected country
+                      const countryData = allData.find(d => d.country === selectedRadarEntity);
+                      return countryData?.region || 'global';
+                    })()}
+                    onChange={(e) => {
+                      const region = e.target.value;
+                      if (region === 'global') {
+                        setSelectedRadarEntity('__region_global');
+                      } else {
+                        setSelectedRadarEntity(`__region_${region}`);
+                      }
+                    }}
+                    style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}
+                  >
+                    {REGION_OPTIONS.map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
+                  </select>
+                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Country Dropdown */}
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Country</label>
+                <div style={{ position: 'relative' }}>
+                  {(() => {
+                    const currentRegion = selectedRadarEntity.startsWith('__region_')
+                      ? selectedRadarEntity.replace('__region_', '')
+                      : (() => {
+                          const countryData = allData.find(d => d.country === selectedRadarEntity);
+                          return countryData?.region || 'global';
+                        })();
+                    const radarCountries = currentRegion === 'global'
+                      ? [...new Set(allData.filter(d => d.year === '2025').map(d => d.country))].sort()
+                      : [...new Set(allData.filter(d => d.year === '2025' && d.region === currentRegion).map(d => d.country))].sort();
+
+                    return (
+                      <select
+                        value={selectedRadarEntity}
+                        onChange={(e) => setSelectedRadarEntity(e.target.value)}
+                        style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}
+                      >
+                        <option value={currentRegion === 'global' ? '__region_global' : `__region_${currentRegion}`}>
+                          {currentRegion === 'global' ? 'Global Average' : `${REGION_OPTIONS.find(r => r.value === currentRegion)?.label || currentRegion} Average`}
+                        </option>
+                        {radarCountries.map(c => (<option key={c} value={c}>{c}</option>))}
+                      </select>
+                    );
+                  })()}
+                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
+                  </div>
+                </div>
+              </div>
+
               {/* Years Section - Collapsible with two columns, multiple selection */}
               <div style={{ marginBottom: '20px' }}>
                 <div
@@ -559,94 +621,6 @@ export default function ROLIDashboard() {
                   </div>
                 )}
               </div>
-
-              {/* Categories to Compare - Regions and Countries */}
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.primary, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Categories to Compare</label>
-
-                {/* Global Average */}
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '8px' }}>
-                  <input
-                    type="checkbox"
-                    checked={radarCompareEntities.includes('__region_global')}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setRadarCompareEntities([...radarCompareEntities, '__region_global']);
-                      } else {
-                        setRadarCompareEntities(radarCompareEntities.filter(c => c !== '__region_global'));
-                      }
-                    }}
-                    style={{ cursor: 'pointer', width: '14px', height: '14px', accentColor: COLORS.primary }}
-                  />
-                  <span style={{ fontSize: '14px', color: COLORS.primary, fontWeight: '600' }}>Global Average</span>
-                </label>
-
-                {/* Regions with expandable countries */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  {REGION_OPTIONS.filter(r => r.value !== 'global').map(region => {
-                    const regionKey = `__region_${region.value}`;
-                    const regionCountries = allData.filter(d => d.year === '2025' && d.region === region.value).map(d => d.country).filter((v, i, a) => a.indexOf(v) === i).sort();
-                    const isExpanded = expandedRadarRegions[region.value];
-                    const isRegionSelected = radarCompareEntities.includes(regionKey);
-                    const selectedCountriesInRegion = regionCountries.filter(c => radarCompareEntities.includes(c));
-
-                    return (
-                      <div key={region.value}>
-                        {/* Region Header */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: isExpanded ? '8px' : '0' }}>
-                          <input
-                            type="checkbox"
-                            checked={isRegionSelected}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setRadarCompareEntities([...radarCompareEntities, regionKey]);
-                              } else {
-                                setRadarCompareEntities(radarCompareEntities.filter(c => c !== regionKey));
-                              }
-                            }}
-                            style={{ cursor: 'pointer', width: '14px', height: '14px', accentColor: COLORS.primary }}
-                          />
-                          <span
-                            onClick={() => setExpandedRadarRegions({ ...expandedRadarRegions, [region.value]: !isExpanded })}
-                            style={{ flex: 1, fontSize: '14px', color: COLORS.primary, fontWeight: '500', cursor: 'pointer', textDecoration: 'underline' }}
-                          >
-                            {region.label}
-                          </span>
-                          <span
-                            onClick={() => setExpandedRadarRegions({ ...expandedRadarRegions, [region.value]: !isExpanded })}
-                            style={{ fontSize: '14px', color: COLORS.primary, cursor: 'pointer', fontWeight: '300' }}
-                          >
-                            {isExpanded ? '−' : '+'}
-                          </span>
-                        </div>
-
-                        {/* Countries in Region */}
-                        {isExpanded && (
-                          <div style={{ paddingLeft: '22px', display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '8px', maxHeight: '200px', overflowY: 'auto' }}>
-                            {regionCountries.map(country => (
-                              <label key={country} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                                <input
-                                  type="checkbox"
-                                  checked={radarCompareEntities.includes(country)}
-                                  onChange={(e) => {
-                                    if (e.target.checked) {
-                                      setRadarCompareEntities([...radarCompareEntities, country]);
-                                    } else {
-                                      setRadarCompareEntities(radarCompareEntities.filter(c => c !== country));
-                                    }
-                                  }}
-                                  style={{ cursor: 'pointer', width: '14px', height: '14px', accentColor: COLORS.primary }}
-                                />
-                                <span style={{ fontSize: '13px', color: COLORS.text }}>{country}</span>
-                              </label>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
             </>
           )}
         </div>
@@ -672,7 +646,7 @@ export default function ROLIDashboard() {
             {chartType === 'radar' && (
               <RadarChartView
                 allData={allData}
-                selectedEntities={radarCompareEntities}
+                selectedEntity={selectedRadarEntity}
                 selectedYears={selectedRadarYears}
               />
             )}
