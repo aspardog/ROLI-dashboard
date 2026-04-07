@@ -249,14 +249,14 @@ function RadarChartView({
         ))}
       </div>
 
-      <div ref={chartRef} className="radar-chart-container" style={{ width: '100%', height: '620px' }}>
+      <div ref={chartRef} className="radar-chart-container" style={{ width: '100%', height: '680px' }}>
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart
             cx="50%"
             cy="50%"
-            outerRadius="70%"
+            outerRadius="75%"
             data={combinedData}
-            margin={{ top: 80, right: 120, bottom: 80, left: 120 }}
+            margin={{ top: 90, right: 130, bottom: 90, left: 130 }}
           >
             <PolarGrid
               stroke={COLORS.divider}
