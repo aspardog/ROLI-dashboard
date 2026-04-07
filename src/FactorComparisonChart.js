@@ -17,11 +17,11 @@ const FACTORS = [
 ];
 
 const COMPARISON_COLORS = [
-  '#181878',
-  '#BF02AF',
-  '#3366FF',
-  '#FF4D6A',
-  '#FFB52B',
+  '#181878', // Dark Navy/Purple
+  '#BF02AF', // Magenta
+  '#3366FF', // Blue
+  '#FF4D6A', // Pink
+  '#FFB52B', // Orange
 ];
 
 // Custom Y-axis tick component with line wrapping
@@ -51,7 +51,7 @@ const CustomYAxisTick = ({ x, y, payload }) => {
           dy={i * 16 - (lines.length - 1) * 8}
           textAnchor="start"
           fill={COLORS.text}
-          fontSize={15}
+          fontSize={14}
           fontWeight={400}
         >
           {line}
@@ -101,10 +101,25 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
     if (country.startsWith('__region_')) {
       const regionName = country.replace('__region_', '');
       if (regionName === 'global') return 'Global Average';
-      return `${regionName} Average`;
+      return regionName;
     }
     return country;
   };
+
+  // Dynamic title based on first selection
+  const chartTitle = useMemo(() => {
+    if (selectedCountries.length === 0) return 'Factor Comparison';
+    if (selectedCountries.length === 1) {
+      const first = selectedCountries[0];
+      if (first.startsWith('__region_')) {
+        const regionName = first.replace('__region_', '');
+        if (regionName === 'global') return 'Global Average';
+        return `${regionName} Average`;
+      }
+      return first;
+    }
+    return `Comparing ${selectedCountries.length} Categories`;
+  }, [selectedCountries]);
 
   async function downloadSVG() {
     const svg = chartRef.current?.querySelector('svg');
@@ -122,13 +137,13 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
     selectedCountries.forEach((country, index) => {
       const label = getCountryLabel(country);
       const color = COMPARISON_COLORS[index % COMPARISON_COLORS.length];
-      const legendItems = createLegendItem(currentX, ly, color, label, 'line', { width: 30, height: 5 });
+      const legendItems = createLegendItem(currentX, ly, color, label, 'rect', { width: 16, height: 16 });
       legendItems.forEach(el => clone.appendChild(el));
-      currentX += label.length * 9 + 50;
+      currentX += label.length * 8 + 50;
     });
 
     const fileName = selectedCountries.length === 1
-      ? `ROLI_Factors_${getCountryLabel(selectedCountries[0])}_${selectedYear}.svg`
+      ? `ROLI_Factors_${getCountryLabel(selectedCountries[0]).replace(/\s+/g, '_')}_${selectedYear}.svg`
       : `ROLI_Factors_Comparison_${selectedYear}.svg`;
     downloadSVGHelper(clone, fileName);
   }
@@ -160,17 +175,22 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
 
   return (
     <ChartCard
-      title="Factor Comparison"
-      subtitle={selectedYear}
+      title={chartTitle}
+      subtitle="Comparative Radar Chart"
       onExport={downloadSVG}
       exportOptions={['full']}
     >
       {/* Legend */}
-      <div className="legend-container" style={{ display: 'flex', gap: '20px', marginBottom: '12px', flexWrap: 'wrap' }}>
+      <div className="legend-container" style={{ display: 'flex', gap: '24px', marginBottom: '16px', flexWrap: 'wrap' }}>
         {selectedCountries.map((country, index) => (
           <div key={country} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '20px', height: '3px', backgroundColor: COMPARISON_COLORS[index % COMPARISON_COLORS.length], borderRadius: '2px' }} />
-            <span style={{ fontSize: '15px', color: COLORS.muted, fontWeight: '500' }}>{getCountryLabel(country)}</span>
+            <div style={{
+              width: '16px',
+              height: '16px',
+              backgroundColor: COMPARISON_COLORS[index % COMPARISON_COLORS.length],
+              borderRadius: '2px'
+            }} />
+            <span style={{ fontSize: '14px', color: COLORS.text, fontWeight: '500' }}>{getCountryLabel(country)}</span>
           </div>
         ))}
       </div>
@@ -180,7 +200,7 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
           <BarChart
             data={chartData}
             layout="vertical"
-            margin={{ top: 20, right: 100, left: 120, bottom: 20 }}
+            margin={{ top: 20, right: 80, left: 120, bottom: 20 }}
             barCategoryGap={categoryGap}
           >
             <XAxis
@@ -188,7 +208,7 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
               domain={[0, 1]}
               ticks={[0, 0.25, 0.5, 0.75, 1]}
               tickFormatter={(v) => v.toFixed(2)}
-              tick={{ fontSize: 14, fill: COLORS.text, fontWeight: 500 }}
+              tick={{ fontSize: 13, fill: COLORS.text }}
               axisLine={false}
               tickLine={false}
             />
@@ -201,7 +221,12 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
               width={200}
             />
 
-            {/* Bars for each selected country - rendered FIRST */}
+            {/* Grid lines */}
+            <ReferenceLine x={0.25} stroke="#e5e5e5" strokeDasharray="3 3" strokeWidth={1} />
+            <ReferenceLine x={0.5} stroke="#e5e5e5" strokeDasharray="3 3" strokeWidth={1} />
+            <ReferenceLine x={0.75} stroke="#e5e5e5" strokeDasharray="3 3" strokeWidth={1} />
+
+            {/* Bars for each selected country */}
             {selectedCountries.map((country, index) => (
               <Bar
                 key={country}
@@ -215,18 +240,13 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
                   position="right"
                   formatter={(value) => value ? value.toFixed(2) : ''}
                   style={{
-                    fontSize: '15px',
+                    fontSize: '13px',
                     fontWeight: '600',
                     fill: COLORS.text
                   }}
                 />
               </Bar>
             ))}
-
-            {/* Grid lines - rendered LAST so they appear behind bars */}
-            <ReferenceLine x={0.25} stroke="#e5e5e5" strokeDasharray="3 3" strokeWidth={1} strokeOpacity={0.5} />
-            <ReferenceLine x={0.5} stroke="#e5e5e5" strokeDasharray="3 3" strokeWidth={1} strokeOpacity={0.5} />
-            <ReferenceLine x={0.75} stroke="#e5e5e5" strokeDasharray="3 3" strokeWidth={1} strokeOpacity={0.5} />
           </BarChart>
         </ResponsiveContainer>
       </div>
