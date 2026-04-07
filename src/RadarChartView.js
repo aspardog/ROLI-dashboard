@@ -29,18 +29,17 @@ const YEAR_COLORS = [
   '#FF9500', // Dark Orange
 ];
 
-// Custom tick component to show value + label
-const CustomAxisTick = ({ payload, x, y, cx, cy, data }) => {
+// Custom tick component to show values with year colors + label
+const CustomAxisTick = ({ payload, x, y, cx, cy, combinedData, sortedYears }) => {
   const factor = RADAR_FACTORS.find(f => f.label === payload.value);
   if (!factor) return null;
 
-  // Get the value for this factor from the first year's data
-  const dataPoint = data.find(d => d.factor === factor.key);
-  const value = dataPoint?.value;
+  // Get the data point for this factor
+  const dataPoint = combinedData.find(d => d.factor === factor.key);
 
   // Calculate position offset based on angle
   const angle = Math.atan2(y - cy, x - cx);
-  const offsetDistance = 45;
+  const offsetDistance = 50;
   const labelX = x + Math.cos(angle) * offsetDistance;
   const labelY = y + Math.sin(angle) * offsetDistance;
 
@@ -52,25 +51,40 @@ const CustomAxisTick = ({ payload, x, y, cx, cy, data }) => {
   // Split label for multi-line labels
   const lines = factor.shortLabel.split('\n');
 
+  // Build values with colors for each year
+  const yearValues = sortedYears.map((year, index) => ({
+    year,
+    value: dataPoint?.[`year_${year}`],
+    color: YEAR_COLORS[index % YEAR_COLORS.length]
+  }));
+
   return (
     <g>
-      {/* Value */}
+      {/* Values with year colors, separated by | */}
       <text
         x={labelX}
-        y={labelY - (lines.length > 1 ? 10 : 5)}
+        y={labelY - (lines.length > 1 ? 12 : 8)}
         textAnchor={textAnchor}
-        fill={COLORS.text}
         fontSize={14}
         fontWeight={600}
       >
-        {value !== undefined ? value.toFixed(2) : ''}
+        {yearValues.map((yv, idx) => (
+          <tspan key={yv.year}>
+            <tspan fill={yv.color}>
+              {yv.value !== undefined ? yv.value.toFixed(2) : ''}
+            </tspan>
+            {idx < yearValues.length - 1 && (
+              <tspan fill={COLORS.muted}> | </tspan>
+            )}
+          </tspan>
+        ))}
       </text>
       {/* Label */}
       {lines.map((line, index) => (
         <text
           key={index}
           x={labelX}
-          y={labelY + 10 + (index * 14)}
+          y={labelY + 8 + (index * 14)}
           textAnchor={textAnchor}
           fill={COLORS.muted}
           fontSize={12}
@@ -98,45 +112,6 @@ function RadarChartView({
     }
     return entity; // Country name
   };
-
-  // Calculate chart data for radar format (uses most recent year for tick labels)
-  const chartData = useMemo(() => {
-    if (!selectedEntity || selectedYears.length === 0) return [];
-
-    const year = [...selectedYears].sort().reverse()[0]; // Most recent year
-    const yearData = allData.filter(d => d.year === year);
-
-    // Build data for each factor
-    return RADAR_FACTORS.map(factor => {
-      let value = 0;
-
-      if (selectedEntity === '__region_global') {
-        // Global average
-        const validData = yearData.filter(d => d[factor.key] != null);
-        value = validData.length > 0
-          ? Math.round((validData.reduce((sum, d) => sum + d[factor.key], 0) / validData.length) * 100) / 100
-          : 0;
-      } else if (selectedEntity.startsWith('__region_')) {
-        // Regional average
-        const regionName = selectedEntity.replace('__region_', '');
-        const regionData = yearData.filter(d => d.region === regionName && d[factor.key] != null);
-        value = regionData.length > 0
-          ? Math.round((regionData.reduce((sum, d) => sum + d[factor.key], 0) / regionData.length) * 100) / 100
-          : 0;
-      } else {
-        // Individual country
-        const countryData = yearData.find(d => d.country === selectedEntity);
-        value = countryData?.[factor.key] ?? 0;
-      }
-
-      return {
-        factor: factor.key,
-        label: factor.label,
-        value: value,
-        fullMark: 1
-      };
-    });
-  }, [allData, selectedEntity, selectedYears]);
 
   // Data for multiple years (for overlay)
   const multiYearData = useMemo(() => {
@@ -200,6 +175,8 @@ function RadarChartView({
     return getEntityLabel(selectedEntity);
   }, [selectedEntity]);
 
+  const sortedYears = useMemo(() => [...selectedYears].sort(), [selectedYears]);
+
   async function downloadSVG() {
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
@@ -208,23 +185,34 @@ function RadarChartView({
     const { clone, vbX, vbY } = prepareSVGClone(svg, legendHeight, 'top', {});
     await embedFonts(clone);
 
-    // Add legend items for years
+    // Add legend items for years with | separator
     const lx = vbX + 24;
     const ly = vbY + 20;
     let currentX = lx;
 
-    const sortedYears = [...selectedYears].sort();
     sortedYears.forEach((year, index) => {
       const color = YEAR_COLORS[index % YEAR_COLORS.length];
       const legendItems = createLegendItem(currentX, ly, color, year, 'line', { width: 24 });
       legendItems.forEach(el => clone.appendChild(el));
-      currentX += 80;
+      currentX += 70;
+
+      // Add separator if not last
+      if (index < sortedYears.length - 1) {
+        const sep = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        sep.setAttribute('x', currentX);
+        sep.setAttribute('y', ly + 5);
+        sep.setAttribute('fill', COLORS.muted);
+        sep.setAttribute('font-size', '14');
+        sep.textContent = '|';
+        clone.appendChild(sep);
+        currentX += 20;
+      }
     });
 
     downloadSVGHelper(clone, `ROLI_Radar_${chartTitle.replace(/\s+/g, '_')}.svg`);
   }
 
-  if (chartData.length === 0 || !selectedEntity) {
+  if (combinedData.length === 0 || !selectedEntity) {
     return (
       <ChartCard
         title="Comparative Radar Chart"
@@ -234,8 +222,6 @@ function RadarChartView({
     );
   }
 
-  const sortedYears = [...selectedYears].sort();
-
   return (
     <ChartCard
       title={chartTitle}
@@ -243,17 +229,22 @@ function RadarChartView({
       onExport={downloadSVG}
       exportOptions={['full']}
     >
-      {/* Legend for years */}
-      <div className="legend-container" style={{ display: 'flex', gap: '24px', marginBottom: '16px', flexWrap: 'wrap' }}>
+      {/* Legend for years with | separator */}
+      <div className="legend-container" style={{ display: 'flex', alignItems: 'center', gap: '0', marginBottom: '16px', flexWrap: 'wrap' }}>
         {sortedYears.map((year, index) => (
-          <div key={year} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{
-              width: '24px',
-              height: '3px',
-              backgroundColor: YEAR_COLORS[index % YEAR_COLORS.length],
-              borderRadius: '2px'
-            }} />
-            <span style={{ fontSize: '14px', color: COLORS.text, fontWeight: '500' }}>{year}</span>
+          <div key={year} style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0 12px' }}>
+              <div style={{
+                width: '24px',
+                height: '3px',
+                backgroundColor: YEAR_COLORS[index % YEAR_COLORS.length],
+                borderRadius: '2px'
+              }} />
+              <span style={{ fontSize: '14px', color: COLORS.text, fontWeight: '500' }}>{year}</span>
+            </div>
+            {index < sortedYears.length - 1 && (
+              <span style={{ color: COLORS.muted, fontSize: '16px', fontWeight: '300' }}>|</span>
+            )}
           </div>
         ))}
       </div>
@@ -263,9 +254,9 @@ function RadarChartView({
           <RadarChart
             cx="50%"
             cy="50%"
-            outerRadius="65%"
+            outerRadius="60%"
             data={combinedData}
-            margin={{ top: 40, right: 80, bottom: 40, left: 80 }}
+            margin={{ top: 60, right: 100, bottom: 60, left: 100 }}
           >
             <PolarGrid
               stroke={COLORS.divider}
@@ -273,7 +264,7 @@ function RadarChartView({
             />
             <PolarAngleAxis
               dataKey="label"
-              tick={<CustomAxisTick data={chartData} />}
+              tick={<CustomAxisTick combinedData={combinedData} sortedYears={sortedYears} />}
               tickLine={false}
             />
             <PolarRadiusAxis

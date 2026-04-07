@@ -407,31 +407,22 @@ export default function ROLIDashboard() {
           {/* Factor Comparison Controls */}
           {chartType === 'factors' && (
             <>
-              {/* Years Section - Collapsible with two columns */}
+              {/* Year Dropdown */}
               <div style={{ marginBottom: '20px' }}>
-                <div
-                  onClick={() => setRadarYearsExpanded(!radarYearsExpanded)}
-                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', marginBottom: radarYearsExpanded ? '12px' : '0' }}
-                >
-                  <label style={{ fontSize: '11px', fontWeight: '600', color: COLORS.primary, textTransform: 'uppercase', letterSpacing: '0.5px', cursor: 'pointer' }}>Years</label>
-                  <span style={{ fontSize: '16px', color: COLORS.primary, fontWeight: '300' }}>{radarYearsExpanded ? '−' : '+'}</span>
-                </div>
-                {radarYearsExpanded && (
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 16px' }}>
-                    {['2020', '2021', '2022', '2023', '2024', '2025'].map(year => (
-                      <label key={year} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                        <input
-                          type="radio"
-                          name="factorYear"
-                          checked={selectedYear === year}
-                          onChange={() => setSelectedYear(year)}
-                          style={{ cursor: 'pointer', width: '14px', height: '14px', accentColor: COLORS.primary }}
-                        />
-                        <span style={{ fontSize: '13px', color: COLORS.text }}>{year}</span>
-                      </label>
-                    ))}
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Year</label>
+                <div style={{ position: 'relative' }}>
+                  <select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                    <option value="2022">2022</option>
+                    <option value="2021">2021</option>
+                    <option value="2020">2020</option>
+                  </select>
+                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
                   </div>
-                )}
+                </div>
               </div>
 
               {/* Categories to Compare */}
