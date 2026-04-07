@@ -177,7 +177,7 @@ export default function ROLIDashboard() {
 
         {/* Chart Type Tabs */}
         <div className="chart-tabs" style={{ maxWidth: '1100px', margin: '0 auto 32px', display: 'flex', justifyContent: 'center', gap: '0' }}>
-          {CHART_TABS.map(tab => (
+          {CHART_TABS.map((tab, index) => (
             <button
               key={tab.key}
               onClick={() => setChartType(tab.key)}
@@ -187,8 +187,8 @@ export default function ROLIDashboard() {
                 fontWeight: '600',
                 textTransform: 'uppercase',
                 letterSpacing: '0.3px',
-                border: chartType === tab.key ? 'none' : '1px solid #e5e5e5',
-                borderRight: chartType === tab.key ? 'none' : 'none',
+                border: '1px solid #e5e5e5',
+                borderLeft: index === 0 ? '1px solid #e5e5e5' : 'none',
                 backgroundColor: chartType === tab.key ? COLORS.primary : 'white',
                 color: chartType === tab.key ? 'white' : COLORS.text,
                 cursor: 'pointer',
