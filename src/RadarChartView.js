@@ -5,17 +5,17 @@ import { COLORS } from './constants';
 import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper } from './svgExportHelpers';
 import ChartCard from './components/ChartCard';
 
-// 8 Factors + Overall Index for the radar
+// Overall Index + 8 Factors (clockwise order starting from top)
 const RADAR_FACTORS = [
   { key: 'roli', label: 'Overall Index', shortLabel: 'Overall Index' },
+  { key: 'f1', label: 'Constraints on Government Power', shortLabel: 'Constraints on\nGovernment Power' },
+  { key: 'f2', label: 'Absence of Corruption', shortLabel: 'Absence of Corruption' },
   { key: 'f3', label: 'Open Government', shortLabel: 'Open Government' },
   { key: 'f4', label: 'Fundamental Rights', shortLabel: 'Fundamental Rights' },
   { key: 'f5', label: 'Order and Security', shortLabel: 'Order and Security' },
   { key: 'f6', label: 'Regulatory Enforcement', shortLabel: 'Regulatory Enforcement' },
   { key: 'f7', label: 'Civil Justice', shortLabel: 'Civil Justice' },
   { key: 'f8', label: 'Criminal Justice', shortLabel: 'Criminal Justice' },
-  { key: 'f1', label: 'Constraints on Government Power', shortLabel: 'Constraints on\nGovernment Power' },
-  { key: 'f2', label: 'Absence of Corruption', shortLabel: 'Absence of Corruption' },
 ];
 
 // Colors for different years
