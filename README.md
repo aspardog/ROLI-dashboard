@@ -76,13 +76,32 @@ This repository has Claude Code integration:
 - **Local Claude Code:** Designers should use Claude Code locally with their own accounts
 - See `docs/designer/CLAUDE_CODE_SETUP.md` for setup instructions
 
+## Project Structure
+
+```
+src/
+├── App.js                 # Main dashboard component
+├── charts/                # All chart components (5 visualizations)
+├── modals/                # InfoModal, HowToUseModal
+├── components/            # Reusable UI (ChartCard, Accordion)
+├── config/                # Constants, colors, regions
+├── utils/                 # SVG export helpers
+└── styles/                # CSS files
+
+scripts/
+└── parse-roli-data.js     # Excel → JSON data pipeline
+
+data/
+└── roli_data.json         # Parsed dataset
+```
+
 ## Tech Stack
 
 | Technology | Role |
 |---|---|
-| React (Create React App) | UI framework |
-| @craco/craco | Webpack overrides (root-level App.js) |
-| Recharts | Bar chart and reference lines |
+| React 18 | UI framework |
+| Recharts | All chart visualizations |
+| @craco/craco | Webpack configuration |
 | xlsx | Excel → JSON parsing |
 
 ## Data Source
@@ -95,4 +114,4 @@ Full details on the directory layout, data pipeline, column mapping, and craco c
 
 The dashboard also includes **in-app documentation** accessible via two links in the header:
 - **Learn about the Index** — Opens a modal with comprehensive information about the Rule of Law Index
-- **How to use this dashboard** — Opens a guide explaining each of the four visualization types
+- **How to use this dashboard** — Opens a guide explaining each of the five visualization types
