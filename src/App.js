@@ -47,6 +47,28 @@ export default function ROLIDashboard() {
   const regionLabel = REGION_OPTIONS.find(opt => opt.value === selectedRegion)?.label || selectedRegion;
 
   useEffect(() => {
+    const CACHE_KEY = 'roli_data_cache';
+    const CACHE_VERSION_KEY = 'roli_data_version';
+    const CURRENT_VERSION = '2025.1'; // Update this when data changes
+
+    // Try to load from localStorage cache first
+    const cachedVersion = localStorage.getItem(CACHE_VERSION_KEY);
+    const cachedData = localStorage.getItem(CACHE_KEY);
+
+    if (cachedVersion === CURRENT_VERSION && cachedData) {
+      try {
+        const parsed = JSON.parse(cachedData);
+        setAllData(parsed);
+        setIsLoadingData(false);
+        return; // Use cached data, skip fetch
+      } catch (e) {
+        // Invalid cache, continue to fetch
+        localStorage.removeItem(CACHE_KEY);
+        localStorage.removeItem(CACHE_VERSION_KEY);
+      }
+    }
+
+    // Fetch fresh data
     setIsLoadingData(true);
     fetch('/roli_data.json')
       .then(res => {
@@ -56,6 +78,14 @@ export default function ROLIDashboard() {
       .then(json => {
         setAllData(json);
         setIsLoadingData(false);
+        // Cache the data for future visits
+        try {
+          localStorage.setItem(CACHE_KEY, JSON.stringify(json));
+          localStorage.setItem(CACHE_VERSION_KEY, CURRENT_VERSION);
+        } catch (e) {
+          // localStorage might be full or disabled, ignore
+          console.warn('Could not cache data:', e.message);
+        }
       })
       .catch(err => {
         console.error('Error loading data:', err);
