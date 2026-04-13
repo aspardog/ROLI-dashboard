@@ -36,20 +36,12 @@ export default function ROLIDashboard() {
   const [selectedRadarCountry, setSelectedRadarCountry] = useState('__regional_avg__');
   const [selectedProfileCountry, setSelectedProfileCountry] = useState('__regional_avg__');
   const [selectedProfileRegion, setSelectedProfileRegion] = useState('global');
-  const [selectedFactors, setSelectedFactors] = useState([
-    { value: 'f1', label: 'F1 - Constraints on Government Power' },
-    { value: 'f2', label: 'F2 - Absence of Corruption' },
-    { value: 'f3', label: 'F3 - Open Government' },
-    { value: 'f4', label: 'F4 - Fundamental Rights' },
-    { value: 'f5', label: 'F5 - Order and Security' },
-    { value: 'f6', label: 'F6 - Regulatory Enforcement' },
-    { value: 'f7', label: 'F7 - Civil Justice' },
-    { value: 'f8', label: 'F8 - Criminal Justice' }
-  ]);
-  const [expandedFactorGroups, setExpandedFactorGroups] = useState({ factor: true });
   const [radarYearsExpanded, setRadarYearsExpanded] = useState(true);
   const [selectedRadarYears, setSelectedRadarYears] = useState(['2025']); // Multiple years for comparison
   const [selectedRadarEntity, setSelectedRadarEntity] = useState('__region_global'); // Single entity for radar chart
+  const [selectedRadarFactors, setSelectedRadarFactors] = useState(['roli', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8']); // Factors/subfactors for radar
+  const [radarFactorsExpanded, setRadarFactorsExpanded] = useState(true); // Accordion state for factors section
+  const [expandedRadarFactorGroups, setExpandedRadarFactorGroups] = useState({}); // Accordion state for subfactor groups
   const [factorCompareCountries, setFactorCompareCountries] = useState(['__region_global']); // Countries/regions for Factor Comparison
   const [expandedFactorRegions, setExpandedFactorRegions] = useState({}); // Accordion state for Factor Comparison country selector
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
@@ -612,6 +604,107 @@ export default function ROLIDashboard() {
                   </div>
                 )}
               </div>
+
+              {/* Factors & Subfactors Section - Collapsible */}
+              <div style={{ marginBottom: '20px' }}>
+                <div
+                  onClick={() => setRadarFactorsExpanded(!radarFactorsExpanded)}
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', marginBottom: radarFactorsExpanded ? '12px' : '0' }}
+                >
+                  <label style={{ fontSize: '11px', fontWeight: '600', color: COLORS.primary, textTransform: 'uppercase', letterSpacing: '0.5px', cursor: 'pointer' }}>Factors & Subfactors</label>
+                  <span style={{ fontSize: '16px', color: COLORS.primary, fontWeight: '300' }}>{radarFactorsExpanded ? '−' : '+'}</span>
+                </div>
+                {radarFactorsExpanded && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    {/* Overall Index */}
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '4px' }}>
+                      <input
+                        type="checkbox"
+                        checked={selectedRadarFactors.includes('roli')}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedRadarFactors([...selectedRadarFactors, 'roli']);
+                          } else if (selectedRadarFactors.length > 3) {
+                            setSelectedRadarFactors(selectedRadarFactors.filter(f => f !== 'roli'));
+                          }
+                        }}
+                        disabled={!selectedRadarFactors.includes('roli') && selectedRadarFactors.length < 3}
+                        style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: COLORS.primary }}
+                      />
+                      <span style={{ fontSize: '14px', color: COLORS.primary, fontWeight: '600' }}>Overall Index</span>
+                    </label>
+
+                    {/* Factors with expandable subfactors */}
+                    {SUBFACTOR_GROUPS.map((group, groupIndex) => {
+                      const factorKey = `f${groupIndex + 1}`;
+                      const factorLabel = VARIABLE_OPTIONS.find(v => v.value === factorKey)?.label || factorKey;
+                      const subfactors = VARIABLE_OPTIONS.filter(v => v.category === group.category);
+                      const isExpanded = expandedRadarFactorGroups[factorKey];
+                      const isFactorSelected = selectedRadarFactors.includes(factorKey);
+
+                      return (
+                        <div key={factorKey}>
+                          {/* Factor Header */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: isExpanded ? '8px' : '0' }}>
+                            <input
+                              type="checkbox"
+                              checked={isFactorSelected}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedRadarFactors([...selectedRadarFactors, factorKey]);
+                                } else if (selectedRadarFactors.length > 3) {
+                                  setSelectedRadarFactors(selectedRadarFactors.filter(f => f !== factorKey));
+                                }
+                              }}
+                              disabled={!isFactorSelected && selectedRadarFactors.length < 3}
+                              style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: COLORS.primary }}
+                            />
+                            <span
+                              onClick={() => setExpandedRadarFactorGroups({ ...expandedRadarFactorGroups, [factorKey]: !isExpanded })}
+                              style={{ flex: 1, fontSize: '14px', color: COLORS.primary, fontWeight: '500', cursor: 'pointer', textDecoration: 'underline' }}
+                            >
+                              {factorLabel.replace(/^F\d+ - /, '')}
+                            </span>
+                            <span
+                              onClick={() => setExpandedRadarFactorGroups({ ...expandedRadarFactorGroups, [factorKey]: !isExpanded })}
+                              style={{ fontSize: '14px', color: COLORS.primary, cursor: 'pointer', fontWeight: '300' }}
+                            >
+                              {isExpanded ? '−' : '+'}
+                            </span>
+                          </div>
+
+                          {/* Subfactors */}
+                          {isExpanded && (
+                            <div style={{ paddingLeft: '24px', display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '8px' }}>
+                              {subfactors.map(sf => {
+                                const isSelected = selectedRadarFactors.includes(sf.value);
+                                return (
+                                  <label key={sf.value} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                                    <input
+                                      type="checkbox"
+                                      checked={isSelected}
+                                      onChange={(e) => {
+                                        if (e.target.checked) {
+                                          setSelectedRadarFactors([...selectedRadarFactors, sf.value]);
+                                        } else if (selectedRadarFactors.length > 3) {
+                                          setSelectedRadarFactors(selectedRadarFactors.filter(f => f !== sf.value));
+                                        }
+                                      }}
+                                      disabled={!isSelected && selectedRadarFactors.length < 3}
+                                      style={{ cursor: 'pointer', width: '14px', height: '14px', accentColor: COLORS.primary }}
+                                    />
+                                    <span style={{ fontSize: '13px', color: COLORS.text }}>{sf.label}</span>
+                                  </label>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </>
           )}
         </div>
@@ -639,6 +732,7 @@ export default function ROLIDashboard() {
                 allData={allData}
                 selectedEntity={selectedRadarEntity}
                 selectedYears={selectedRadarYears}
+                selectedFactors={selectedRadarFactors}
               />
             )}
             {chartType === 'profile' && (

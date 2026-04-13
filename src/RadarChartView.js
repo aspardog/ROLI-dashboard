@@ -1,22 +1,31 @@
 import { useMemo, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from 'recharts';
-import { COLORS } from './constants';
+import { COLORS, VARIABLE_OPTIONS } from './constants';
 import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper } from './svgExportHelpers';
 import ChartCard from './components/ChartCard';
 
-// Overall Index + 8 Factors (clockwise order starting from top)
-const RADAR_FACTORS = [
-  { key: 'roli', label: 'Overall Index', shortLabel: 'Overall Index' },
-  { key: 'f1', label: 'Constraints on Government Power', shortLabel: 'Constraints on\nGovernment Power' },
-  { key: 'f2', label: 'Absence of Corruption', shortLabel: 'Absence of Corruption' },
-  { key: 'f3', label: 'Open Government', shortLabel: 'Open Government' },
-  { key: 'f4', label: 'Fundamental Rights', shortLabel: 'Fundamental Rights' },
-  { key: 'f5', label: 'Order and Security', shortLabel: 'Order and Security' },
-  { key: 'f6', label: 'Regulatory Enforcement', shortLabel: 'Regulatory Enforcement' },
-  { key: 'f7', label: 'Civil Justice', shortLabel: 'Civil Justice' },
-  { key: 'f8', label: 'Criminal Justice', shortLabel: 'Criminal Justice' },
-];
+// All possible factors and subfactors with their labels
+const ALL_FACTORS_MAP = {
+  roli: { label: 'Overall Index', shortLabel: 'Overall Index' },
+  f1: { label: 'Constraints on Government Power', shortLabel: 'Constraints on\nGovernment Power' },
+  f2: { label: 'Absence of Corruption', shortLabel: 'Absence of Corruption' },
+  f3: { label: 'Open Government', shortLabel: 'Open Government' },
+  f4: { label: 'Fundamental Rights', shortLabel: 'Fundamental Rights' },
+  f5: { label: 'Order and Security', shortLabel: 'Order and Security' },
+  f6: { label: 'Regulatory Enforcement', shortLabel: 'Regulatory Enforcement' },
+  f7: { label: 'Civil Justice', shortLabel: 'Civil Justice' },
+  f8: { label: 'Criminal Justice', shortLabel: 'Criminal Justice' },
+};
+
+// Build short labels for subfactors from VARIABLE_OPTIONS
+VARIABLE_OPTIONS.filter(v => v.value.startsWith('sf')).forEach(sf => {
+  // Extract short label like "1.1 - Limited by the legislature" -> "1.1 Limited by legislature"
+  ALL_FACTORS_MAP[sf.value] = {
+    label: sf.label.replace(/^\d+\.\d+ - /, ''),
+    shortLabel: sf.label.replace(' - ', '\n').substring(0, 30)
+  };
+});
 
 // Colors for different years
 const YEAR_COLORS = [
@@ -30,8 +39,8 @@ const YEAR_COLORS = [
 ];
 
 // Custom tick component to show values with year colors + label
-const CustomAxisTick = ({ payload, x, y, cx, cy, combinedData, sortedYears }) => {
-  const factor = RADAR_FACTORS.find(f => f.label === payload.value);
+const CustomAxisTick = ({ payload, x, y, cx, cy, combinedData, sortedYears, radarFactors }) => {
+  const factor = radarFactors.find(f => f.label === payload.value);
   if (!factor) return null;
 
   // Get the data point for this factor
@@ -99,9 +108,19 @@ const CustomAxisTick = ({ payload, x, y, cx, cy, combinedData, sortedYears }) =>
 function RadarChartView({
   allData,
   selectedEntity,
-  selectedYears
+  selectedYears,
+  selectedFactors = ['roli', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8']
 }) {
   const chartRef = useRef(null);
+
+  // Build radarFactors from selectedFactors
+  const radarFactors = useMemo(() => {
+    return selectedFactors.map(key => ({
+      key,
+      label: ALL_FACTORS_MAP[key]?.label || key,
+      shortLabel: ALL_FACTORS_MAP[key]?.shortLabel || key
+    }));
+  }, [selectedFactors]);
 
   // Get label for an entity
   const getEntityLabel = (entity) => {
@@ -122,7 +141,7 @@ function RadarChartView({
     return sortedYears.map(year => {
       const yearData = allData.filter(d => d.year === year);
 
-      const factorData = RADAR_FACTORS.map(factor => {
+      const factorData = radarFactors.map(factor => {
         let value = 0;
 
         if (selectedEntity === '__region_global') {
@@ -146,14 +165,14 @@ function RadarChartView({
 
       return { year, data: factorData };
     });
-  }, [allData, selectedEntity, selectedYears]);
+  }, [allData, selectedEntity, selectedYears, radarFactors]);
 
   // Combined data for multi-year radar
   const combinedData = useMemo(() => {
     if (multiYearData.length === 0) return [];
 
     // Start with factor structure
-    const combined = RADAR_FACTORS.map(factor => ({
+    const combined = radarFactors.map(factor => ({
       factor: factor.key,
       label: factor.label,
       fullMark: 1
@@ -167,7 +186,7 @@ function RadarChartView({
     });
 
     return combined;
-  }, [multiYearData]);
+  }, [multiYearData, radarFactors]);
 
   // Get the title based on selected entity
   const chartTitle = useMemo(() => {
@@ -212,12 +231,12 @@ function RadarChartView({
     downloadSVGHelper(clone, `ROLI_Radar_${chartTitle.replace(/\s+/g, '_')}.svg`);
   }
 
-  if (combinedData.length === 0 || !selectedEntity) {
+  if (combinedData.length === 0 || !selectedEntity || selectedFactors.length < 3) {
     return (
       <ChartCard
         title="Comparative Radar Chart"
         isEmpty={true}
-        emptyMessage="Please select a country or region."
+        emptyMessage={selectedFactors.length < 3 ? "Please select at least 3 factors or subfactors." : "Please select a country or region."}
       />
     );
   }
@@ -264,7 +283,7 @@ function RadarChartView({
             />
             <PolarAngleAxis
               dataKey="label"
-              tick={<CustomAxisTick combinedData={combinedData} sortedYears={sortedYears} />}
+              tick={<CustomAxisTick combinedData={combinedData} sortedYears={sortedYears} radarFactors={radarFactors} />}
               tickLine={false}
             />
             <PolarRadiusAxis
@@ -298,7 +317,8 @@ function RadarChartView({
 RadarChartView.propTypes = {
   allData: PropTypes.arrayOf(PropTypes.object).isRequired,
   selectedEntity: PropTypes.string.isRequired,
-  selectedYears: PropTypes.arrayOf(PropTypes.string).isRequired
+  selectedYears: PropTypes.arrayOf(PropTypes.string).isRequired,
+  selectedFactors: PropTypes.arrayOf(PropTypes.string)
 };
 
 export default memo(RadarChartView);
