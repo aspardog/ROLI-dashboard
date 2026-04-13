@@ -4,10 +4,11 @@ An interactive dashboard for the **World Justice Project Rule of Law Index (ROLI
 
 ## Features
 
-- **Four visualization types**:
-  - **Top & Bottom Performers** — Dynamic bar chart that adapts when regions have fewer than 10 countries
+- **Five visualization types**:
   - **Time Series** — Line chart showing 2019-2025 trends with regional averages
-  - **Radar Chart** — Multi-year, multi-factor overlay comparison
+  - **Country Profiles** — Detailed country performance breakdown
+  - **Top & Bottom Performers** — Dynamic bar chart that adapts when regions have fewer than 10 countries
+  - **Radar Chart** — Multi-year overlay with selectable factors and subfactors (minimum 3)
   - **Factor Comparison** — Multi-country comparison across all 8 factors
 - **Built-in documentation**:
   - **"Learn about the Index"** — In-app modal explaining the Rule of Law Index structure, 8 factors, and 44 sub-factors

@@ -90,13 +90,15 @@ Run `npm run parse-data` after updating the Excel source file.
 
 - `App.js` (project root) - Main dashboard component that manages global state (region, variable, country, chart type)
 - `src/constants.js` - All shared constants (ACTIVE_YEAR, regions, variables, colors)
-- `src/TopBottomChart.js` - Horizontal bar chart showing top/bottom performers
 - `src/TimeSeriesChart.js` - Line chart showing 2019-2025 trends
-- `src/RadarChartView.js` - Multi-year, multi-factor radar visualization
+- `src/CountryProfileChart.js` - Detailed country performance breakdown by factor/subfactor
+- `src/TopBottomChart.js` - Horizontal bar chart showing top/bottom performers
+- `src/RadarChartView.js` - Multi-year radar with dynamic factor/subfactor selection
 - `src/FactorComparisonChart.js` - Multi-country factor comparison
 - `src/InfoModal.js` - Modal component explaining the Rule of Law Index (8 factors, 44 sub-factors)
-- `src/HowToUseModal.js` - Modal component with usage guide for all 4 visualization types
-- `src/svgExport.js` - Font embedding helper for SVG exports (base64 data URIs)
+- `src/HowToUseModal.js` - Modal component with usage guide for all 5 visualization types
+- `src/svgExportHelpers.js` - Font embedding and legend helpers for SVG exports
+- `src/components/ChartCard.js` - Reusable chart container with export button
 - `src/responsive.css` - Mobile-responsive styles (includes modal styles)
 - `craco.config.js` - Webpack overrides to allow root-level App.js and transpile recharts
 
@@ -112,15 +114,22 @@ App.js lives outside `src/` to maintain a flatter structure. This requires craco
 
 All state lives in `App.js`:
 - `allData` - Full dataset loaded from JSON
-- `selectedRegion` - Filters data to region or 'global' (used by Time Series, Top/Bottom, Radar)
+- `selectedRegion` - Filters data to region or 'global' (used by Time Series, Top/Bottom)
 - `selectedVariable` - Currently selected factor/sub-factor (e.g., 'roli', 'f1', 'sf11')
 - `selectedYear` - Year for Top/Bottom and Factor Comparison charts
 - `selectedCountry` - Country for Time Series chart ('__regional_avg__' for averages)
-- `selectedRadarCountry` - Country for Radar chart ('__regional_avg__' for averages)
-- `chartType` - Active chart ('timeseries', 'topbottom', 'radar', 'factors')
-- `selectedFactors` - Factors/sub-factors selected for Radar chart (array of objects with value/label)
+- `chartType` - Active chart ('timeseries', 'profile', 'topbottom', 'radar', 'factors')
+- `yearRange` - Array [startYear, endYear] for Time Series chart range
+- `showRegionalAvg` / `showGlobalAvg` - Reference line toggles for Time Series
+- `selectedProfileCountry` / `selectedProfileRegion` - Country Profile chart selections
+- `selectedRadarEntity` - Entity for Radar chart ('__region_global', '__region_[name]', or country name)
 - `selectedRadarYears` - Years selected for Radar chart (array of year strings)
-- `expandedFactorGroups` - Accordion state for Radar chart factor groups (object with group keys)
+- `selectedRadarFactors` - Factors/subfactors selected for Radar chart (array of keys like 'roli', 'f1', 'sf11')
+- `radarFactorsExpanded` - Boolean controlling Factors & Subfactors accordion visibility
+- `expandedRadarFactorGroups` - Accordion state for individual factor groups (object with factor keys)
+- `radarYearsExpanded` - Boolean controlling Years accordion visibility
+- `factorCompareCountries` - Countries/regions selected for Factor Comparison chart
+- `expandedFactorRegions` - Accordion state for Factor Comparison country selector
 - `isInfoModalOpen` - Boolean controlling visibility of InfoModal
 - `isHowToUseModalOpen` - Boolean controlling visibility of HowToUseModal
 
@@ -158,14 +167,16 @@ Data filtering happens in `useMemo` hooks to prevent unnecessary re-renders.
 - SVG export includes embedded fonts
 
 **RadarChartView**
-- Multi-year overlay (different colors per year: 2019-2025)
-- Multi-factor/sub-factor comparison (up to 8 factors)
+- Multi-year overlay (different colors per year: 2020-2025)
+- Dynamic factor/subfactor selection via collapsible accordions in sidebar
+- Minimum 3 factors/subfactors required for radar display
+- Default selection: Overall Index + 8 main factors
+- Supports all 44 subfactors organized by parent factor
 - Strips number prefix from labels ("F1 - Constraints..." → "Constraints...")
-- Supports regional averages
-- Chart displayed BEFORE controls (user sees visualization immediately)
-- Collapsible accordions organize factor selection by category
-- No "Select All" buttons (cleaner interface)
-- Radial axis: 0.0, 0.2, 0.4, 0.6, 0.8, 1.0 with 16px font
+- Supports regional averages and individual countries
+- `selectedFactors` prop accepts array of keys (e.g., ['roli', 'f1', 'sf11', 'sf21'])
+- `ALL_FACTORS_MAP` in component maps keys to labels and short labels
+- Radial axis: 0.0, 0.2, 0.4, 0.6, 0.8, 1.0 with 11px font
 - SVG export: Year legend at top with color bars, 16px text, vertically centered
 
 **FactorComparisonChart**
