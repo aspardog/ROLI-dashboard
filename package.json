@@ -14,7 +14,7 @@
     "build": "craco build",
     "test": "craco test",
     "eject": "react-scripts eject",
-    "parse-data": "node src/parse-roli-data.js"
+    "parse-data": "node scripts/parse-roli-data.js"
   },
   "eslintConfig": {
     "extends": [

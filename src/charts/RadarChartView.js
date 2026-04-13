@@ -1,9 +1,9 @@
 import { useMemo, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from 'recharts';
-import { COLORS, VARIABLE_OPTIONS } from './constants';
-import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper } from './svgExportHelpers';
-import ChartCard from './components/ChartCard';
+import { COLORS, VARIABLE_OPTIONS } from '../config';
+import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper } from '../utils';
+import { ChartCard } from '../components';
 
 // All possible factors and subfactors with their labels
 const ALL_FACTORS_MAP = {

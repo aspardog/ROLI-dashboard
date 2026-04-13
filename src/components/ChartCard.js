@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { COLORS } from '../constants';
+import { COLORS } from '../config';
 
 export default function ChartCard({
   title,

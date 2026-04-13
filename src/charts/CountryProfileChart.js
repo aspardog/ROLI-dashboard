@@ -1,8 +1,8 @@
 import { useMemo, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
-import { FACTOR_COLORS, FACTOR_SHORT_LABELS, SUBFACTOR_SHORT_LABELS, COLORS } from './constants';
-import { embedFonts, downloadSVG as downloadSVGHelper, createSVGElement, createTextElement } from './svgExportHelpers';
-import ChartCard from './components/ChartCard';
+import { FACTOR_COLORS, FACTOR_SHORT_LABELS, SUBFACTOR_SHORT_LABELS, COLORS } from '../config';
+import { embedFonts, downloadSVG as downloadSVGHelper, createSVGElement, createTextElement } from '../utils';
+import { ChartCard } from '../components';
 
 // Factor structure with their subfactors
 const FACTOR_STRUCTURE = [

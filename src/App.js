@@ -1,16 +1,14 @@
 import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
-import { ACTIVE_YEAR, REGION_OPTIONS, VARIABLE_OPTIONS, SUBFACTOR_GROUPS, COLORS } from './src/constants';
-import InfoModal from './src/InfoModal';
-import HowToUseModal from './src/HowToUseModal';
-import './src/responsive.css';
-
+import { ACTIVE_YEAR, REGION_OPTIONS, VARIABLE_OPTIONS, SUBFACTOR_GROUPS, COLORS } from './config';
+import { InfoModal, HowToUseModal } from './modals';
+import './styles/responsive.css';
 
 // Lazy load chart components for better initial bundle size
-const TopBottomChart = lazy(() => import('./src/TopBottomChart'));
-const TimeSeriesChart = lazy(() => import('./src/TimeSeriesChart'));
-const RadarChartView = lazy(() => import('./src/RadarChartView'));
-const FactorComparisonChart = lazy(() => import('./src/FactorComparisonChart'));
-const CountryProfileChart = lazy(() => import('./src/CountryProfileChart'));
+const TopBottomChart = lazy(() => import('./charts/TopBottomChart'));
+const TimeSeriesChart = lazy(() => import('./charts/TimeSeriesChart'));
+const RadarChartView = lazy(() => import('./charts/RadarChartView'));
+const FactorComparisonChart = lazy(() => import('./charts/FactorComparisonChart'));
+const CountryProfileChart = lazy(() => import('./charts/CountryProfileChart'));
 
 // Tab configuration for chart type switcher
 const CHART_TABS = [
@@ -33,7 +31,6 @@ export default function ROLIDashboard() {
   const [chartType, setChartType] = useState('timeseries');
   const [selectedYear, setSelectedYear] = useState('2025');
   const [yearRange, setYearRange] = useState([2020, 2025]); // New: year range for time series
-  const [selectedRadarCountry, setSelectedRadarCountry] = useState('__regional_avg__');
   const [selectedProfileCountry, setSelectedProfileCountry] = useState('__regional_avg__');
   const [selectedProfileRegion, setSelectedProfileRegion] = useState('global');
   const [radarYearsExpanded, setRadarYearsExpanded] = useState(true);

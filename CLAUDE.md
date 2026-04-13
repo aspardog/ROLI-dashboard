@@ -86,29 +86,55 @@ Run `npm run parse-data` after updating the Excel source file.
 
 ### Component Architecture
 
-**Root-level App with craco configuration**
+**Organized folder structure with barrel exports**
 
-- `App.js` (project root) - Main dashboard component that manages global state (region, variable, country, chart type)
-- `src/constants.js` - All shared constants (ACTIVE_YEAR, regions, variables, colors)
-- `src/TimeSeriesChart.js` - Line chart showing 2019-2025 trends
-- `src/CountryProfileChart.js` - Detailed country performance breakdown by factor/subfactor
-- `src/TopBottomChart.js` - Horizontal bar chart showing top/bottom performers
-- `src/RadarChartView.js` - Multi-year radar with dynamic factor/subfactor selection
-- `src/FactorComparisonChart.js` - Multi-country factor comparison
-- `src/InfoModal.js` - Modal component explaining the Rule of Law Index (8 factors, 44 sub-factors)
-- `src/HowToUseModal.js` - Modal component with usage guide for all 5 visualization types
-- `src/svgExportHelpers.js` - Font embedding and legend helpers for SVG exports
-- `src/components/ChartCard.js` - Reusable chart container with export button
-- `src/responsive.css` - Mobile-responsive styles (includes modal styles)
-- `craco.config.js` - Webpack overrides to allow root-level App.js and transpile recharts
+```
+src/
+├── App.js                    # Main dashboard component (state management)
+├── index.js                  # React entry point
+│
+├── charts/                   # All chart components
+│   ├── index.js              # Barrel export
+│   ├── TimeSeriesChart.js    # Line chart showing 2019-2025 trends
+│   ├── CountryProfileChart.js # Country performance breakdown
+│   ├── TopBottomChart.js     # Horizontal bar chart (top/bottom performers)
+│   ├── RadarChartView.js     # Multi-year radar with factor selection
+│   └── FactorComparisonChart.js # Multi-country factor comparison
+│
+├── modals/                   # Modal components
+│   ├── index.js              # Barrel export
+│   ├── InfoModal.js          # Rule of Law Index explanation
+│   └── HowToUseModal.js      # Dashboard usage guide
+│
+├── components/               # Reusable UI components
+│   ├── index.js              # Barrel export
+│   ├── ChartCard.js          # Chart container with export button
+│   └── Accordion.js          # Collapsible section component
+│
+├── config/                   # Configuration and constants
+│   ├── index.js              # Barrel export
+│   └── constants.js          # ACTIVE_YEAR, regions, variables, colors
+│
+├── utils/                    # Utility functions
+│   ├── index.js              # Barrel export
+│   ├── svgExport.js          # Font fetching for SVG export
+│   └── svgExportHelpers.js   # SVG legend and element helpers
+│
+└── styles/                   # CSS files
+    └── responsive.css        # Mobile-responsive styles
 
-### Why App.js is at Project Root
+scripts/
+└── parse-roli-data.js        # Excel → JSON data pipeline
 
-App.js lives outside `src/` to maintain a flatter structure. This requires craco configuration:
+craco.config.js               # Webpack config for recharts transpilation
+```
 
-1. Remove ModuleScopePlugin to allow imports outside `src/`
-2. Extend babel-loader to transpile JSX in root-level files
-3. Exclude node_modules except lodash-es and recharts
+**Barrel exports** enable clean imports:
+```js
+import { RadarChartView, TimeSeriesChart } from './charts';
+import { COLORS, REGION_OPTIONS } from './config';
+import { InfoModal, HowToUseModal } from './modals';
+```
 
 ### State Management
 

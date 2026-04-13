@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { COLORS } from '../constants';
+import { COLORS } from '../config';
 
 export default function Accordion({
   isExpanded,

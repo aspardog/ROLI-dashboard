@@ -1,9 +1,9 @@
 import { useMemo, useRef, useState, useCallback, memo } from 'react';
 import PropTypes from 'prop-types';
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, ResponsiveContainer, LabelList } from 'recharts';
-import { TS_COLORS } from './constants';
-import { prepareSVGClone, embedFonts, downloadSVG as downloadSVGHelper, createLegendItem } from './svgExportHelpers';
-import ChartCard from './components/ChartCard';
+import { TS_COLORS } from '../config';
+import { prepareSVGClone, embedFonts, downloadSVG as downloadSVGHelper, createLegendItem } from '../utils';
+import { ChartCard } from '../components';
 
 // Chart dimension configurations
 const CHART_SIZES = {

@@ -1,9 +1,9 @@
 import { useMemo, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { BarChart, Bar, XAxis, YAxis, Cell, ResponsiveContainer, LabelList, ReferenceLine } from 'recharts';
-import { COLORS } from './constants';
-import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper } from './svgExportHelpers';
-import ChartCard from './components/ChartCard';
+import { COLORS } from '../config';
+import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper } from '../utils';
+import { ChartCard } from '../components';
 
 function TopBottomChart({ allData, selectedRegion, selectedYear, variable, label, regionLabel }) {
   const data = useMemo(() => {

@@ -1,4 +1,4 @@
-import { COLORS } from './constants';
+import { COLORS } from '../config';
 
 export default function InfoModal({ isOpen, onClose }) {
   if (!isOpen) return null;

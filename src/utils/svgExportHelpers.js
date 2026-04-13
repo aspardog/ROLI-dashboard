@@ -1,4 +1,4 @@
-import { COLORS } from './constants';
+import { COLORS } from '../config';
 import { getEmbeddedFontCSS } from './svgExport';
 
 /**
