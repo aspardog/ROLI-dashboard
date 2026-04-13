@@ -76,7 +76,7 @@ npm run parse-data
 **Source → Parser → JSON → App**
 
 1. Excel file: `data/2025_wjp_rule_of_law_index_HISTORICAL_DATA_FILE.xlsx`
-2. Parser: `src/parse-roli-data.js` reads "Historical Data" sheet, normalizes country names, rounds scores
+2. Parser: `scripts/parse-roli-data.js` reads "Historical Data" sheet, normalizes country names, rounds scores
 3. Writes to two locations:
    - `data/roli_data.json` (canonical, gitignored)
    - `public/roli_data.json` (served by app, tracked in git)
@@ -304,6 +304,42 @@ All scores rounded to 3 decimal places.
 
 **Dynamic scaling**: Charts adjust height, spacing, and element sizes based on number of selections to prevent overcrowding
 
+### Performance Optimizations
+
+The dashboard implements several performance optimizations:
+
+**Font Loading (`public/index.html`):**
+- Preconnect to Google Fonts domains
+- Async font loading with `preload` + `onload` pattern
+- Fallback `<noscript>` for compatibility
+- Eliminates Flash of Unstyled Text (FOUT)
+
+**Data Prefetching:**
+- `<link rel="prefetch">` for `roli_data.json` in HTML head
+- Browser downloads data while parsing HTML
+
+**localStorage Caching (`src/App.js`):**
+```js
+const CACHE_KEY = 'roli_data_cache';
+const CACHE_VERSION_KEY = 'roli_data_version';
+const CURRENT_VERSION = '2025.1'; // Update when data changes
+```
+- First visit: Fetches data → saves to localStorage
+- Subsequent visits: Instant load from cache (~300ms vs ~1500ms)
+- Version-controlled: Update `CURRENT_VERSION` to invalidate cache
+
+**HTTP Caching (`vercel.json`):**
+- `roli_data.json`: 1 day cache + 7 days stale-while-revalidate
+- Static assets (`/static/*`): 1 year immutable cache
+
+**Code Splitting:**
+- Chart components lazy-loaded with `React.lazy()`
+- Reduces initial bundle size
+
+**Memoization:**
+- Heavy use of `useMemo` for derived data
+- `React.memo` on chart components
+
 ## Common Tasks
 
 ### Adding a New Chart Type
@@ -318,8 +354,9 @@ All scores rounded to 3 decimal places.
 
 1. Replace Excel file in `data/`
 2. Run `npm run parse-data`
-3. Update `ACTIVE_YEAR` in `src/constants.js`
-4. Add new year option to year dropdowns in `App.js` if needed
+3. Update `ACTIVE_YEAR` in `src/config/constants.js`
+4. Update `CURRENT_VERSION` in `src/App.js` to invalidate localStorage cache (e.g., '2025.1' → '2026.1')
+5. Add new year option to year dropdowns in `App.js` if needed
 
 ### Modifying Colors
 
@@ -327,8 +364,8 @@ Edit `COLORS` or `TS_COLORS` in `src/constants.js`. Changes propagate to all com
 
 ### Adding/Modifying Factors or Sub-factors
 
-1. Update column mapping in `src/parse-roli-data.js` if Excel structure changed
-2. Update `VARIABLE_OPTIONS` in `src/constants.js`
+1. Update column mapping in `scripts/parse-roli-data.js` if Excel structure changed
+2. Update `VARIABLE_OPTIONS` in `src/config/constants.js`
 3. Update `SUBFACTOR_GROUPS` if adding new factor
 4. Re-run parser
 
