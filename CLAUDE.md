@@ -108,8 +108,7 @@ src/
 │
 ├── components/               # Reusable UI components
 │   ├── index.js              # Barrel export
-│   ├── ChartCard.js          # Chart container with export button
-│   └── Accordion.js          # Collapsible section component
+│   └── ChartCard.js          # Chart container with export button
 │
 ├── config/                   # Configuration and constants
 │   ├── index.js              # Barrel export

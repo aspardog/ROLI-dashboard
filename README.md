@@ -83,7 +83,7 @@ src/
 ├── App.js                 # Main dashboard component
 ├── charts/                # All chart components (5 visualizations)
 ├── modals/                # InfoModal, HowToUseModal
-├── components/            # Reusable UI (ChartCard, Accordion)
+├── components/            # Reusable UI (ChartCard)
 ├── config/                # Constants, colors, regions
 ├── utils/                 # SVG export helpers
 └── styles/                # CSS files
