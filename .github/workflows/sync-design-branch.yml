@@ -6,6 +6,11 @@ on:
     branches:
       - main
 
+# Ensure only one sync runs at a time to prevent race conditions
+concurrency:
+  group: sync-design-branch
+  cancel-in-progress: false
+
 jobs:
   sync:
     runs-on: ubuntu-latest
@@ -27,11 +32,20 @@ jobs:
 
       - name: Sync design branch
         run: |
+          # Fetch all latest changes
+          git fetch origin
+
+          # Check if design and main are already identical
+          if git diff --quiet origin/main origin/design; then
+            echo "✅ Branches are already in sync. Nothing to do."
+            exit 0
+          fi
+
           # Checkout design branch
           git checkout design
 
-          # Pull latest changes from design
-          git pull origin design
+          # Pull latest changes from design (with rebase to avoid merge commits)
+          git pull origin design --rebase
 
           # Merge main into design
           git merge origin/main -m "Auto-sync: Merge main into design"
