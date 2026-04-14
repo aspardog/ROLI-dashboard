@@ -43,15 +43,24 @@ jobs:
 
           # Checkout design branch
           git checkout design
-
-          # Pull latest changes from design (with rebase to avoid merge commits)
           git pull origin design --rebase
 
-          # Merge main into design
-          git merge origin/main -m "Auto-sync: Merge main into design"
+          # Try fast-forward first (no merge commit)
+          if git merge --ff-only origin/main 2>/dev/null; then
+            echo "✅ Fast-forward successful - no merge commit created"
+          else
+            # If design has unique commits, do regular merge
+            git merge origin/main -m "Auto-sync: Merge main into design"
+            echo "✅ Merge commit created (design had unique commits)"
+          fi
 
-          # Push updated design branch
-          git push origin design
+          # Push only if there are changes
+          if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/design)" ]; then
+            git push origin design
+            echo "✅ Pushed to design"
+          else
+            echo "ℹ️ No changes to push"
+          fi
 
       - name: Comment on PR if sync fails
         if: failure()
