@@ -778,7 +778,7 @@ export default function ROLIDashboard() {
       <div className="dashboard-footer" style={{ maxWidth: '1100px', margin: '40px auto 0', textAlign: 'center', paddingBottom: '40px' }}>
         <p style={{ fontSize: '13px', color: COLORS.muted, marginBottom: '8px' }}>
           Source: World Justice Project — Rule of Law Index® {
-            chartType === 'timeseries' ? '2019–2025' :
+            chartType === 'timeseries' ? '2020–2025' :
             chartType === 'radar' ? [...selectedRadarYears].sort().join(', ') :
             chartType === 'profile' ? ACTIVE_YEAR :
             chartType === 'factors' ? selectedYear :
