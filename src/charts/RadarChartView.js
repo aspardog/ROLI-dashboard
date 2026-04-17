@@ -69,7 +69,7 @@ const CustomAxisTick = ({ payload, x, y, cx, cy, combinedData, sortedYears, rada
 
   return (
     <g>
-      {/* Values with year colors */}
+      {/* Values with year colors, separated by | */}
       <text
         x={labelX}
         y={labelY - (lines.length > 1 ? 12 : 8)}
@@ -83,7 +83,7 @@ const CustomAxisTick = ({ payload, x, y, cx, cy, combinedData, sortedYears, rada
               {yv.value !== undefined ? yv.value.toFixed(2) : ''}
             </tspan>
             {idx < yearValues.length - 1 && (
-              <tspan fill={COLORS.muted}>  </tspan>
+              <tspan fill={COLORS.muted}> | </tspan>
             )}
           </tspan>
         ))}
