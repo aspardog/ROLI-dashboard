@@ -2,7 +2,7 @@ import { useMemo, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, LabelList, ReferenceLine } from 'recharts';
 import { COLORS } from '../config';
-import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper } from '../utils';
+import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper, addWhiteBackground } from '../utils';
 import { ChartCard } from '../components';
 
 const FACTORS = [
@@ -126,7 +126,11 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
     if (!svg) return;
 
     const legendHeight = 60;
-    const { clone, vbX, vbY } = prepareSVGClone(svg, legendHeight, 'top', {});
+    const { clone, vbX, vbY, vbW, vbH } = prepareSVGClone(svg, legendHeight, 'top', {});
+
+    // Add white background
+    addWhiteBackground(clone, vbX, vbY, vbW, vbH);
+
     await embedFonts(clone);
 
     // Add legend items for each country/region
@@ -137,7 +141,7 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
     selectedCountries.forEach((country, index) => {
       const label = getCountryLabel(country);
       const color = COMPARISON_COLORS[index % COMPARISON_COLORS.length];
-      const legendItems = createLegendItem(currentX, ly, color, label, 'rect', { width: 16, height: 16 });
+      const legendItems = createLegendItem(currentX, ly, color, label, 'box', { size: 16 });
       legendItems.forEach(el => clone.appendChild(el));
       currentX += label.length * 8 + 50;
     });
