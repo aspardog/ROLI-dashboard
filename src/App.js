@@ -330,7 +330,7 @@ export default function ROLIDashboard() {
                     {selectedCountryRegion && (
                       <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
                         <input type="checkbox" checked={showRegionalAvg} onChange={(e) => setShowRegionalAvg(e.target.checked)} style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: COLORS.primary }} />
-                        <span style={{ fontSize: '14px', color: COLORS.text }}>{regionLabel}</span>
+                        <span style={{ fontSize: '14px', color: COLORS.text }}>{selectedCountryRegion}</span>
                       </label>
                     )}
                   </div>
