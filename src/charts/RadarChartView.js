@@ -69,7 +69,7 @@ const CustomAxisTick = ({ payload, x, y, cx, cy, combinedData, sortedYears, rada
 
   return (
     <g>
-      {/* Values with year colors, separated by | */}
+      {/* Values with year colors */}
       <text
         x={labelX}
         y={labelY - (lines.length > 1 ? 12 : 8)}
@@ -83,7 +83,7 @@ const CustomAxisTick = ({ payload, x, y, cx, cy, combinedData, sortedYears, rada
               {yv.value !== undefined ? yv.value.toFixed(2) : ''}
             </tspan>
             {idx < yearValues.length - 1 && (
-              <tspan fill={COLORS.muted}> | </tspan>
+              <tspan fill={COLORS.muted}>  </tspan>
             )}
           </tspan>
         ))}
@@ -204,7 +204,7 @@ function RadarChartView({
     const { clone, vbX, vbY } = prepareSVGClone(svg, legendHeight, 'top', {});
     await embedFonts(clone);
 
-    // Add legend items for years with | separator
+    // Add legend items for years
     const lx = vbX + 24;
     const ly = vbY + 20;
     let currentX = lx;
@@ -213,19 +213,7 @@ function RadarChartView({
       const color = YEAR_COLORS[index % YEAR_COLORS.length];
       const legendItems = createLegendItem(currentX, ly, color, year, 'line', { width: 24 });
       legendItems.forEach(el => clone.appendChild(el));
-      currentX += 70;
-
-      // Add separator if not last
-      if (index < sortedYears.length - 1) {
-        const sep = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        sep.setAttribute('x', currentX);
-        sep.setAttribute('y', ly + 5);
-        sep.setAttribute('fill', COLORS.muted);
-        sep.setAttribute('font-size', '14');
-        sep.textContent = '|';
-        clone.appendChild(sep);
-        currentX += 20;
-      }
+      currentX += 80;
     });
 
     downloadSVGHelper(clone, `ROLI_Radar_${chartTitle.replace(/\s+/g, '_')}.svg`);
@@ -248,22 +236,17 @@ function RadarChartView({
       onExport={downloadSVG}
       exportOptions={['full']}
     >
-      {/* Legend for years with | separator */}
-      <div className="legend-container" style={{ display: 'flex', alignItems: 'center', gap: '0', marginBottom: '16px', flexWrap: 'wrap' }}>
+      {/* Legend for years */}
+      <div className="legend-container" style={{ display: 'flex', alignItems: 'center', gap: '24px', marginBottom: '16px', flexWrap: 'wrap' }}>
         {sortedYears.map((year, index) => (
-          <div key={year} style={{ display: 'flex', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0 12px' }}>
-              <div style={{
-                width: '24px',
-                height: '3px',
-                backgroundColor: YEAR_COLORS[index % YEAR_COLORS.length],
-                borderRadius: '2px'
-              }} />
-              <span style={{ fontSize: '14px', color: COLORS.text, fontWeight: '500' }}>{year}</span>
-            </div>
-            {index < sortedYears.length - 1 && (
-              <span style={{ color: COLORS.muted, fontSize: '16px', fontWeight: '300' }}>|</span>
-            )}
+          <div key={year} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{
+              width: '24px',
+              height: '3px',
+              backgroundColor: YEAR_COLORS[index % YEAR_COLORS.length],
+              borderRadius: '2px'
+            }} />
+            <span style={{ fontSize: '14px', color: COLORS.text, fontWeight: '500' }}>{year}</span>
           </div>
         ))}
       </div>
