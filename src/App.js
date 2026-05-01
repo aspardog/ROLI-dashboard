@@ -9,6 +9,7 @@ const TimeSeriesChart = lazy(() => import('./charts/TimeSeriesChart'));
 const RadarChartView = lazy(() => import('./charts/RadarChartView'));
 const FactorComparisonChart = lazy(() => import('./charts/FactorComparisonChart'));
 const CountryProfileChart = lazy(() => import('./charts/CountryProfileChart'));
+const HumanRightsHeatmap = lazy(() => import('./charts/HumanRightsHeatmap'));
 
 // Tab configuration for chart type switcher
 const CHART_TABS = [
@@ -16,7 +17,8 @@ const CHART_TABS = [
   { key: 'profile', label: 'COUNTRY PROFILES' },
   { key: 'topbottom', label: 'TOP & BOTTOM PERFORMERS' },
   { key: 'radar', label: 'RADAR CHART' },
-  { key: 'factors', label: 'FACTOR COMPARISON' }
+  { key: 'factors', label: 'FACTOR COMPARISON' },
+  { key: 'heatmap', label: 'HUMAN RIGHTS HEATMAP' }
 ];
 
 export default function ROLIDashboard() {
@@ -43,6 +45,8 @@ export default function ROLIDashboard() {
   const [expandedFactorRegions, setExpandedFactorRegions] = useState({}); // Accordion state for Factor Comparison country selector
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [isHowToUseModalOpen, setIsHowToUseModalOpen] = useState(false);
+  const [heatmapYear, setHeatmapYear] = useState('2025');
+  const [heatmapBaseYear, setHeatmapBaseYear] = useState('2015');
   const selectedLabel = VARIABLE_OPTIONS.find(opt => opt.value === selectedVariable)?.label || selectedVariable;
   const regionLabel = REGION_OPTIONS.find(opt => opt.value === selectedRegion)?.label || selectedRegion;
 
@@ -535,6 +539,49 @@ export default function ROLIDashboard() {
             </>
           )}
 
+          {/* Heatmap Controls */}
+          {chartType === 'heatmap' && (
+            <>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Current Year</label>
+                <div style={{ position: 'relative' }}>
+                  <select value={heatmapYear} onChange={(e) => setHeatmapYear(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                    <option value="2022">2022</option>
+                    <option value="2021">2021</option>
+                    <option value="2020">2020</option>
+                  </select>
+                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Compare to Year</label>
+                <div style={{ position: 'relative' }}>
+                  <select value={heatmapBaseYear} onChange={(e) => setHeatmapBaseYear(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
+                    <option value="2015">2015 (10 years)</option>
+                    <option value="2016">2016</option>
+                    <option value="2017">2017</option>
+                    <option value="2018">2018</option>
+                    <option value="2019">2019</option>
+                    <option value="2020">2020</option>
+                  </select>
+                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ padding: '12px', backgroundColor: '#f8f7f4', borderRadius: '6px', marginBottom: '20px' }}>
+                <p style={{ fontSize: '12px', color: COLORS.muted, margin: 0, lineHeight: 1.5 }}>
+                  This heatmap shows human rights-related sub-factors (Factor 4: Fundamental Rights) for 24 countries in Asia & Pacific and Central Asia.
+                </p>
+              </div>
+            </>
+          )}
+
           {/* Radar Controls */}
           {chartType === 'radar' && (
             <>
@@ -770,6 +817,13 @@ export default function ROLIDashboard() {
                 selectedYear={ACTIVE_YEAR}
               />
             )}
+            {chartType === 'heatmap' && (
+              <HumanRightsHeatmap
+                allData={allData}
+                selectedYear={heatmapYear}
+                baseYear={heatmapBaseYear}
+              />
+            )}
           </Suspense>
         </div>
       </div>{/* Close dashboard-main-layout */}
@@ -782,6 +836,7 @@ export default function ROLIDashboard() {
             chartType === 'radar' ? [...selectedRadarYears].sort().join(', ') :
             chartType === 'profile' ? ACTIVE_YEAR :
             chartType === 'factors' ? selectedYear :
+            chartType === 'heatmap' ? `${heatmapBaseYear}–${heatmapYear}` :
             selectedYear
           }
         </p>
