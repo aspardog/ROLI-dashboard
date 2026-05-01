@@ -11,6 +11,7 @@ const FactorComparisonChart = lazy(() => import('./charts/FactorComparisonChart'
 const CountryProfileChart = lazy(() => import('./charts/CountryProfileChart'));
 const HumanRightsHeatmap = lazy(() => import('./charts/HumanRightsHeatmap'));
 const LollipopChart = lazy(() => import('./charts/LollipopChart'));
+const DumbbellChart = lazy(() => import('./charts/DumbbellChart'));
 
 // Tab configuration for chart type switcher
 const CHART_TABS = [
@@ -20,7 +21,8 @@ const CHART_TABS = [
   { key: 'radar', label: 'RADAR CHART' },
   { key: 'factors', label: 'FACTOR COMPARISON' },
   { key: 'heatmap', label: 'HUMAN RIGHTS HEATMAP' },
-  { key: 'lollipop', label: 'YEAR COMPARISON' }
+  { key: 'lollipop', label: 'LOLLIPOP CHART' },
+  { key: 'dumbbell', label: 'DUMBBELL CHART' }
 ];
 
 export default function ROLIDashboard() {
@@ -52,6 +54,9 @@ export default function ROLIDashboard() {
   const [lollipopYear, setLollipopYear] = useState('2025');
   const [lollipopBaseYear, setLollipopBaseYear] = useState('2015');
   const [lollipopVariable, setLollipopVariable] = useState('f4');
+  const [dumbbellYear, setDumbbellYear] = useState('2025');
+  const [dumbbellBaseYear, setDumbbellBaseYear] = useState('2015');
+  const [dumbbellVariable, setDumbbellVariable] = useState('f4');
   const selectedLabel = VARIABLE_OPTIONS.find(opt => opt.value === selectedVariable)?.label || selectedVariable;
   const regionLabel = REGION_OPTIONS.find(opt => opt.value === selectedRegion)?.label || selectedRegion;
 
@@ -645,7 +650,71 @@ export default function ROLIDashboard() {
               </div>
               <div style={{ padding: '12px', backgroundColor: '#f8f7f4', borderRadius: '6px', marginBottom: '20px' }}>
                 <p style={{ fontSize: '12px', color: COLORS.muted, margin: 0, lineHeight: 1.5 }}>
-                  Compare scores between two years. Circle shows current score, triangle shows base year score. Color indicates improvement or decline.
+                  A lollipop view of scores across Asia & Pacific. The filled circle shows the selected year, and the triangle marks the comparison year.
+                </p>
+              </div>
+            </>
+          )}
+
+          {/* Dumbbell Chart Controls */}
+          {chartType === 'dumbbell' && (
+            <>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Factor / Sub-factor</label>
+                <div style={{ position: 'relative' }}>
+                  <select value={dumbbellVariable} onChange={(e) => setDumbbellVariable(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
+                    <optgroup label="Overall Index">
+                      {VARIABLE_OPTIONS.filter(o => o.category === 'general').map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
+                    </optgroup>
+                    <optgroup label="Factors">
+                      {VARIABLE_OPTIONS.filter(o => o.category === 'factor').map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
+                    </optgroup>
+                    {SUBFACTOR_GROUPS.map(group => (
+                      <optgroup key={group.category} label={group.label}>
+                        {VARIABLE_OPTIONS.filter(o => o.category === group.category).map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
+                      </optgroup>
+                    ))}
+                  </select>
+                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Current Year</label>
+                <div style={{ position: 'relative' }}>
+                  <select value={dumbbellYear} onChange={(e) => setDumbbellYear(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                    <option value="2022">2022</option>
+                    <option value="2021">2021</option>
+                    <option value="2020">2020</option>
+                  </select>
+                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Compare to Year</label>
+                <div style={{ position: 'relative' }}>
+                  <select value={dumbbellBaseYear} onChange={(e) => setDumbbellBaseYear(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
+                    <option value="2015">2015 (10 years)</option>
+                    <option value="2016">2016</option>
+                    <option value="2017">2017</option>
+                    <option value="2018">2018</option>
+                    <option value="2019">2019</option>
+                    <option value="2020">2020</option>
+                  </select>
+                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ padding: '12px', backgroundColor: '#f8f7f4', borderRadius: '6px', marginBottom: '20px' }}>
+                <p style={{ fontSize: '12px', color: COLORS.muted, margin: 0, lineHeight: 1.5 }}>
+                  Two data points per row compare the earlier score with the current one. The connecting line highlights improvement or decline over time.
                 </p>
               </div>
             </>
@@ -901,6 +970,14 @@ export default function ROLIDashboard() {
                 selectedVariable={lollipopVariable}
               />
             )}
+            {chartType === 'dumbbell' && (
+              <DumbbellChart
+                allData={allData}
+                selectedYear={dumbbellYear}
+                baseYear={dumbbellBaseYear}
+                selectedVariable={dumbbellVariable}
+              />
+            )}
           </Suspense>
         </div>
       </div>{/* Close dashboard-main-layout */}
@@ -915,6 +992,7 @@ export default function ROLIDashboard() {
             chartType === 'factors' ? selectedYear :
             chartType === 'heatmap' ? `${heatmapBaseYear}–${heatmapYear}` :
             chartType === 'lollipop' ? `${lollipopBaseYear}–${lollipopYear}` :
+            chartType === 'dumbbell' ? `${dumbbellBaseYear}–${dumbbellYear}` :
             selectedYear
           }
         </p>

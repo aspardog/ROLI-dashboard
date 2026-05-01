@@ -96,7 +96,7 @@ export default function LollipopChart({
 
       <!-- Title -->
       <text x="${width/2}" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="${COLORS.primary}">${variableLabel}</text>
-      <text x="${width/2}" y="48" text-anchor="middle" font-size="12" fill="${COLORS.muted}">Asia & Pacific — Comparing ${baseYear} to ${selectedYear}</text>
+      <text x="${width/2}" y="48" text-anchor="middle" font-size="12" fill="${COLORS.muted}">Asia & Pacific — Lollipop view for ${selectedYear} with ${baseYear} reference</text>
 
       <!-- Scale markers -->
       <text x="${padding + labelWidth}" y="${headerHeight - 8}" font-size="9" fill="${COLORS.muted}">0.0</text>
@@ -163,7 +163,7 @@ export default function LollipopChart({
             {variableLabel}
           </h2>
           <p style={{ margin: '4px 0 0', fontSize: '13px', color: COLORS.muted }}>
-            Asia & Pacific — Comparing {baseYear} to {selectedYear}
+            Asia & Pacific — Lollipop view for {selectedYear} with {baseYear} reference
           </p>
         </div>
         <button
