@@ -67,6 +67,12 @@ npm test
 
 # Re-generate JSON data from Excel source
 npm run parse-data
+
+# Security audit (check for high-severity vulnerabilities)
+npm run audit
+
+# Automatically fix vulnerabilities
+npm run audit:fix
 ```
 
 ## Architecture
@@ -339,6 +345,47 @@ const CURRENT_VERSION = '2025.1'; // Update when data changes
 **Memoization:**
 - Heavy use of `useMemo` for derived data
 - `React.memo` on chart components
+
+### Security
+
+The dashboard implements comprehensive security measures. For full details, see `docs/security/SECURITY.md`.
+
+**HTTP Security Headers (`vercel.json`):**
+
+| Header | Value | Purpose |
+|--------|-------|---------|
+| `X-Content-Type-Options` | `nosniff` | Prevents MIME type sniffing |
+| `X-Frame-Options` | `DENY` | Prevents clickjacking |
+| `X-XSS-Protection` | `1; mode=block` | Browser XSS filter |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` | Controls referrer info |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` | Disables sensitive APIs |
+| `Content-Security-Policy` | Strict CSP | Prevents XSS/code injection |
+
+**Content Security Policy:**
+```
+default-src 'self';
+script-src 'self' 'unsafe-inline' 'unsafe-eval';
+style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+font-src 'self' https://fonts.gstatic.com data:;
+img-src 'self' data: blob:;
+connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com;
+```
+
+**Dependency Security:**
+- npm overrides in `package.json` force secure versions of transitive dependencies
+- Regular security audits via `npm run audit`
+- Automatic fixes via `npm run audit:fix`
+
+**Code Security Practices:**
+- No `dangerouslySetInnerHTML` usage
+- No `eval()` or `new Function()` calls
+- No hardcoded secrets or API keys
+- All external resources use HTTPS
+- `.gitignore` excludes `.env` files and `/data/` directory
+
+**Known Limitations:**
+- `xlsx` (devDependency) has unfixable vulnerabilities but is only used offline for data parsing, never in production
+- Some `react-scripts` transitive dependencies have vulnerabilities; pinned to stable version
 
 ## Common Tasks
 
