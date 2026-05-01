@@ -14,9 +14,12 @@ docs/
 │   ├── DESIGN_FILES_REFERENCE.md        # File-by-file reference
 │   └── EMAIL_TEMPLATE_DESIGNER.md       # Onboarding email template
 │
-└── maintainer/        # Documentation for main user/maintainer
-    ├── SYNC_GUIDE.md                    # Branch synchronization guide
-    └── MAIN_USER_WORKFLOW.md            # Daily workflow reference
+├── maintainer/        # Documentation for main user/maintainer
+│   ├── SYNC_GUIDE.md                    # Branch synchronization guide
+│   └── MAIN_USER_WORKFLOW.md            # Daily workflow reference
+│
+└── security/          # Security documentation
+    └── SECURITY.md                      # Security measures and policies
 ```
 
 ## 🎨 For Designers
@@ -39,6 +42,17 @@ This guide will walk you through:
 **Daily workflow:** [`maintainer/MAIN_USER_WORKFLOW.md`](maintainer/MAIN_USER_WORKFLOW.md)
 
 **Branch synchronization:** [`maintainer/SYNC_GUIDE.md`](maintainer/SYNC_GUIDE.md)
+
+## 🔒 Security
+
+**Security documentation:** [`security/SECURITY.md`](security/SECURITY.md)
+
+This guide covers:
+- HTTP security headers (CSP, X-Frame-Options, etc.)
+- Dependency vulnerability management
+- Code security practices
+- Security audit commands
+- Known limitations and mitigations
 
 ## 📚 Main Project Documentation
 
