@@ -7,14 +7,20 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-scripts": "5.0.1",
-    "recharts": "^3.7.0"
+    "recharts": "^3.8.1"
   },
   "scripts": {
     "start": "craco start",
     "build": "craco build",
     "test": "craco test",
     "eject": "react-scripts eject",
-    "parse-data": "node scripts/parse-roli-data.js"
+    "parse-data": "node scripts/parse-roli-data.js",
+    "audit": "npm audit --audit-level=high",
+    "audit:fix": "npm audit fix"
+  },
+  "overrides": {
+    "underscore": "^1.13.8",
+    "postcss": "^8.5.10"
   },
   "eslintConfig": {
     "extends": [
