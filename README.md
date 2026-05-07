@@ -4,16 +4,18 @@ An interactive dashboard for the **World Justice Project Rule of Law Index (ROLI
 
 ## Features
 
-- **Five visualization types**:
+- **Seven visualization types**:
   - **Time Series** — Line chart showing 2019-2025 trends with regional averages
   - **Country Profiles** — Detailed country performance breakdown
   - **Top & Bottom Performers** — Dynamic bar chart that adapts when regions have fewer than 10 countries
   - **Radar Chart** — Multi-year overlay with selectable factors and subfactors (minimum 3)
   - **Factor Comparison** — Multi-country comparison across all 8 factors
+  - **Score Heatmap** — Color-coded table showing all countries and factors at a glance
+  - **Change Heatmap** — Card-based visualization showing percentage change between years
 - **Built-in documentation**:
   - **"Learn about the Index"** — In-app modal explaining the Rule of Law Index structure, 8 factors, and 44 sub-factors
   - **"How to use this dashboard"** — Interactive guide to each visualization type
-- **Region selector** — Global + 7 WJP regions
+- **Region selector** — Global + 7 WJP regions + European Union (27 member states)
 - **Variable selector** — Overall Index, 8 factors, and 44 sub-factors grouped by factor
 - **Regional average** reference lines and calculations
 - **SVG export** — All charts downloadable with embedded fonts and legends
@@ -81,11 +83,11 @@ This repository has Claude Code integration:
 ```
 src/
 ├── App.js                 # Main dashboard component
-├── charts/                # All chart components (5 visualizations)
+├── charts/                # All chart components (7 visualizations)
 ├── modals/                # InfoModal, HowToUseModal
 ├── components/            # Reusable UI (ChartCard)
-├── config/                # Constants, colors, regions
-├── utils/                 # SVG export helpers
+├── config/                # Constants, colors, regions, EU countries
+├── utils/                 # SVG export helpers, region filtering
 └── styles/                # CSS files
 
 scripts/

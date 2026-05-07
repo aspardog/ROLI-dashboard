@@ -100,12 +100,13 @@ src/
 ├── index.js                  # React entry point
 │
 ├── charts/                   # All chart components
-│   ├── index.js              # Barrel export
 │   ├── TimeSeriesChart.js    # Line chart showing 2019-2025 trends
 │   ├── CountryProfileChart.js # Country performance breakdown
 │   ├── TopBottomChart.js     # Horizontal bar chart (top/bottom performers)
 │   ├── RadarChartView.js     # Multi-year radar with factor selection
-│   └── FactorComparisonChart.js # Multi-country factor comparison
+│   ├── FactorComparisonChart.js # Multi-country factor comparison
+│   ├── HumanRightsHeatmap.js # Score heatmap table
+│   └── CardHeatmap.js        # Change heatmap with cards
 │
 ├── modals/                   # Modal components
 │   ├── index.js              # Barrel export
@@ -123,7 +124,8 @@ src/
 ├── utils/                    # Utility functions
 │   ├── index.js              # Barrel export
 │   ├── svgExport.js          # Font fetching for SVG export
-│   └── svgExportHelpers.js   # SVG legend and element helpers
+│   ├── svgExportHelpers.js   # SVG legend and element helpers
+│   └── regionFilter.js       # Region filtering helpers (filterByRegion, matchesRegion)
 │
 └── styles/                   # CSS files
     └── responsive.css        # Mobile-responsive styles
@@ -149,7 +151,7 @@ All state lives in `App.js`:
 - `selectedVariable` - Currently selected factor/sub-factor (e.g., 'roli', 'f1', 'sf11')
 - `selectedYear` - Year for Top/Bottom and Factor Comparison charts
 - `selectedCountry` - Country for Time Series chart ('__regional_avg__' for averages)
-- `chartType` - Active chart ('timeseries', 'profile', 'topbottom', 'radar', 'factors')
+- `chartType` - Active chart ('timeseries', 'profile', 'topbottom', 'radar', 'factors', 'heatmap', 'cardheatmap')
 - `yearRange` - Array [startYear, endYear] for Time Series chart range
 - `showRegionalAvg` / `showGlobalAvg` - Reference line toggles for Time Series
 - `selectedProfileCountry` / `selectedProfileRegion` - Country Profile chart selections
@@ -163,6 +165,8 @@ All state lives in `App.js`:
 - `expandedFactorRegions` - Accordion state for Factor Comparison country selector
 - `isInfoModalOpen` - Boolean controlling visibility of InfoModal
 - `isHowToUseModalOpen` - Boolean controlling visibility of HowToUseModal
+- `heatmapYear` / `heatmapRegion` / `heatmapFactors` - Score Heatmap chart selections
+- `cardHeatmapYear` / `cardHeatmapBaseYear` / `cardHeatmapRegion` / `cardHeatmapVariable` - Change Heatmap chart selections
 
 **Component-level state:**
 - `FactorComparisonChart.js`:
@@ -173,9 +177,10 @@ Data filtering happens in `useMemo` hooks to prevent unnecessary re-renders.
 
 ### Constants Configuration
 
-**`src/constants.js`** exports:
+**`src/config/constants.js`** exports:
 - `ACTIVE_YEAR` - Default year filter (currently '2025'). Update when new data is released
-- `REGION_OPTIONS` - 8 regions including 'global'
+- `REGION_OPTIONS` - 9 regions including 'global' and 'European Union'
+- `EU_COUNTRIES` - Array of 27 EU member state names for European Union filtering
 - `VARIABLE_OPTIONS` - Overall Index (1), Factors (8), Sub-factors (44)
   - Each has `value`, `label`, and `category` for grouping
 - `SUBFACTOR_GROUPS` - Groups sub-factors by parent factor for UI organization
@@ -225,6 +230,22 @@ Data filtering happens in `useMemo` hooks to prevent unnecessary re-renders.
 - Factor labels left-aligned for consistency
 - SVG export: Legend at top with 5px×30px bars, 16px text, vertically centered
 
+**HumanRightsHeatmap (Score Heatmap)**
+- Color-coded table showing scores for all countries and selected factors
+- Selectable factors/subfactors as columns with full names and line breaks for long labels
+- Color scale: red (0) → yellow (0.5) → green (1)
+- Filterable by year and region
+- Sticky country column for horizontal scrolling
+- SVG export with dynamically calculated header height for multi-line labels
+
+**CardHeatmap (Change Heatmap)**
+- Card-based visualization showing percentage change between two years
+- Each card displays: country name, percentage change, base year score, current year score
+- Color coding: green (improved), red (declined), gray (stable ±1%)
+- Arrow indicators: ↑↑ (+10%+), ↑ (improved), → (stable), ↓ (declined), ↓↓ (-10%+)
+- Filterable by region and variable (factor/subfactor)
+- Responsive grid layout with hover effects
+
 ### SVG Export
 
 All charts support SVG download with embedded fonts and professional legends:
@@ -251,7 +272,7 @@ Charts manually construct legends in `downloadSVG()` functions using helper meth
 
 The dashboard includes two informational modals accessible from the header banner:
 
-**InfoModal (`src/InfoModal.js`)**
+**InfoModal (`src/modals/InfoModal.js`)**
 - Triggered by "Learn about the Index →" link in banner
 - Explains what the Rule of Law Index is and how it's structured
 - Lists all 8 factors with descriptions
@@ -259,13 +280,16 @@ The dashboard includes two informational modals accessible from the header banne
 - Scrollable modal with close button (×) and click-outside-to-close
 - Responsive styles for mobile devices
 
-**HowToUseModal (`src/HowToUseModal.js`)**
+**HowToUseModal (`src/modals/HowToUseModal.js`)**
 - Triggered by "How to use this dashboard →" link in banner
-- Provides usage guide for all 4 visualization types:
+- Provides usage guide for all 7 visualization types:
   1. Time Series - trends over time
-  2. Top & Bottom Performers - rankings
-  3. Radar Chart - performance profiles
-  4. Factor Comparison - side-by-side comparisons
+  2. Country Profiles - detailed country breakdown
+  3. Top & Bottom Performers - rankings
+  4. Radar Chart - performance profiles
+  5. Factor Comparison - side-by-side comparisons
+  6. Score Heatmap - color-coded factor table
+  7. Change Heatmap - percentage change cards
 - Includes SVG export explanation
 - Same modal structure and behavior as InfoModal
 
@@ -303,6 +327,8 @@ All scores rounded to 3 decimal places.
   - `__region_global` calculates average across all countries
 
 **Data filtering**: Two-stage filter - first by year, then by region (if not global)
+- Uses `filterByRegion()` and `matchesRegion()` helpers from `src/utils/regionFilter.js`
+- European Union filtering works by country list (EU_COUNTRIES) rather than data region field
 
 **Memoization**: Heavy use of `useMemo` for derived data (chartData, averages, available countries)
 
