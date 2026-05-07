@@ -2,7 +2,7 @@ import { useMemo, useRef, useState, useCallback, memo } from 'react';
 import PropTypes from 'prop-types';
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, ResponsiveContainer, LabelList } from 'recharts';
 import { TS_COLORS } from '../config';
-import { prepareSVGClone, embedFonts, downloadSVG as downloadSVGHelper, createLegendItem } from '../utils';
+import { prepareSVGClone, embedFonts, downloadSVG as downloadSVGHelper, createLegendItem, matchesRegion } from '../utils';
 import { ChartCard } from '../components';
 
 // Chart dimension configurations
@@ -23,7 +23,7 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
     if (!showRegionalAvg || !effectiveRegion) return {};
     const [startYear, endYear] = yearRange;
     const filtered = allData.filter(d => {
-      if (d.region !== effectiveRegion) return false;
+      if (!matchesRegion(d, effectiveRegion)) return false;
       const yr = parseInt(d.year);
       return d[variable] != null && yr >= startYear && yr <= endYear;
     });
@@ -63,7 +63,7 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
     const [startYear, endYear] = yearRange;
     if (country === '__regional_avg__') {
       const filtered = allData.filter(d => {
-        if (selectedRegion !== 'global' && d.region !== selectedRegion) return false;
+        if (!matchesRegion(d, selectedRegion)) return false;
         const yr = parseInt(d.year);
         return d[variable] != null && yr >= startYear && yr <= endYear;
       });

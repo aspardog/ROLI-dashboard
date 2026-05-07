@@ -1,7 +1,7 @@
 import { useMemo, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { FACTOR_COLORS, FACTOR_SHORT_LABELS, SUBFACTOR_SHORT_LABELS, COLORS } from '../config';
-import { embedFonts, downloadSVG as downloadSVGHelper, createSVGElement, createTextElement } from '../utils';
+import { embedFonts, downloadSVG as downloadSVGHelper, createSVGElement, createTextElement, matchesRegion } from '../utils';
 import { ChartCard } from '../components';
 
 // Factor structure with their subfactors
@@ -25,7 +25,7 @@ function CountryProfileChart({ allData, selectedRegion, selectedCountry, selecte
       // Calculate regional or global average
       const filtered = allData.filter(d => {
         if (d.year !== selectedYear) return false;
-        if (selectedRegion !== 'global' && d.region !== selectedRegion) return false;
+        if (!matchesRegion(d, selectedRegion)) return false;
         return true;
       });
 

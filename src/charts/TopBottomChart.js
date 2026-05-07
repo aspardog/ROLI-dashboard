@@ -2,13 +2,13 @@ import { useMemo, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { BarChart, Bar, XAxis, YAxis, Cell, ResponsiveContainer, LabelList, ReferenceLine } from 'recharts';
 import { COLORS } from '../config';
-import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper } from '../utils';
+import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper, filterByRegion } from '../utils';
 import { ChartCard } from '../components';
 
 function TopBottomChart({ allData, selectedRegion, selectedYear, variable, label, regionLabel }) {
   const data = useMemo(() => {
     const byYear = allData.filter(d => d.year === selectedYear);
-    return selectedRegion === 'global' ? byYear : byYear.filter(d => d.region === selectedRegion);
+    return filterByRegion(byYear, selectedRegion);
   }, [allData, selectedRegion, selectedYear]);
 
   const { chartData, splitCount } = useMemo(() => {

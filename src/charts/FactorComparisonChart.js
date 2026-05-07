@@ -2,7 +2,7 @@ import { useMemo, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, LabelList, ReferenceLine } from 'recharts';
 import { COLORS } from '../config';
-import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper, addWhiteBackground } from '../utils';
+import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper, addWhiteBackground, filterByRegion } from '../utils';
 import { ChartCard } from '../components';
 
 const FACTORS = [
@@ -74,9 +74,10 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
         if (country.startsWith('__region_')) {
           // Calculate average for a specific region
           const regionName = country.replace('__region_', '');
-          const yearData = regionName === 'global'
-            ? allData.filter(d => d.year === selectedYear)
-            : allData.filter(d => d.year === selectedYear && d.region === regionName);
+          const yearData = filterByRegion(
+            allData.filter(d => d.year === selectedYear),
+            regionName
+          );
           const validData = yearData.filter(d => d[factor.key] != null);
           const avg = validData.length > 0
             ? validData.reduce((sum, d) => sum + d[factor.key], 0) / validData.length

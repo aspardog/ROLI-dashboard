@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { COLORS, VARIABLE_OPTIONS } from '../config';
 import { getEmbeddedFontCSS } from '../utils/svgExport';
+import { filterByRegion } from '../utils';
 
 // Color scale from red (0) to yellow (0.5) to green (1)
 function getHeatmapColor(value) {
@@ -72,10 +73,10 @@ export default function HumanRightsHeatmap({
   // Process data for the heatmap
   const heatmapData = useMemo(() => {
     // Filter by year and region
-    let yearData = allData.filter(d => d.year === selectedYear);
-    if (selectedRegion !== 'global') {
-      yearData = yearData.filter(d => d.region === selectedRegion);
-    }
+    const yearData = filterByRegion(
+      allData.filter(d => d.year === selectedYear),
+      selectedRegion
+    );
 
     const result = yearData.map(countryData => {
       const factors = {};

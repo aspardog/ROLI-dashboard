@@ -5,10 +5,42 @@ const REGION_OPTIONS = [
   { value: 'East Asia and Pacific',           label: 'East Asia and Pacific' },
   { value: 'Eastern Europe and Central Asia', label: 'Eastern Europe and Central Asia' },
   { value: 'EU, EFTA, and North America',     label: 'EU, EFTA, and North America' },
+  { value: 'European Union',                  label: 'European Union' },
   { value: 'Latin America and Caribbean',     label: 'Latin America and Caribbean' },
   { value: 'Middle East and North Africa',    label: 'Middle East and North Africa' },
   { value: 'South Asia',                      label: 'South Asia' },
   { value: 'Sub-Saharan Africa',              label: 'Sub-Saharan Africa' },
+];
+
+// EU27 member states
+const EU_COUNTRIES = [
+  'Austria',
+  'Belgium',
+  'Bulgaria',
+  'Croatia',
+  'Cyprus',
+  'Czechia',
+  'Denmark',
+  'Estonia',
+  'Finland',
+  'France',
+  'Germany',
+  'Greece',
+  'Hungary',
+  'Ireland',
+  'Italy',
+  'Latvia',
+  'Lithuania',
+  'Luxembourg',
+  'Malta',
+  'Netherlands',
+  'Poland',
+  'Portugal',
+  'Romania',
+  'Slovak Republic',
+  'Slovenia',
+  'Spain',
+  'Sweden',
 ];
 
 
@@ -181,4 +213,4 @@ const SUBFACTOR_SHORT_LABELS = {
   sf87: '8.7 Due process of law',
 };
 
-export { ACTIVE_YEAR, REGION_OPTIONS, VARIABLE_OPTIONS, SUBFACTOR_GROUPS, COLORS, TS_COLORS, FACTOR_COLORS, FACTOR_SHORT_LABELS, SUBFACTOR_SHORT_LABELS };
+export { ACTIVE_YEAR, REGION_OPTIONS, VARIABLE_OPTIONS, SUBFACTOR_GROUPS, COLORS, TS_COLORS, FACTOR_COLORS, FACTOR_SHORT_LABELS, SUBFACTOR_SHORT_LABELS, EU_COUNTRIES };

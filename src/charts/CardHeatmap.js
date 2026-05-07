@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { COLORS, VARIABLE_OPTIONS } from '../config';
 import { getEmbeddedFontCSS } from '../utils/svgExport';
+import { filterByRegion } from '../utils';
 
 // Color scale based on percentage change: red (negative) to green (positive)
 function getChangeColor(changePercent) {
@@ -62,10 +63,10 @@ export default function CardHeatmap({
   // Process data for the card heatmap
   const cardData = useMemo(() => {
     // Filter by year and region
-    let currentYearData = allData.filter(d => d.year === selectedYear);
-    if (selectedRegion !== 'global') {
-      currentYearData = currentYearData.filter(d => d.region === selectedRegion);
-    }
+    const currentYearData = filterByRegion(
+      allData.filter(d => d.year === selectedYear),
+      selectedRegion
+    );
 
     const result = [];
 

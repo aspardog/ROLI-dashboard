@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
-import { ACTIVE_YEAR, REGION_OPTIONS, VARIABLE_OPTIONS, SUBFACTOR_GROUPS, COLORS } from './config';
+import { ACTIVE_YEAR, REGION_OPTIONS, VARIABLE_OPTIONS, SUBFACTOR_GROUPS, COLORS, EU_COUNTRIES } from './config';
 import { InfoModal, HowToUseModal } from './modals';
+import { filterByRegion } from './utils';
 import './styles/responsive.css';
 
 // Lazy load chart components for better initial bundle size
@@ -107,7 +108,7 @@ export default function ROLIDashboard() {
 
   const roliData = useMemo(() => {
     const byYear = allData.filter(d => d.year === ACTIVE_YEAR);
-    return selectedRegion === 'global' ? byYear : byYear.filter(d => d.region === selectedRegion);
+    return filterByRegion(byYear, selectedRegion);
   }, [allData, selectedRegion]);
 
   const availableCountries = useMemo(() => {
@@ -125,7 +126,7 @@ export default function ROLIDashboard() {
   // Available countries for profile chart (based on profile region selection)
   const profileAvailableCountries = useMemo(() => {
     const byYear = allData.filter(d => d.year === ACTIVE_YEAR);
-    const filtered = selectedProfileRegion === 'global' ? byYear : byYear.filter(d => d.region === selectedProfileRegion);
+    const filtered = filterByRegion(byYear, selectedProfileRegion);
     const set = new Set(filtered.map(d => d.country));
     return [...set].sort();
   }, [allData, selectedProfileRegion]);
@@ -480,7 +481,9 @@ export default function ROLIDashboard() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   {REGION_OPTIONS.filter(r => r.value !== 'global').map(region => {
                     const regionKey = `__region_${region.value}`;
-                    const regionCountries = allData.filter(d => d.year === selectedYear && d.region === region.value).map(d => d.country).filter((v, i, a) => a.indexOf(v) === i).sort();
+                    const regionCountries = region.value === 'European Union'
+                      ? EU_COUNTRIES.filter(c => allData.some(d => d.year === selectedYear && d.country === c)).sort()
+                      : allData.filter(d => d.year === selectedYear && d.region === region.value).map(d => d.country).filter((v, i, a) => a.indexOf(v) === i).sort();
                     const isExpanded = expandedFactorRegions[region.value];
                     const isRegionSelected = factorCompareCountries.includes(regionKey);
 
@@ -769,7 +772,9 @@ export default function ROLIDashboard() {
                         })();
                     const radarCountries = currentRegion === 'global'
                       ? [...new Set(allData.filter(d => d.year === '2025').map(d => d.country))].sort()
-                      : [...new Set(allData.filter(d => d.year === '2025' && d.region === currentRegion).map(d => d.country))].sort();
+                      : currentRegion === 'European Union'
+                        ? EU_COUNTRIES.filter(c => allData.some(d => d.year === '2025' && d.country === c)).sort()
+                        : [...new Set(allData.filter(d => d.year === '2025' && d.region === currentRegion).map(d => d.country))].sort();
 
                     return (
                       <select

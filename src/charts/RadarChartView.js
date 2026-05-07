@@ -2,7 +2,7 @@ import { useMemo, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from 'recharts';
 import { COLORS, VARIABLE_OPTIONS } from '../config';
-import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper } from '../utils';
+import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper, matchesRegion } from '../utils';
 import { ChartCard } from '../components';
 
 // All possible factors and subfactors with their labels
@@ -151,7 +151,7 @@ function RadarChartView({
             : 0;
         } else if (selectedEntity.startsWith('__region_')) {
           const regionName = selectedEntity.replace('__region_', '');
-          const regionData = yearData.filter(d => d.region === regionName && d[factor.key] != null);
+          const regionData = yearData.filter(d => matchesRegion(d, regionName) && d[factor.key] != null);
           value = regionData.length > 0
             ? Math.round((regionData.reduce((sum, d) => sum + d[factor.key], 0) / regionData.length) * 100) / 100
             : 0;
