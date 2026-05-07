@@ -32,13 +32,38 @@ export default function HumanRightsHeatmap({
   // Get region label
   const regionLabel = selectedRegion === 'global' ? 'Global' : selectedRegion;
 
+  // Helper function to split long labels into multiple lines
+  const splitLabel = (label, maxCharsPerLine = 18) => {
+    if (label.length <= maxCharsPerLine) return [label];
+
+    const words = label.split(' ');
+    const lines = [];
+    let currentLine = '';
+
+    words.forEach(word => {
+      if (currentLine.length === 0) {
+        currentLine = word;
+      } else if ((currentLine + ' ' + word).length <= maxCharsPerLine) {
+        currentLine += ' ' + word;
+      } else {
+        lines.push(currentLine);
+        currentLine = word;
+      }
+    });
+
+    if (currentLine) lines.push(currentLine);
+    return lines;
+  };
+
   // Build factors list with labels
   const factorsList = useMemo(() => {
     return selectedFactors.map(key => {
       const option = VARIABLE_OPTIONS.find(v => v.value === key);
+      const fullLabel = option ? option.label.replace(/^[A-Z0-9.]+ - /, '').replace(/^\d+\.\d+ - /, '') : key;
       return {
         key,
-        label: option ? option.label.replace(/^[A-Z0-9.]+ - /, '').replace(/^\d+\.\d+ - /, '') : key,
+        label: fullLabel,
+        labelLines: splitLabel(fullLabel),
         shortLabel: option ? option.label.split(' - ')[0] : key
       };
     });
@@ -75,11 +100,12 @@ export default function HumanRightsHeatmap({
   const downloadSVG = async () => {
     const fontCSS = await getEmbeddedFontCSS();
 
-    const cellWidth = 65;
+    const cellWidth = 90;
     const cellHeight = 32;
     const cellGap = 4;
     const countryColWidth = 150;
-    const headerHeight = 70;
+    const maxLabelLines = Math.max(...factorsList.map(f => f.labelLines.length));
+    const headerHeight = 50 + (maxLabelLines * 12);
     const padding = 20;
     const legendHeight = 50;
 
@@ -104,7 +130,13 @@ export default function HumanRightsHeatmap({
 
     factorsList.forEach((factor, i) => {
       const x = padding + countryColWidth + (i * (cellWidth + cellGap)) + cellWidth / 2;
-      svg += `<text x="${x}" y="${headerY - 8}" text-anchor="middle" font-size="10" font-weight="600" fill="${COLORS.text}">${factor.shortLabel}</text>`;
+      const lines = factor.labelLines;
+      const lineHeight = 12;
+      const startY = headerY - 8 - ((lines.length - 1) * lineHeight);
+
+      lines.forEach((line, lineIndex) => {
+        svg += `<text x="${x}" y="${startY + (lineIndex * lineHeight)}" text-anchor="middle" font-size="9" font-weight="600" fill="${COLORS.text}">${line}</text>`;
+      });
     });
 
     // Data rows
@@ -205,9 +237,18 @@ export default function HumanRightsHeatmap({
                   fontWeight: '600',
                   color: COLORS.text,
                   borderBottom: '2px solid #e5e5e5',
-                  minWidth: '60px'
+                  minWidth: '90px',
+                  maxWidth: '120px',
+                  verticalAlign: 'bottom'
                 }}>
-                  <div style={{ fontSize: '11px', color: COLORS.primary, fontWeight: '600' }}>{factor.shortLabel}</div>
+                  <div style={{ fontSize: '10px', color: COLORS.primary, fontWeight: '600', lineHeight: '1.3' }}>
+                    {factor.labelLines.map((line, i) => (
+                      <span key={i}>
+                        {line}
+                        {i < factor.labelLines.length - 1 && <br />}
+                      </span>
+                    ))}
+                  </div>
                 </th>
               ))}
             </tr>
