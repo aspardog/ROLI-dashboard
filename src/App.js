@@ -10,7 +10,6 @@ const RadarChartView = lazy(() => import('./charts/RadarChartView'));
 const FactorComparisonChart = lazy(() => import('./charts/FactorComparisonChart'));
 const CountryProfileChart = lazy(() => import('./charts/CountryProfileChart'));
 const HumanRightsHeatmap = lazy(() => import('./charts/HumanRightsHeatmap'));
-const DumbbellChart = lazy(() => import('./charts/DumbbellChart'));
 const CardHeatmap = lazy(() => import('./charts/CardHeatmap'));
 
 // Tab configuration for chart type switcher
@@ -21,8 +20,7 @@ const CHART_TABS = [
   { key: 'radar', label: 'RADAR CHART' },
   { key: 'factors', label: 'FACTOR COMPARISON' },
   { key: 'heatmap', label: 'SCORE HEATMAP' },
-  { key: 'cardheatmap', label: 'CHANGE HEATMAP' },
-  { key: 'dumbbell', label: 'DUMBBELL CHART' }
+  { key: 'cardheatmap', label: 'CHANGE HEATMAP' }
 ];
 
 export default function ROLIDashboard() {
@@ -52,10 +50,6 @@ export default function ROLIDashboard() {
   const [heatmapYear, setHeatmapYear] = useState('2025');
   const [heatmapRegion, setHeatmapRegion] = useState('global');
   const [heatmapFactors, setHeatmapFactors] = useState(['roli', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8']);
-    const [dumbbellYear, setDumbbellYear] = useState('2025');
-  const [dumbbellBaseYear, setDumbbellBaseYear] = useState('2020');
-  const [dumbbellRegion, setDumbbellRegion] = useState('global');
-  const [dumbbellVariable, setDumbbellVariable] = useState('roli');
   const [cardHeatmapYear, setCardHeatmapYear] = useState('2025');
   const [cardHeatmapBaseYear, setCardHeatmapBaseYear] = useState('2020');
   const [cardHeatmapRegion, setCardHeatmapRegion] = useState('global');
@@ -657,80 +651,6 @@ export default function ROLIDashboard() {
             </>
           )}
 
-          {/* Dumbbell Chart Controls */}
-          {chartType === 'dumbbell' && (
-            <>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Region</label>
-                <div style={{ position: 'relative' }}>
-                  <select value={dumbbellRegion} onChange={(e) => setDumbbellRegion(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
-                    {REGION_OPTIONS.map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
-                  </select>
-                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
-                  </div>
-                </div>
-              </div>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Factor / Sub-factor</label>
-                <div style={{ position: 'relative' }}>
-                  <select value={dumbbellVariable} onChange={(e) => setDumbbellVariable(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
-                    <optgroup label="Overall Index">
-                      {VARIABLE_OPTIONS.filter(o => o.category === 'general').map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
-                    </optgroup>
-                    <optgroup label="Factors">
-                      {VARIABLE_OPTIONS.filter(o => o.category === 'factor').map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
-                    </optgroup>
-                    {SUBFACTOR_GROUPS.map(group => (
-                      <optgroup key={group.category} label={group.label}>
-                        {VARIABLE_OPTIONS.filter(o => o.category === group.category).map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
-                      </optgroup>
-                    ))}
-                  </select>
-                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
-                  </div>
-                </div>
-              </div>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Current Year</label>
-                <div style={{ position: 'relative' }}>
-                  <select value={dumbbellYear} onChange={(e) => setDumbbellYear(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
-                    <option value="2025">2025</option>
-                    <option value="2024">2024</option>
-                    <option value="2023">2023</option>
-                    <option value="2022">2022</option>
-                    <option value="2021">2021</option>
-                    <option value="2020">2020</option>
-                  </select>
-                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
-                  </div>
-                </div>
-              </div>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Compare to Year</label>
-                <div style={{ position: 'relative' }}>
-                  <select value={dumbbellBaseYear} onChange={(e) => setDumbbellBaseYear(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
-                    <option value="2020">2020</option>
-                    <option value="2021">2021</option>
-                    <option value="2022">2022</option>
-                    <option value="2023">2023</option>
-                    <option value="2024">2024</option>
-                  </select>
-                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
-                  </div>
-                </div>
-              </div>
-              <div style={{ padding: '12px', backgroundColor: '#f8f7f4', borderRadius: '6px', marginBottom: '20px' }}>
-                <p style={{ fontSize: '12px', color: COLORS.muted, margin: 0, lineHeight: 1.5 }}>
-                  Compares scores between two years. Each row shows the base year (hollow circle) and current year (filled circle). Green = improved, Red = declined.
-                </p>
-              </div>
-            </>
-          )}
-
           {/* Card Heatmap Controls */}
           {chartType === 'cardheatmap' && (
             <>
@@ -1048,15 +968,6 @@ export default function ROLIDashboard() {
                 selectedFactors={heatmapFactors}
               />
             )}
-            {chartType === 'dumbbell' && (
-              <DumbbellChart
-                allData={allData}
-                selectedYear={dumbbellYear}
-                baseYear={dumbbellBaseYear}
-                selectedRegion={dumbbellRegion}
-                selectedVariable={dumbbellVariable}
-              />
-            )}
             {chartType === 'cardheatmap' && (
               <CardHeatmap
                 allData={allData}
@@ -1079,7 +990,6 @@ export default function ROLIDashboard() {
             chartType === 'profile' ? ACTIVE_YEAR :
             chartType === 'factors' ? selectedYear :
             chartType === 'heatmap' ? heatmapYear :
-            chartType === 'dumbbell' ? `${dumbbellBaseYear}–${dumbbellYear}` :
             chartType === 'cardheatmap' ? `${cardHeatmapBaseYear}–${cardHeatmapYear}` :
             selectedYear
           }
