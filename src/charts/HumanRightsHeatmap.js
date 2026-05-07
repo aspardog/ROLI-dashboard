@@ -109,8 +109,10 @@ export default function HumanRightsHeatmap({
     const padding = 20;
     const legendHeight = 50;
 
-    const width = countryColWidth + (factorsList.length * (cellWidth + cellGap)) + padding * 2;
+    const contentWidth = countryColWidth + (factorsList.length * (cellWidth + cellGap));
+    const width = contentWidth + padding * 2;
     const height = headerHeight + (heatmapData.length * cellHeight) + legendHeight + padding * 2;
+    const titleCenterX = padding + contentWidth / 2;
 
     let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
       <style>
@@ -120,8 +122,8 @@ export default function HumanRightsHeatmap({
       <rect width="100%" height="100%" fill="white"/>
 
       <!-- Title -->
-      <text x="${width/2}" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="${COLORS.primary}">Score Heatmap - ${selectedYear}</text>
-      <text x="${width/2}" y="46" text-anchor="middle" font-size="12" fill="${COLORS.muted}">${regionLabel}</text>
+      <text x="${titleCenterX}" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="${COLORS.primary}">Score Heatmap - ${selectedYear}</text>
+      <text x="${titleCenterX}" y="46" text-anchor="middle" font-size="12" fill="${COLORS.muted}">${regionLabel}</text>
     `;
 
     // Header row
