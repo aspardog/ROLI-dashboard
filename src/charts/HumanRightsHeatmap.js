@@ -1,42 +1,20 @@
 import { useMemo } from 'react';
-import { COLORS } from '../config';
+import { COLORS, VARIABLE_OPTIONS } from '../config';
 import { getEmbeddedFontCSS } from '../utils/svgExport';
-
-// Human rights sub-factors from Factor 4 (Fundamental Rights)
-const HUMAN_RIGHTS_FACTORS = [
-  { key: 'sf45', label: 'Freedom of Religion', shortLabel: '4.5' },
-  { key: 'sf41', label: 'Equality & Non-discrimination', shortLabel: '4.1' },
-  { key: 'sf44', label: 'Freedom of Opinion', shortLabel: '4.4' },
-  { key: 'sf47', label: 'Freedom of Assembly', shortLabel: '4.7' },
-  { key: 'sf42', label: 'Right to Life & Security', shortLabel: '4.2' },
-  { key: 'sf46', label: 'Right to Privacy', shortLabel: '4.6' },
-];
-
-// Target countries from Asia & Pacific and Central Asia
-const TARGET_COUNTRIES = [
-  'Afghanistan', 'Australia', 'Bangladesh', 'Cambodia', 'China',
-  'Hong Kong SAR, China', 'India', 'Indonesia', 'Japan', 'Kazakhstan',
-  'Korea, Rep.', 'Kyrgyz Republic', 'Malaysia', 'Mongolia', 'Myanmar',
-  'Nepal', 'New Zealand', 'Pakistan', 'Philippines', 'Singapore',
-  'Sri Lanka', 'Thailand', 'Uzbekistan', 'Vietnam'
-];
 
 // Color scale from red (0) to yellow (0.5) to green (1)
 function getHeatmapColor(value) {
   if (value === null || value === undefined) return '#e0e0e0';
 
-  // Clamp value between 0 and 1
   const v = Math.max(0, Math.min(1, value));
 
   if (v < 0.5) {
-    // Red to Yellow (0 to 0.5)
     const t = v / 0.5;
     const r = 220;
     const g = Math.round(80 + t * 140);
     const b = Math.round(80 - t * 30);
     return `rgb(${r}, ${g}, ${b})`;
   } else {
-    // Yellow to Green (0.5 to 1)
     const t = (v - 0.5) / 0.5;
     const r = Math.round(220 - t * 150);
     const g = Math.round(220 - t * 30);
@@ -45,82 +23,67 @@ function getHeatmapColor(value) {
   }
 }
 
-// Get change indicator arrow and color
-function getChangeIndicator(change) {
-  if (change === null || change === undefined || isNaN(change)) {
-    return { symbol: '—', color: COLORS.muted };
-  }
+export default function HumanRightsHeatmap({
+  allData,
+  selectedYear = '2025',
+  selectedRegion = 'global',
+  selectedFactors = ['roli', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8']
+}) {
+  // Get region label
+  const regionLabel = selectedRegion === 'global' ? 'Global' : selectedRegion;
 
-  const absChange = Math.abs(change * 100);
+  // Build factors list with labels
+  const factorsList = useMemo(() => {
+    return selectedFactors.map(key => {
+      const option = VARIABLE_OPTIONS.find(v => v.value === key);
+      return {
+        key,
+        label: option ? option.label.replace(/^[A-Z0-9.]+ - /, '').replace(/^\d+\.\d+ - /, '') : key,
+        shortLabel: option ? option.label.split(' - ')[0] : key
+      };
+    });
+  }, [selectedFactors]);
 
-  if (absChange < 1) {
-    return { symbol: '→', color: COLORS.muted };
-  } else if (change > 0) {
-    if (absChange >= 10) return { symbol: '↑↑', color: '#2e7d32' };
-    return { symbol: '↑', color: '#4caf50' };
-  } else {
-    if (absChange >= 10) return { symbol: '↓↓', color: '#c62828' };
-    return { symbol: '↓', color: '#ef5350' };
-  }
-}
-
-export default function HumanRightsHeatmap({ allData, selectedYear = '2025', baseYear = '2015' }) {
   // Process data for the heatmap
   const heatmapData = useMemo(() => {
-    const result = [];
+    // Filter by year and region
+    let yearData = allData.filter(d => d.year === selectedYear);
+    if (selectedRegion !== 'global') {
+      yearData = yearData.filter(d => d.region === selectedRegion);
+    }
 
-    TARGET_COUNTRIES.forEach(country => {
-      // Find data for current year and base year
-      const currentData = allData.find(d => d.country === country && d.year === selectedYear);
-      const baseData = allData.find(d => d.country === country && d.year === baseYear);
-
-      if (!currentData) return;
-
-      const countryRow = {
-        country,
-        region: currentData.region,
-        factors: {}
-      };
-
-      HUMAN_RIGHTS_FACTORS.forEach(factor => {
-        const currentValue = currentData[factor.key];
-        const baseValue = baseData ? baseData[factor.key] : null;
-        const change = (currentValue !== null && baseValue !== null)
-          ? currentValue - baseValue
-          : null;
-
-        countryRow.factors[factor.key] = {
-          value: currentValue,
-          change,
-          changePercent: baseValue ? ((currentValue - baseValue) / baseValue) * 100 : null
-        };
+    const result = yearData.map(countryData => {
+      const factors = {};
+      selectedFactors.forEach(key => {
+        factors[key] = countryData[key];
       });
 
-      result.push(countryRow);
+      return {
+        country: countryData.country,
+        region: countryData.region,
+        factors
+      };
     });
 
-    // Sort by average score descending
-    result.sort((a, b) => {
-      const avgA = Object.values(a.factors).reduce((sum, f) => sum + (f.value || 0), 0) / HUMAN_RIGHTS_FACTORS.length;
-      const avgB = Object.values(b.factors).reduce((sum, f) => sum + (f.value || 0), 0) / HUMAN_RIGHTS_FACTORS.length;
-      return avgB - avgA;
-    });
+    // Sort alphabetically by country name
+    result.sort((a, b) => a.country.localeCompare(b.country));
 
     return result;
-  }, [allData, selectedYear, baseYear]);
+  }, [allData, selectedYear, selectedRegion, selectedFactors]);
 
   // Download SVG function
   const downloadSVG = async () => {
     const fontCSS = await getEmbeddedFontCSS();
 
-    const cellWidth = 100;
+    const cellWidth = 65;
     const cellHeight = 32;
-    const countryColWidth = 140;
-    const headerHeight = 80;
+    const cellGap = 4;
+    const countryColWidth = 150;
+    const headerHeight = 70;
     const padding = 20;
-    const legendHeight = 60;
+    const legendHeight = 50;
 
-    const width = countryColWidth + (HUMAN_RIGHTS_FACTORS.length * cellWidth) + padding * 2;
+    const width = countryColWidth + (factorsList.length * (cellWidth + cellGap)) + padding * 2;
     const height = headerHeight + (heatmapData.length * cellHeight) + legendHeight + padding * 2;
 
     let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
@@ -131,18 +94,17 @@ export default function HumanRightsHeatmap({ allData, selectedYear = '2025', bas
       <rect width="100%" height="100%" fill="white"/>
 
       <!-- Title -->
-      <text x="${width/2}" y="30" text-anchor="middle" font-size="16" font-weight="700" fill="${COLORS.primary}">Human Rights in Asia & Pacific - ${selectedYear}</text>
-      <text x="${width/2}" y="50" text-anchor="middle" font-size="12" fill="${COLORS.muted}">Civil & Political Rights Sub-factors (Change from ${baseYear})</text>
+      <text x="${width/2}" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="${COLORS.primary}">Score Heatmap - ${selectedYear}</text>
+      <text x="${width/2}" y="46" text-anchor="middle" font-size="12" fill="${COLORS.muted}">${regionLabel}</text>
     `;
 
     // Header row
     const headerY = headerHeight;
-    svg += `<text x="${padding + 10}" y="${headerY - 10}" font-size="11" font-weight="600" fill="${COLORS.text}">Country</text>`;
+    svg += `<text x="${padding + 10}" y="${headerY - 8}" font-size="10" font-weight="600" fill="${COLORS.text}">Country</text>`;
 
-    HUMAN_RIGHTS_FACTORS.forEach((factor, i) => {
-      const x = padding + countryColWidth + (i * cellWidth) + cellWidth / 2;
-      svg += `<text x="${x}" y="${headerY - 25}" text-anchor="middle" font-size="10" font-weight="600" fill="${COLORS.text}">${factor.shortLabel}</text>`;
-      svg += `<text x="${x}" y="${headerY - 10}" text-anchor="middle" font-size="9" fill="${COLORS.muted}">${factor.label.length > 15 ? factor.label.substring(0, 15) + '...' : factor.label}</text>`;
+    factorsList.forEach((factor, i) => {
+      const x = padding + countryColWidth + (i * (cellWidth + cellGap)) + cellWidth / 2;
+      svg += `<text x="${x}" y="${headerY - 8}" text-anchor="middle" font-size="10" font-weight="600" fill="${COLORS.text}">${factor.shortLabel}</text>`;
     });
 
     // Data rows
@@ -150,45 +112,33 @@ export default function HumanRightsHeatmap({ allData, selectedYear = '2025', bas
       const y = headerHeight + (rowIndex * cellHeight);
 
       // Country name
-      svg += `<text x="${padding + 10}" y="${y + cellHeight / 2 + 4}" font-size="11" fill="${COLORS.text}">${row.country.length > 18 ? row.country.substring(0, 18) + '...' : row.country}</text>`;
+      const displayName = row.country.length > 18 ? row.country.substring(0, 18) + '...' : row.country;
+      svg += `<text x="${padding + 10}" y="${y + cellHeight / 2 + 4}" font-size="10" fill="${COLORS.text}">${displayName}</text>`;
 
       // Factor cells
-      HUMAN_RIGHTS_FACTORS.forEach((factor, colIndex) => {
-        const x = padding + countryColWidth + (colIndex * cellWidth);
-        const data = row.factors[factor.key];
-        const color = getHeatmapColor(data.value);
-        const indicator = getChangeIndicator(data.change);
+      factorsList.forEach((factor, colIndex) => {
+        const x = padding + countryColWidth + (colIndex * (cellWidth + cellGap));
+        const value = row.factors[factor.key];
+        const color = getHeatmapColor(value);
+        const textColor = value > 0.5 ? '#1a1a1a' : 'white';
 
-        // Cell background
-        svg += `<rect x="${x}" y="${y}" width="${cellWidth - 2}" height="${cellHeight - 2}" fill="${color}" rx="2"/>`;
-
-        // Value
-        svg += `<text x="${x + cellWidth / 2 - 12}" y="${y + cellHeight / 2 + 4}" text-anchor="middle" font-size="12" font-weight="500" fill="${data.value > 0.5 ? '#1a1a1a' : 'white'}">${data.value !== null ? data.value.toFixed(2) : '—'}</text>`;
-
-        // Change indicator
-        svg += `<text x="${x + cellWidth / 2 + 18}" y="${y + cellHeight / 2 + 4}" text-anchor="middle" font-size="11" fill="${indicator.color}">${indicator.symbol}</text>`;
+        svg += `<rect x="${x}" y="${y}" width="${cellWidth}" height="${cellHeight - 2}" fill="${color}" rx="3"/>`;
+        svg += `<text x="${x + cellWidth / 2}" y="${y + cellHeight / 2 + 4}" text-anchor="middle" font-size="13" font-weight="600" fill="${textColor}">${value !== null && value !== undefined ? value.toFixed(2) : '—'}</text>`;
       });
     });
 
     // Legend
-    const legendY = headerHeight + (heatmapData.length * cellHeight) + 20;
-    svg += `<text x="${padding}" y="${legendY}" font-size="10" font-weight="600" fill="${COLORS.muted}">Score: </text>`;
+    const legendY = headerHeight + (heatmapData.length * cellHeight) + 25;
+    svg += `<text x="${padding}" y="${legendY}" font-size="10" font-weight="600" fill="${COLORS.muted}">Score:</text>`;
 
-    // Color scale
-    const scaleX = padding + 45;
+    const scaleX = padding + 50;
     const scaleWidth = 150;
     for (let i = 0; i <= 10; i++) {
       const v = i / 10;
-      svg += `<rect x="${scaleX + (i * scaleWidth / 10)}" y="${legendY - 10}" width="${scaleWidth / 10}" height="12" fill="${getHeatmapColor(v)}"/>`;
+      svg += `<rect x="${scaleX + (i * scaleWidth / 10)}" y="${legendY - 10}" width="${scaleWidth / 10 + 1}" height="14" fill="${getHeatmapColor(v)}"/>`;
     }
-    svg += `<text x="${scaleX}" y="${legendY + 15}" font-size="9" fill="${COLORS.muted}">0.0</text>`;
-    svg += `<text x="${scaleX + scaleWidth}" y="${legendY + 15}" text-anchor="end" font-size="9" fill="${COLORS.muted}">1.0</text>`;
-
-    // Change legend
-    svg += `<text x="${scaleX + scaleWidth + 40}" y="${legendY}" font-size="10" font-weight="600" fill="${COLORS.muted}">Change:</text>`;
-    svg += `<text x="${scaleX + scaleWidth + 100}" y="${legendY}" font-size="10" fill="#4caf50">↑ Improved</text>`;
-    svg += `<text x="${scaleX + scaleWidth + 175}" y="${legendY}" font-size="10" fill="#ef5350">↓ Declined</text>`;
-    svg += `<text x="${scaleX + scaleWidth + 250}" y="${legendY}" font-size="10" fill="${COLORS.muted}">→ No change</text>`;
+    svg += `<text x="${scaleX}" y="${legendY + 16}" font-size="9" fill="${COLORS.muted}">0.0 (Low)</text>`;
+    svg += `<text x="${scaleX + scaleWidth}" y="${legendY + 16}" text-anchor="end" font-size="9" fill="${COLORS.muted}">1.0 (High)</text>`;
 
     svg += '</svg>';
 
@@ -196,7 +146,7 @@ export default function HumanRightsHeatmap({ allData, selectedYear = '2025', bas
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `human-rights-heatmap-${selectedYear}.svg`;
+    a.download = `heatmap-${selectedRegion}-${selectedYear}.svg`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -207,10 +157,10 @@ export default function HumanRightsHeatmap({ allData, selectedYear = '2025', bas
       <div style={{ padding: '20px 24px', borderBottom: '1px solid #e5e5e5', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: COLORS.primary }}>
-            Human Rights in Asia & Pacific
+            Score Heatmap
           </h2>
           <p style={{ margin: '4px 0 0', fontSize: '13px', color: COLORS.muted }}>
-            Civil & Political Rights Sub-factors — {selectedYear} scores with change from {baseYear}
+            {regionLabel} — {selectedYear}
           </p>
         </div>
         <button
@@ -248,19 +198,16 @@ export default function HumanRightsHeatmap({ allData, selectedYear = '2025', bas
               }}>
                 Country
               </th>
-              {HUMAN_RIGHTS_FACTORS.map(factor => (
+              {factorsList.map(factor => (
                 <th key={factor.key} style={{
-                  padding: '12px 8px',
+                  padding: '12px 6px',
                   textAlign: 'center',
                   fontWeight: '600',
                   color: COLORS.text,
                   borderBottom: '2px solid #e5e5e5',
-                  minWidth: '100px'
+                  minWidth: '60px'
                 }}>
-                  <div style={{ fontSize: '11px', color: COLORS.primary }}>{factor.shortLabel}</div>
-                  <div style={{ fontSize: '10px', fontWeight: '400', color: COLORS.muted, marginTop: '2px' }}>
-                    {factor.label}
-                  </div>
+                  <div style={{ fontSize: '11px', color: COLORS.primary, fontWeight: '600' }}>{factor.shortLabel}</div>
                 </th>
               ))}
             </tr>
@@ -269,40 +216,32 @@ export default function HumanRightsHeatmap({ allData, selectedYear = '2025', bas
             {heatmapData.map((row, rowIndex) => (
               <tr key={row.country} style={{ borderBottom: '1px solid #f0f0f0' }}>
                 <td style={{
-                  padding: '10px 16px',
+                  padding: '8px 16px',
                   fontWeight: '500',
                   color: COLORS.text,
                   position: 'sticky',
                   left: 0,
-                  backgroundColor: rowIndex % 2 === 0 ? 'white' : '#fafafa'
+                  backgroundColor: rowIndex % 2 === 0 ? 'white' : '#fafafa',
+                  fontSize: '12px'
                 }}>
                   {row.country}
                 </td>
-                {HUMAN_RIGHTS_FACTORS.map(factor => {
-                  const data = row.factors[factor.key];
-                  const bgColor = getHeatmapColor(data.value);
-                  const indicator = getChangeIndicator(data.change);
-                  const textColor = data.value > 0.5 ? '#1a1a1a' : 'white';
+                {factorsList.map(factor => {
+                  const value = row.factors[factor.key];
+                  const bgColor = getHeatmapColor(value);
+                  const textColor = value > 0.5 ? '#1a1a1a' : 'white';
 
                   return (
                     <td key={factor.key} style={{
-                      padding: '8px',
+                      padding: '10px 6px',
                       textAlign: 'center',
-                      backgroundColor: bgColor
+                      backgroundColor: bgColor,
+                      borderLeft: '3px solid white',
+                      borderRight: '3px solid white'
                     }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                        <span style={{ fontWeight: '600', color: textColor, fontSize: '13px' }}>
-                          {data.value !== null ? data.value.toFixed(2) : '—'}
-                        </span>
-                        <span style={{
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          color: indicator.color,
-                          textShadow: data.value > 0.4 && data.value < 0.6 ? 'none' : '0 0 2px rgba(255,255,255,0.5)'
-                        }}>
-                          {indicator.symbol}
-                        </span>
-                      </div>
+                      <span style={{ fontWeight: '700', color: textColor, fontSize: '14px' }}>
+                        {value !== null && value !== undefined ? value.toFixed(2) : '—'}
+                      </span>
                     </td>
                   );
                 })}
@@ -312,38 +251,25 @@ export default function HumanRightsHeatmap({ allData, selectedYear = '2025', bas
         </table>
       </div>
 
-      {/* Legend */}
+      {/* Legend - Only score scale, no change indicators */}
       <div style={{
-        padding: '16px 24px',
+        padding: '12px 24px',
         borderTop: '1px solid #e5e5e5',
         display: 'flex',
-        flexWrap: 'wrap',
-        gap: '24px',
         alignItems: 'center',
         backgroundColor: '#f8f7f4'
       }}>
-        {/* Color scale */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '11px', fontWeight: '600', color: COLORS.muted }}>Score:</span>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <span style={{ fontSize: '10px', color: COLORS.muted, marginRight: '4px' }}>0.0</span>
-            <div style={{ display: 'flex' }}>
+            <div style={{ display: 'flex', borderRadius: '3px', overflow: 'hidden' }}>
               {[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1].map(v => (
-                <div key={v} style={{ width: '14px', height: '14px', backgroundColor: getHeatmapColor(v) }} />
+                <div key={v} style={{ width: '16px', height: '14px', backgroundColor: getHeatmapColor(v) }} />
               ))}
             </div>
             <span style={{ fontSize: '10px', color: COLORS.muted, marginLeft: '4px' }}>1.0</span>
           </div>
-        </div>
-
-        {/* Change indicators */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <span style={{ fontSize: '11px', fontWeight: '600', color: COLORS.muted }}>Change ({baseYear}→{selectedYear}):</span>
-          <span style={{ fontSize: '12px', color: '#2e7d32' }}>↑↑ +10%+</span>
-          <span style={{ fontSize: '12px', color: '#4caf50' }}>↑ Improved</span>
-          <span style={{ fontSize: '12px', color: COLORS.muted }}>→ No change</span>
-          <span style={{ fontSize: '12px', color: '#ef5350' }}>↓ Declined</span>
-          <span style={{ fontSize: '12px', color: '#c62828' }}>↓↓ -10%+</span>
         </div>
       </div>
     </div>

@@ -10,8 +10,8 @@ const RadarChartView = lazy(() => import('./charts/RadarChartView'));
 const FactorComparisonChart = lazy(() => import('./charts/FactorComparisonChart'));
 const CountryProfileChart = lazy(() => import('./charts/CountryProfileChart'));
 const HumanRightsHeatmap = lazy(() => import('./charts/HumanRightsHeatmap'));
-const LollipopChart = lazy(() => import('./charts/LollipopChart'));
 const DumbbellChart = lazy(() => import('./charts/DumbbellChart'));
+const CardHeatmap = lazy(() => import('./charts/CardHeatmap'));
 
 // Tab configuration for chart type switcher
 const CHART_TABS = [
@@ -20,8 +20,8 @@ const CHART_TABS = [
   { key: 'topbottom', label: 'TOP & BOTTOM PERFORMERS' },
   { key: 'radar', label: 'RADAR CHART' },
   { key: 'factors', label: 'FACTOR COMPARISON' },
-  { key: 'heatmap', label: 'HUMAN RIGHTS HEATMAP' },
-  { key: 'lollipop', label: 'LOLLIPOP CHART' },
+  { key: 'heatmap', label: 'SCORE HEATMAP' },
+  { key: 'cardheatmap', label: 'CHANGE HEATMAP' },
   { key: 'dumbbell', label: 'DUMBBELL CHART' }
 ];
 
@@ -50,13 +50,16 @@ export default function ROLIDashboard() {
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [isHowToUseModalOpen, setIsHowToUseModalOpen] = useState(false);
   const [heatmapYear, setHeatmapYear] = useState('2025');
-  const [heatmapBaseYear, setHeatmapBaseYear] = useState('2015');
-  const [lollipopYear, setLollipopYear] = useState('2025');
-  const [lollipopBaseYear, setLollipopBaseYear] = useState('2015');
-  const [lollipopVariable, setLollipopVariable] = useState('f4');
-  const [dumbbellYear, setDumbbellYear] = useState('2025');
-  const [dumbbellBaseYear, setDumbbellBaseYear] = useState('2015');
-  const [dumbbellVariable, setDumbbellVariable] = useState('f4');
+  const [heatmapRegion, setHeatmapRegion] = useState('global');
+  const [heatmapFactors, setHeatmapFactors] = useState(['roli', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8']);
+    const [dumbbellYear, setDumbbellYear] = useState('2025');
+  const [dumbbellBaseYear, setDumbbellBaseYear] = useState('2020');
+  const [dumbbellRegion, setDumbbellRegion] = useState('global');
+  const [dumbbellVariable, setDumbbellVariable] = useState('roli');
+  const [cardHeatmapYear, setCardHeatmapYear] = useState('2025');
+  const [cardHeatmapBaseYear, setCardHeatmapBaseYear] = useState('2020');
+  const [cardHeatmapRegion, setCardHeatmapRegion] = useState('global');
+  const [cardHeatmapVariable, setCardHeatmapVariable] = useState('roli');
   const selectedLabel = VARIABLE_OPTIONS.find(opt => opt.value === selectedVariable)?.label || selectedVariable;
   const regionLabel = REGION_OPTIONS.find(opt => opt.value === selectedRegion)?.label || selectedRegion;
 
@@ -553,7 +556,18 @@ export default function ROLIDashboard() {
           {chartType === 'heatmap' && (
             <>
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Current Year</label>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Region</label>
+                <div style={{ position: 'relative' }}>
+                  <select value={heatmapRegion} onChange={(e) => setHeatmapRegion(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
+                    {REGION_OPTIONS.map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
+                  </select>
+                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Year</label>
                 <div style={{ position: 'relative' }}>
                   <select value={heatmapYear} onChange={(e) => setHeatmapYear(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
                     <option value="2025">2025</option>
@@ -569,88 +583,75 @@ export default function ROLIDashboard() {
                 </div>
               </div>
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Compare to Year</label>
-                <div style={{ position: 'relative' }}>
-                  <select value={heatmapBaseYear} onChange={(e) => setHeatmapBaseYear(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
-                    <option value="2015">2015 (10 years)</option>
-                    <option value="2016">2016</option>
-                    <option value="2017">2017</option>
-                    <option value="2018">2018</option>
-                    <option value="2019">2019</option>
-                    <option value="2020">2020</option>
-                  </select>
-                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
-                  </div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.primary, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Factors & Sub-factors</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '400px', overflowY: 'auto', paddingRight: '8px' }}>
+                  {/* Overall Index */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '4px 0' }}>
+                    <input
+                      type="checkbox"
+                      checked={heatmapFactors.includes('roli')}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setHeatmapFactors([...heatmapFactors, 'roli']);
+                        } else if (heatmapFactors.length > 1) {
+                          setHeatmapFactors(heatmapFactors.filter(f => f !== 'roli'));
+                        }
+                      }}
+                      style={{ cursor: 'pointer', width: '14px', height: '14px', accentColor: COLORS.primary }}
+                    />
+                    <span style={{ fontSize: '13px', color: COLORS.text, fontWeight: '600' }}>ROLI - Overall Index</span>
+                  </label>
+                  {/* 8 Factors with their subfactors */}
+                  {SUBFACTOR_GROUPS.map(group => {
+                    const factorKey = group.category.replace('sf', 'f');
+                    const factorOption = VARIABLE_OPTIONS.find(o => o.value === factorKey);
+                    const subfactors = VARIABLE_OPTIONS.filter(o => o.category === group.category);
+                    return (
+                      <div key={group.category} style={{ marginBottom: '8px' }}>
+                        {/* Factor checkbox */}
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '4px 0' }}>
+                          <input
+                            type="checkbox"
+                            checked={heatmapFactors.includes(factorKey)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setHeatmapFactors([...heatmapFactors, factorKey]);
+                              } else if (heatmapFactors.length > 1) {
+                                setHeatmapFactors(heatmapFactors.filter(f => f !== factorKey));
+                              }
+                            }}
+                            style={{ cursor: 'pointer', width: '14px', height: '14px', accentColor: COLORS.primary }}
+                          />
+                          <span style={{ fontSize: '13px', color: COLORS.text, fontWeight: '500' }}>{factorOption?.label}</span>
+                        </label>
+                        {/* Subfactors */}
+                        <div style={{ marginLeft: '22px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                          {subfactors.map(sf => (
+                            <label key={sf.value} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '2px 0' }}>
+                              <input
+                                type="checkbox"
+                                checked={heatmapFactors.includes(sf.value)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setHeatmapFactors([...heatmapFactors, sf.value]);
+                                  } else if (heatmapFactors.length > 1) {
+                                    setHeatmapFactors(heatmapFactors.filter(f => f !== sf.value));
+                                  }
+                                }}
+                                style={{ cursor: 'pointer', width: '12px', height: '12px', accentColor: COLORS.primary }}
+                              />
+                              <span style={{ fontSize: '11px', color: COLORS.muted }}>{sf.label}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
               <div style={{ padding: '12px', backgroundColor: '#f8f7f4', borderRadius: '6px', marginBottom: '20px' }}>
                 <p style={{ fontSize: '12px', color: COLORS.muted, margin: 0, lineHeight: 1.5 }}>
-                  This heatmap shows human rights-related sub-factors (Factor 4: Fundamental Rights) for 24 countries in Asia & Pacific and Central Asia.
-                </p>
-              </div>
-            </>
-          )}
-
-          {/* Lollipop Chart Controls */}
-          {chartType === 'lollipop' && (
-            <>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Factor / Sub-factor</label>
-                <div style={{ position: 'relative' }}>
-                  <select value={lollipopVariable} onChange={(e) => setLollipopVariable(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
-                    <optgroup label="Overall Index">
-                      {VARIABLE_OPTIONS.filter(o => o.category === 'general').map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
-                    </optgroup>
-                    <optgroup label="Factors">
-                      {VARIABLE_OPTIONS.filter(o => o.category === 'factor').map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
-                    </optgroup>
-                    {SUBFACTOR_GROUPS.map(group => (
-                      <optgroup key={group.category} label={group.label}>
-                        {VARIABLE_OPTIONS.filter(o => o.category === group.category).map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
-                      </optgroup>
-                    ))}
-                  </select>
-                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
-                  </div>
-                </div>
-              </div>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Current Year</label>
-                <div style={{ position: 'relative' }}>
-                  <select value={lollipopYear} onChange={(e) => setLollipopYear(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
-                    <option value="2025">2025</option>
-                    <option value="2024">2024</option>
-                    <option value="2023">2023</option>
-                    <option value="2022">2022</option>
-                    <option value="2021">2021</option>
-                    <option value="2020">2020</option>
-                  </select>
-                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
-                  </div>
-                </div>
-              </div>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Compare to Year</label>
-                <div style={{ position: 'relative' }}>
-                  <select value={lollipopBaseYear} onChange={(e) => setLollipopBaseYear(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
-                    <option value="2015">2015 (10 years)</option>
-                    <option value="2016">2016</option>
-                    <option value="2017">2017</option>
-                    <option value="2018">2018</option>
-                    <option value="2019">2019</option>
-                    <option value="2020">2020</option>
-                  </select>
-                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
-                  </div>
-                </div>
-              </div>
-              <div style={{ padding: '12px', backgroundColor: '#f8f7f4', borderRadius: '6px', marginBottom: '20px' }}>
-                <p style={{ fontSize: '12px', color: COLORS.muted, margin: 0, lineHeight: 1.5 }}>
-                  A lollipop view of scores across Asia & Pacific. The filled circle shows the selected year, and the triangle marks the comparison year.
+                  Select factors and sub-factors to display in the heatmap. Countries sorted alphabetically.
                 </p>
               </div>
             </>
@@ -659,6 +660,17 @@ export default function ROLIDashboard() {
           {/* Dumbbell Chart Controls */}
           {chartType === 'dumbbell' && (
             <>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Region</label>
+                <div style={{ position: 'relative' }}>
+                  <select value={dumbbellRegion} onChange={(e) => setDumbbellRegion(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
+                    {REGION_OPTIONS.map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
+                  </select>
+                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
+                  </div>
+                </div>
+              </div>
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Factor / Sub-factor</label>
                 <div style={{ position: 'relative' }}>
@@ -700,12 +712,11 @@ export default function ROLIDashboard() {
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Compare to Year</label>
                 <div style={{ position: 'relative' }}>
                   <select value={dumbbellBaseYear} onChange={(e) => setDumbbellBaseYear(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
-                    <option value="2015">2015 (10 years)</option>
-                    <option value="2016">2016</option>
-                    <option value="2017">2017</option>
-                    <option value="2018">2018</option>
-                    <option value="2019">2019</option>
                     <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
                   </select>
                   <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
                     <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
@@ -714,7 +725,81 @@ export default function ROLIDashboard() {
               </div>
               <div style={{ padding: '12px', backgroundColor: '#f8f7f4', borderRadius: '6px', marginBottom: '20px' }}>
                 <p style={{ fontSize: '12px', color: COLORS.muted, margin: 0, lineHeight: 1.5 }}>
-                  Two data points per row compare the earlier score with the current one. The connecting line highlights improvement or decline over time.
+                  Compares scores between two years. Each row shows the base year (hollow circle) and current year (filled circle). Green = improved, Red = declined.
+                </p>
+              </div>
+            </>
+          )}
+
+          {/* Card Heatmap Controls */}
+          {chartType === 'cardheatmap' && (
+            <>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Region</label>
+                <div style={{ position: 'relative' }}>
+                  <select value={cardHeatmapRegion} onChange={(e) => setCardHeatmapRegion(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
+                    {REGION_OPTIONS.map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
+                  </select>
+                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Factor / Sub-factor</label>
+                <div style={{ position: 'relative' }}>
+                  <select value={cardHeatmapVariable} onChange={(e) => setCardHeatmapVariable(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
+                    <optgroup label="Overall Index">
+                      {VARIABLE_OPTIONS.filter(o => o.category === 'general').map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
+                    </optgroup>
+                    <optgroup label="Factors">
+                      {VARIABLE_OPTIONS.filter(o => o.category === 'factor').map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
+                    </optgroup>
+                    {SUBFACTOR_GROUPS.map(group => (
+                      <optgroup key={group.category} label={group.label}>
+                        {VARIABLE_OPTIONS.filter(o => o.category === group.category).map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
+                      </optgroup>
+                    ))}
+                  </select>
+                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Current Year</label>
+                <div style={{ position: 'relative' }}>
+                  <select value={cardHeatmapYear} onChange={(e) => setCardHeatmapYear(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                    <option value="2022">2022</option>
+                    <option value="2021">2021</option>
+                    <option value="2020">2020</option>
+                  </select>
+                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Compare to Year</label>
+                <div style={{ position: 'relative' }}>
+                  <select value={cardHeatmapBaseYear} onChange={(e) => setCardHeatmapBaseYear(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                  </select>
+                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ padding: '12px', backgroundColor: '#f8f7f4', borderRadius: '6px', marginBottom: '20px' }}>
+                <p style={{ fontSize: '12px', color: COLORS.muted, margin: 0, lineHeight: 1.5 }}>
+                  Card-based visualization showing scores for each country. Cards are colored by performance and show change from the comparison year.
                 </p>
               </div>
             </>
@@ -959,15 +1044,8 @@ export default function ROLIDashboard() {
               <HumanRightsHeatmap
                 allData={allData}
                 selectedYear={heatmapYear}
-                baseYear={heatmapBaseYear}
-              />
-            )}
-            {chartType === 'lollipop' && (
-              <LollipopChart
-                allData={allData}
-                selectedYear={lollipopYear}
-                baseYear={lollipopBaseYear}
-                selectedVariable={lollipopVariable}
+                selectedRegion={heatmapRegion}
+                selectedFactors={heatmapFactors}
               />
             )}
             {chartType === 'dumbbell' && (
@@ -975,7 +1053,17 @@ export default function ROLIDashboard() {
                 allData={allData}
                 selectedYear={dumbbellYear}
                 baseYear={dumbbellBaseYear}
+                selectedRegion={dumbbellRegion}
                 selectedVariable={dumbbellVariable}
+              />
+            )}
+            {chartType === 'cardheatmap' && (
+              <CardHeatmap
+                allData={allData}
+                selectedYear={cardHeatmapYear}
+                baseYear={cardHeatmapBaseYear}
+                selectedRegion={cardHeatmapRegion}
+                selectedVariable={cardHeatmapVariable}
               />
             )}
           </Suspense>
@@ -990,9 +1078,9 @@ export default function ROLIDashboard() {
             chartType === 'radar' ? [...selectedRadarYears].sort().join(', ') :
             chartType === 'profile' ? ACTIVE_YEAR :
             chartType === 'factors' ? selectedYear :
-            chartType === 'heatmap' ? `${heatmapBaseYear}–${heatmapYear}` :
-            chartType === 'lollipop' ? `${lollipopBaseYear}–${lollipopYear}` :
+            chartType === 'heatmap' ? heatmapYear :
             chartType === 'dumbbell' ? `${dumbbellBaseYear}–${dumbbellYear}` :
+            chartType === 'cardheatmap' ? `${cardHeatmapBaseYear}–${cardHeatmapYear}` :
             selectedYear
           }
         </p>

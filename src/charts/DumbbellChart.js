@@ -2,15 +2,6 @@ import { useMemo } from 'react';
 import { COLORS, VARIABLE_OPTIONS } from '../config';
 import { getEmbeddedFontCSS } from '../utils/svgExport';
 
-// Target countries from Asia & Pacific and Central Asia
-const TARGET_COUNTRIES = [
-  'Afghanistan', 'Australia', 'Bangladesh', 'Cambodia', 'China',
-  'Hong Kong SAR, China', 'India', 'Indonesia', 'Japan', 'Kazakhstan',
-  'Korea, Rep.', 'Kyrgyz Republic', 'Malaysia', 'Mongolia', 'Myanmar',
-  'Nepal', 'New Zealand', 'Pakistan', 'Philippines', 'Singapore',
-  'Sri Lanka', 'Thailand', 'Uzbekistan', 'Vietnam'
-];
-
 // Get color based on change direction
 function getChangeColor(change) {
   if (change === null || change === undefined || isNaN(change)) return COLORS.muted;
@@ -27,8 +18,9 @@ const OVERLAP_OFFSET = 14;
 export default function DumbbellChart({
   allData,
   selectedYear = '2025',
-  baseYear = '2015',
-  selectedVariable = 'f4'
+  baseYear = '2020',
+  selectedRegion = 'global',
+  selectedVariable = 'roli'
 }) {
   // Get variable label
   const variableLabel = useMemo(() => {
@@ -36,36 +28,42 @@ export default function DumbbellChart({
     return option ? option.label : selectedVariable;
   }, [selectedVariable]);
 
+  // Get region label
+  const regionLabel = selectedRegion === 'global' ? 'Global' : selectedRegion;
+
   // Process data for the dumbbell chart
   const chartData = useMemo(() => {
+    // Filter by year and region
+    let currentYearData = allData.filter(d => d.year === selectedYear);
+    if (selectedRegion !== 'global') {
+      currentYearData = currentYearData.filter(d => d.region === selectedRegion);
+    }
+
     const result = [];
 
-    TARGET_COUNTRIES.forEach(country => {
-      const currentData = allData.find(d => d.country === country && d.year === selectedYear);
-      const baseData = allData.find(d => d.country === country && d.year === baseYear);
+    currentYearData.forEach(current => {
+      const baseData = allData.find(d => d.country === current.country && d.year === baseYear);
 
-      if (!currentData) return;
-
-      const currentValue = currentData[selectedVariable];
+      const currentValue = current[selectedVariable];
       const baseValue = baseData ? baseData[selectedVariable] : null;
       const change = (currentValue !== null && baseValue !== null)
         ? currentValue - baseValue
         : null;
 
       result.push({
-        country,
-        region: currentData.region,
+        country: current.country,
+        region: current.region,
         currentValue,
         baseValue,
         change
       });
     });
 
-    // Sort by change (most improved first)
-    result.sort((a, b) => (b.change || 0) - (a.change || 0));
+    // Sort alphabetically by country name
+    result.sort((a, b) => a.country.localeCompare(b.country));
 
     return result;
-  }, [allData, selectedYear, baseYear, selectedVariable]);
+  }, [allData, selectedYear, baseYear, selectedRegion, selectedVariable]);
 
   // Download SVG function
   const downloadSVG = async () => {
@@ -90,7 +88,7 @@ export default function DumbbellChart({
 
       <!-- Title -->
       <text x="${width/2}" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="${COLORS.primary}">${variableLabel}</text>
-      <text x="${width/2}" y="48" text-anchor="middle" font-size="12" fill="${COLORS.muted}">Asia & Pacific — Dumbbell comparison from ${baseYear} to ${selectedYear}</text>
+      <text x="${width/2}" y="48" text-anchor="middle" font-size="12" fill="${COLORS.muted}">${regionLabel} — Comparison from ${baseYear} to ${selectedYear}</text>
 
       <!-- Scale markers -->
       <text x="${padding + labelWidth}" y="${headerHeight - 8}" font-size="9" fill="${COLORS.muted}">0.0</text>
@@ -157,7 +155,7 @@ export default function DumbbellChart({
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `dumbbell-${selectedVariable}-${baseYear}-${selectedYear}.svg`;
+    a.download = `dumbbell-${selectedVariable}-${selectedRegion}-${baseYear}-to-${selectedYear}.svg`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -171,7 +169,7 @@ export default function DumbbellChart({
             {variableLabel}
           </h2>
           <p style={{ margin: '4px 0 0', fontSize: '13px', color: COLORS.muted }}>
-            Asia & Pacific — Dumbbell comparison from {baseYear} to {selectedYear}
+            {regionLabel} — Comparison from {baseYear} to {selectedYear}
           </p>
         </div>
         <button
