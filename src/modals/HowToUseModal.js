@@ -73,7 +73,7 @@ export default function HowToUseModal({ isOpen, onClose }) {
           </h2>
 
           <p style={{ fontSize: '16px', lineHeight: '1.7', color: COLORS.text, marginBottom: '24px' }}>
-            This dashboard currently includes <strong>four visualizations</strong>. Use the chart toggles to switch views, then refine what you see using the filters (year, geography, and indicator selection).
+            This dashboard currently includes <strong>seven visualizations</strong>. Use the chart toggles to switch views, then refine what you see using the filters (year, geography, and indicator selection).
           </p>
 
           {/* Time Series */}
@@ -89,9 +89,22 @@ export default function HowToUseModal({ isOpen, onClose }) {
             <li style={{ marginBottom: '8px' }}>Use it to identify <strong>long-term change</strong>, turning points, and whether progress is broad-based or concentrated in specific areas.</li>
           </ul>
 
+          {/* Country Profiles */}
+          <h3 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, marginTop: '32px', marginBottom: '12px' }}>
+            2) Country Profiles
+          </h3>
+          <p style={{ fontSize: '15px', lineHeight: '1.7', color: COLORS.text, marginBottom: '8px' }}>
+            Use this view to see a <strong>complete performance breakdown</strong> for a single country.
+          </p>
+          <ul style={{ fontSize: '15px', lineHeight: '1.7', color: COLORS.text, marginBottom: '24px', paddingLeft: '20px' }}>
+            <li style={{ marginBottom: '8px' }}>Select a <strong>country</strong> or view the <strong>regional average</strong>.</li>
+            <li style={{ marginBottom: '8px' }}>See the <strong>overall score</strong> alongside all <strong>8 factors</strong> in a horizontal bar chart.</li>
+            <li style={{ marginBottom: '8px' }}>Use it to understand a country's <strong>strengths and weaknesses</strong> at a glance.</li>
+          </ul>
+
           {/* Top & Bottom Performers */}
           <h3 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, marginTop: '32px', marginBottom: '12px' }}>
-            2) Top & Bottom Performers
+            3) Top & Bottom Performers
           </h3>
           <p style={{ fontSize: '15px', lineHeight: '1.7', color: COLORS.text, marginBottom: '8px' }}>
             Use this view to see <strong>which countries perform best and worst</strong> on a selected indicator.
@@ -104,7 +117,7 @@ export default function HowToUseModal({ isOpen, onClose }) {
 
           {/* Radar Chart */}
           <h3 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, marginTop: '32px', marginBottom: '12px' }}>
-            3) Radar Chart
+            4) Radar Chart
           </h3>
           <p style={{ fontSize: '15px', lineHeight: '1.7', color: COLORS.text, marginBottom: '8px' }}>
             Use this view to compare a <strong>profile of performance across indicators</strong> for different years.
@@ -117,7 +130,7 @@ export default function HowToUseModal({ isOpen, onClose }) {
 
           {/* Factor Comparison */}
           <h3 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, marginTop: '32px', marginBottom: '12px' }}>
-            4) Factor Comparison
+            5) Factor Comparison
           </h3>
           <p style={{ fontSize: '15px', lineHeight: '1.7', color: COLORS.text, marginBottom: '8px' }}>
             Use this view to compare the <strong>8 factors side-by-side</strong> for a selected year.
@@ -126,6 +139,34 @@ export default function HowToUseModal({ isOpen, onClose }) {
             <li style={{ marginBottom: '8px' }}>Pick the <strong>year</strong> and the entities to compare (e.g., multiple <strong>countries</strong>, <strong>regions</strong>, and/or <strong>global</strong>).</li>
             <li style={{ marginBottom: '8px' }}>The bar chart shows how each selected entity performs across the <strong>eight factor scores</strong>.</li>
             <li style={{ marginBottom: '8px' }}>Use it to create quick, presentation-ready comparisons of <strong>strengths and weaknesses across factors</strong>.</li>
+          </ul>
+
+          {/* Score Heatmap */}
+          <h3 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, marginTop: '32px', marginBottom: '12px' }}>
+            6) Score Heatmap
+          </h3>
+          <p style={{ fontSize: '15px', lineHeight: '1.7', color: COLORS.text, marginBottom: '8px' }}>
+            Use this view to see <strong>all countries and factors</strong> in a single color-coded table.
+          </p>
+          <ul style={{ fontSize: '15px', lineHeight: '1.7', color: COLORS.text, marginBottom: '24px', paddingLeft: '20px' }}>
+            <li style={{ marginBottom: '8px' }}>Select a <strong>year</strong> and <strong>region</strong> (or view globally).</li>
+            <li style={{ marginBottom: '8px' }}>Choose which <strong>factors and sub-factors</strong> to display as columns.</li>
+            <li style={{ marginBottom: '8px' }}>Colors range from <strong>red (low scores)</strong> through <strong>yellow</strong> to <strong>green (high scores)</strong>.</li>
+            <li style={{ marginBottom: '8px' }}>Use it to quickly identify <strong>patterns across multiple dimensions</strong> and spot outliers.</li>
+          </ul>
+
+          {/* Change Heatmap */}
+          <h3 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, marginTop: '32px', marginBottom: '12px' }}>
+            7) Change Heatmap
+          </h3>
+          <p style={{ fontSize: '15px', lineHeight: '1.7', color: COLORS.text, marginBottom: '8px' }}>
+            Use this view to visualize <strong>percentage change over time</strong> for each country.
+          </p>
+          <ul style={{ fontSize: '15px', lineHeight: '1.7', color: COLORS.text, marginBottom: '24px', paddingLeft: '20px' }}>
+            <li style={{ marginBottom: '8px' }}>Select a <strong>base year</strong> and <strong>current year</strong> to compare.</li>
+            <li style={{ marginBottom: '8px' }}>Choose a <strong>region</strong> and the <strong>indicator</strong> (overall score, factor, or sub-factor).</li>
+            <li style={{ marginBottom: '8px' }}>Cards show <strong>percentage change</strong> with color coding: <strong>green = improved</strong>, <strong>red = declined</strong>, <strong>gray = stable</strong>.</li>
+            <li style={{ marginBottom: '8px' }}>Use it to quickly identify which countries have made <strong>progress or regressed</strong> over a specific period.</li>
           </ul>
 
           {/* Export visuals */}
