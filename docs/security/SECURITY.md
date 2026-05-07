@@ -62,7 +62,9 @@ connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com;
    ```json
    "overrides": {
      "underscore": "^1.13.8",
-     "postcss": "^8.5.10"
+     "postcss": "^8.5.10",
+     "serialize-javascript": "^7.0.5",
+     "nth-check": "^2.1.1"
    }
    ```
 
@@ -203,10 +205,11 @@ If you discover a security vulnerability, please:
 
 ## Last Security Audit
 
-- **Date:** 2025-05-01
-- **Vulnerabilities before:** 42
-- **Vulnerabilities after:** 25
-- **High severity reduced:** 22 → 12
+- **Date:** 2025-05-07
+- **Vulnerabilities before:** 23
+- **Vulnerabilities after:** 13
+- **High severity reduced:** 12 → 1 (xlsx only, dev dependency)
+- **Fixed via overrides:** serialize-javascript, nth-check
 
 ---
 
