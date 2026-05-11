@@ -7,8 +7,8 @@ import { ChartCard } from '../components';
 
 // All possible factors and subfactors with their labels
 const ALL_FACTORS_MAP = {
-  roli: { label: 'Overall Index', shortLabel: 'Overall Index' },
-  f1: { label: 'Constraints on Government Power', shortLabel: 'Constraints on\nGovernment Power' },
+  roli: { label: 'WJP Rule of Law Index: Overall Score', shortLabel: 'Overall Score' },
+  f1: { label: 'Constraints on Government Powers', shortLabel: 'Constraints on\nGovernment Powers' },
   f2: { label: 'Absence of Corruption', shortLabel: 'Absence of Corruption' },
   f3: { label: 'Open Government', shortLabel: 'Open Government' },
   f4: { label: 'Fundamental Rights', shortLabel: 'Fundamental Rights' },

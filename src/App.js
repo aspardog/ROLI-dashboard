@@ -596,7 +596,7 @@ export default function ROLIDashboard() {
                       }}
                       style={{ cursor: 'pointer', width: '14px', height: '14px', accentColor: COLORS.primary }}
                     />
-                    <span style={{ fontSize: '13px', color: COLORS.text, fontWeight: '600' }}>ROLI - Overall Index</span>
+                    <span style={{ fontSize: '13px', color: COLORS.text, fontWeight: '600' }}>WJP Rule of Law Index: Overall Score</span>
                   </label>
                   {/* 8 Factors with their subfactors */}
                   {SUBFACTOR_GROUPS.map(group => {
@@ -853,7 +853,7 @@ export default function ROLIDashboard() {
                         disabled={!selectedRadarFactors.includes('roli') && selectedRadarFactors.length < 3}
                         style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: COLORS.primary }}
                       />
-                      <span style={{ fontSize: '14px', color: COLORS.primary, fontWeight: '600' }}>Overall Index</span>
+                      <span style={{ fontSize: '14px', color: COLORS.primary, fontWeight: '600' }}>WJP Rule of Law Index: Overall Score</span>
                     </label>
 
                     {/* Factors with expandable subfactors */}

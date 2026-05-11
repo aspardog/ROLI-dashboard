@@ -6,7 +6,7 @@ import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadS
 import { ChartCard } from '../components';
 
 const FACTORS = [
-  { key: 'f1', label: 'Constraints on Government Power' },
+  { key: 'f1', label: 'Constraints on Government Powers' },
   { key: 'f2', label: 'Absence of Corruption' },
   { key: 'f3', label: 'Open Government' },
   { key: 'f4', label: 'Fundamental Rights' },

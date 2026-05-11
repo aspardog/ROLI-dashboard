@@ -123,7 +123,7 @@ export default function InfoModal({ isOpen, onClose }) {
 
           {/* Factor 1 */}
           <h4 style={{ fontSize: '16px', fontWeight: '600', color: COLORS.text, marginTop: '24px', marginBottom: '8px' }}>
-            Factor 1 — Constraints on Government Powers
+            Factor 1: Constraints on Government Powers
           </h4>
           <ul style={{ fontSize: '14px', lineHeight: '1.7', color: COLORS.text, marginBottom: '16px', paddingLeft: '20px' }}>
             <li>1.1 Government powers are effectively limited by the legislature</li>
@@ -136,10 +136,10 @@ export default function InfoModal({ isOpen, onClose }) {
 
           {/* Factor 2 */}
           <h4 style={{ fontSize: '16px', fontWeight: '600', color: COLORS.text, marginTop: '24px', marginBottom: '8px' }}>
-            Factor 2 — Absence of Corruption
+            Factor 2: Absence of Corruption
           </h4>
           <ul style={{ fontSize: '14px', lineHeight: '1.7', color: COLORS.text, marginBottom: '16px', paddingLeft: '20px' }}>
-            <li>2.1 Government officials in the Executive Branch do not use public office for private gain</li>
+            <li>2.1 Government officials in the executive branch do not use public office for private gain</li>
             <li>2.2 Government officials in the judicial branch do not use public office for private gain</li>
             <li>2.3 Government officials in the police and the military do not use public office for private gain</li>
             <li>2.4 Government officials in the legislative branch do not use public office for private gain</li>
@@ -147,7 +147,7 @@ export default function InfoModal({ isOpen, onClose }) {
 
           {/* Factor 3 */}
           <h4 style={{ fontSize: '16px', fontWeight: '600', color: COLORS.text, marginTop: '24px', marginBottom: '8px' }}>
-            Factor 3 — Open Government
+            Factor 3: Open Government
           </h4>
           <ul style={{ fontSize: '14px', lineHeight: '1.7', color: COLORS.text, marginBottom: '16px', paddingLeft: '20px' }}>
             <li>3.1 Publicized laws and government data</li>
@@ -158,12 +158,12 @@ export default function InfoModal({ isOpen, onClose }) {
 
           {/* Factor 4 */}
           <h4 style={{ fontSize: '16px', fontWeight: '600', color: COLORS.text, marginTop: '24px', marginBottom: '8px' }}>
-            Factor 4 — Fundamental Rights
+            Factor 4: Fundamental Rights
           </h4>
           <ul style={{ fontSize: '14px', lineHeight: '1.7', color: COLORS.text, marginBottom: '16px', paddingLeft: '20px' }}>
             <li>4.1 Equal treatment and absence of discrimination</li>
             <li>4.2 The right to life and security of the person is effectively guaranteed</li>
-            <li>4.3 Due process of law and rights of the accused</li>
+            <li>4.3 Due process of the law and rights of the accused</li>
             <li>4.4 Freedom of opinion and expression is effectively guaranteed</li>
             <li>4.5 Freedom of belief and religion is effectively guaranteed</li>
             <li>4.6 Freedom from arbitrary interference with privacy is effectively guaranteed</li>
@@ -173,7 +173,7 @@ export default function InfoModal({ isOpen, onClose }) {
 
           {/* Factor 5 */}
           <h4 style={{ fontSize: '16px', fontWeight: '600', color: COLORS.text, marginTop: '24px', marginBottom: '8px' }}>
-            Factor 5 — Order and Security
+            Factor 5: Order and Security
           </h4>
           <ul style={{ fontSize: '14px', lineHeight: '1.7', color: COLORS.text, marginBottom: '16px', paddingLeft: '20px' }}>
             <li>5.1 Crime is effectively controlled</li>
@@ -183,19 +183,19 @@ export default function InfoModal({ isOpen, onClose }) {
 
           {/* Factor 6 */}
           <h4 style={{ fontSize: '16px', fontWeight: '600', color: COLORS.text, marginTop: '24px', marginBottom: '8px' }}>
-            Factor 6 — Regulatory Enforcement
+            Factor 6: Regulatory Enforcement
           </h4>
           <ul style={{ fontSize: '14px', lineHeight: '1.7', color: COLORS.text, marginBottom: '16px', paddingLeft: '20px' }}>
             <li>6.1 Government regulations are effectively enforced</li>
             <li>6.2 Government regulations are applied and enforced without improper influence</li>
             <li>6.3 Administrative proceedings are conducted without unreasonable delay</li>
             <li>6.4 Due process is respected in administrative proceedings</li>
-            <li>6.5 The Government does not expropriate without lawful process and adequate compensation</li>
+            <li>6.5 The government does not expropriate without lawful process and adequate compensation</li>
           </ul>
 
           {/* Factor 7 */}
           <h4 style={{ fontSize: '16px', fontWeight: '600', color: COLORS.text, marginTop: '24px', marginBottom: '8px' }}>
-            Factor 7 — Civil Justice
+            Factor 7: Civil Justice
           </h4>
           <ul style={{ fontSize: '14px', lineHeight: '1.7', color: COLORS.text, marginBottom: '16px', paddingLeft: '20px' }}>
             <li>7.1 People can access and afford civil justice</li>
@@ -204,12 +204,12 @@ export default function InfoModal({ isOpen, onClose }) {
             <li>7.4 Civil justice is free of improper government influence</li>
             <li>7.5 Civil justice is not subject to unreasonable delay</li>
             <li>7.6 Civil justice is effectively enforced</li>
-            <li>7.7 Alternative Dispute Resolution Mechanisms are accessible, impartial, and effective</li>
+            <li>7.7 Alternative dispute resolution mechanisms are accessible, impartial, and effective</li>
           </ul>
 
           {/* Factor 8 */}
           <h4 style={{ fontSize: '16px', fontWeight: '600', color: COLORS.text, marginTop: '24px', marginBottom: '8px' }}>
-            Factor 8 — Criminal Justice
+            Factor 8: Criminal Justice
           </h4>
           <ul style={{ fontSize: '14px', lineHeight: '1.7', color: COLORS.text, marginBottom: '16px', paddingLeft: '20px' }}>
             <li>8.1 Criminal investigation system is effective</li>
