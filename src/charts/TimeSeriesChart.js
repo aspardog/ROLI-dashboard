@@ -40,7 +40,7 @@ function TimeSeriesChart({ series = [], referenceSeries = [], variable, label, s
       const row = { year: String(year) };
       allSeries.forEach((currentSeries) => {
         const point = currentSeries.points.find(item => item.year === row.year);
-        row[currentSeries.key] = point?.value ?? null;
+        row[currentSeries.dataKey || currentSeries.key] = point?.value ?? null;
       });
       rows.push(row);
     }
@@ -129,7 +129,7 @@ function TimeSeriesChart({ series = [], referenceSeries = [], variable, label, s
               <Line
                 key={currentSeries.key}
                 type="linear"
-                dataKey={currentSeries.key}
+                dataKey={currentSeries.dataKey || currentSeries.key}
                 stroke={getSeriesColor(index, currentSeries.style)}
                 strokeWidth={currentSeries.style ? 3 : (index - referenceSeries.length === 0 ? 3.5 : 3)}
                 strokeDasharray={currentSeries.style ? '8 4' : undefined}
@@ -138,7 +138,7 @@ function TimeSeriesChart({ series = [], referenceSeries = [], variable, label, s
                 connectNulls={false}
               >
                 <LabelList
-                  dataKey={currentSeries.key}
+                  dataKey={currentSeries.dataKey || currentSeries.key}
                   content={({ x, y, value, index: pointIndex }) => {
                     if (currentSeries.style || value == null || pointIndex !== chartData.length - 1) return null;
                     return (

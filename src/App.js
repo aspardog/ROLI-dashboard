@@ -33,7 +33,7 @@ function getTimeSeriesEntityLabel(entity) {
 }
 
 function selectedEntitiesToSeries(entities, allData, averages, variable, startYear, endYear) {
-  return entities.map(entity => {
+  return entities.map((entity, index) => {
     const points = [];
 
     for (let year = startYear; year <= endYear; year += 1) {
@@ -55,6 +55,7 @@ function selectedEntitiesToSeries(entities, allData, averages, variable, startYe
 
     return {
       key: entity,
+      dataKey: `entity_${index}`,
       label: getTimeSeriesEntityLabel(entity),
       points,
     };
@@ -213,7 +214,7 @@ export default function ROLIDashboard() {
           const value = averages.regions?.[selectedRegion]?.[String(year)]?.[selectedVariable] ?? null;
           if (value != null) points.push({ year: String(year), value });
         }
-        if (points.length >= 2) refs.push({ key: 'regionalAvg', label: `${regionLabel} Average`, points, style: 'referenceRegional' });
+        if (points.length >= 2) refs.push({ key: 'regionalAvg', dataKey: 'reference_regional', label: `${regionLabel} Average`, points, style: 'referenceRegional' });
       }
 
       if (showGlobalAvg && selectedVariable) {
@@ -222,7 +223,7 @@ export default function ROLIDashboard() {
           const value = averages.global?.[String(year)]?.[selectedVariable] ?? null;
           if (value != null) points.push({ year: String(year), value });
         }
-        if (points.length >= 2) refs.push({ key: 'globalAvg', label: 'Global Average', points, style: 'referenceGlobal' });
+        if (points.length >= 2) refs.push({ key: 'globalAvg', dataKey: 'reference_global', label: 'Global Average', points, style: 'referenceGlobal' });
       }
     }
 
@@ -238,7 +239,7 @@ export default function ROLIDashboard() {
 
     if (!timeSeriesCountry) return [];
 
-    return timeSeriesVariables.map(variableKey => {
+    return timeSeriesVariables.map((variableKey, index) => {
       const variableLabel = VARIABLE_OPTIONS.find(option => option.value === variableKey)?.label || variableKey;
       const points = [];
 
@@ -250,6 +251,7 @@ export default function ROLIDashboard() {
 
       return {
         key: variableKey,
+        dataKey: `variable_${index}`,
         label: variableLabel,
         points,
       };
