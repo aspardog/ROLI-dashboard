@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
-import { ACTIVE_YEAR, REGION_OPTIONS, VARIABLE_OPTIONS, SUBFACTOR_GROUPS, COLORS, EU_COUNTRIES } from './config';
+import { ACTIVE_YEAR, REGION_OPTIONS, VARIABLE_OPTIONS, SUBFACTOR_GROUPS, COLORS, EU_COUNTRIES, EU_ENLARGEMENT_COUNTRIES } from './config';
 import { InfoModal, HowToUseModal } from './modals';
 import { filterByRegion } from './utils';
 import './styles/responsive.css';
@@ -35,7 +35,7 @@ export default function ROLIDashboard() {
   const [showGlobalAvg, setShowGlobalAvg] = useState(false);
   const [chartType, setChartType] = useState('timeseries');
   const [selectedYear, setSelectedYear] = useState('2025');
-  const [yearRange, setYearRange] = useState([2020, 2025]); // New: year range for time series
+  const [yearRange, setYearRange] = useState([2015, 2025]); // Year range for time series (2015-2025)
   const [selectedProfileCountry, setSelectedProfileCountry] = useState('__regional_avg__');
   const [selectedProfileRegion, setSelectedProfileRegion] = useState('global');
   const [radarYearsExpanded, setRadarYearsExpanded] = useState(true);
@@ -299,7 +299,7 @@ export default function ROLIDashboard() {
                     {/* Purple filled portion from start year to 2025 */}
                     <div style={{
                       position: 'absolute',
-                      left: `${((yearRange[0] - 2020) / 5) * 100}%`,
+                      left: `${((yearRange[0] - 2015) / 10) * 100}%`,
                       right: '0%',
                       height: '100%',
                       background: COLORS.primary,
@@ -308,7 +308,7 @@ export default function ROLIDashboard() {
                     {/* Single slider for start year */}
                     <input
                       type="range"
-                      min="2020"
+                      min="2015"
                       max="2024"
                       value={yearRange[0]}
                       onChange={(e) => {
@@ -318,7 +318,7 @@ export default function ROLIDashboard() {
                       style={{ position: 'absolute', width: '100%', height: '20px', top: '-8px', opacity: 0, cursor: 'pointer', zIndex: 2 }}
                     />
                     {/* Visual handle for start year */}
-                    <div style={{ position: 'absolute', left: `calc(${((yearRange[0] - 2020) / 5) * 100}% - 8px)`, top: '-6px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: COLORS.primary, border: '2px solid white', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', cursor: 'pointer' }} />
+                    <div style={{ position: 'absolute', left: `calc(${((yearRange[0] - 2015) / 10) * 100}% - 8px)`, top: '-6px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: COLORS.primary, border: '2px solid white', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', cursor: 'pointer' }} />
                     {/* Fixed indicator for 2025 */}
                     <div style={{ position: 'absolute', right: '-8px', top: '-6px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: COLORS.primary, border: '2px solid white', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
                   </div>
@@ -397,6 +397,10 @@ export default function ROLIDashboard() {
                     <option value="2021">2021</option>
                     <option value="2020">2020</option>
                     <option value="2019">2019</option>
+                    <option value="2018">2018</option>
+                    <option value="2017">2017</option>
+                    <option value="2016">2016</option>
+                    <option value="2015">2015</option>
                   </select>
                   <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
                     <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
@@ -449,6 +453,11 @@ export default function ROLIDashboard() {
                     <option value="2022">2022</option>
                     <option value="2021">2021</option>
                     <option value="2020">2020</option>
+                    <option value="2019">2019</option>
+                    <option value="2018">2018</option>
+                    <option value="2017">2017</option>
+                    <option value="2016">2016</option>
+                    <option value="2015">2015</option>
                   </select>
                   <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
                     <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
@@ -483,7 +492,9 @@ export default function ROLIDashboard() {
                     const regionKey = `__region_${region.value}`;
                     const regionCountries = region.value === 'European Union'
                       ? EU_COUNTRIES.filter(c => allData.some(d => d.year === selectedYear && d.country === c)).sort()
-                      : allData.filter(d => d.year === selectedYear && d.region === region.value).map(d => d.country).filter((v, i, a) => a.indexOf(v) === i).sort();
+                      : region.value === 'EU enlargement'
+                        ? EU_ENLARGEMENT_COUNTRIES.filter(c => allData.some(d => d.year === selectedYear && d.country === c)).sort()
+                        : allData.filter(d => d.year === selectedYear && d.region === region.value).map(d => d.country).filter((v, i, a) => a.indexOf(v) === i).sort();
                     const isExpanded = expandedFactorRegions[region.value];
                     const isRegionSelected = factorCompareCountries.includes(regionKey);
 
@@ -573,6 +584,11 @@ export default function ROLIDashboard() {
                     <option value="2022">2022</option>
                     <option value="2021">2021</option>
                     <option value="2020">2020</option>
+                    <option value="2019">2019</option>
+                    <option value="2018">2018</option>
+                    <option value="2017">2017</option>
+                    <option value="2016">2016</option>
+                    <option value="2015">2015</option>
                   </select>
                   <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
                     <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
@@ -699,6 +715,11 @@ export default function ROLIDashboard() {
                     <option value="2022">2022</option>
                     <option value="2021">2021</option>
                     <option value="2020">2020</option>
+                    <option value="2019">2019</option>
+                    <option value="2018">2018</option>
+                    <option value="2017">2017</option>
+                    <option value="2016">2016</option>
+                    <option value="2015">2015</option>
                   </select>
                   <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
                     <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
@@ -709,6 +730,11 @@ export default function ROLIDashboard() {
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Compare to Year</label>
                 <div style={{ position: 'relative' }}>
                   <select value={cardHeatmapBaseYear} onChange={(e) => setCardHeatmapBaseYear(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
+                    <option value="2015">2015</option>
+                    <option value="2016">2016</option>
+                    <option value="2017">2017</option>
+                    <option value="2018">2018</option>
+                    <option value="2019">2019</option>
                     <option value="2020">2020</option>
                     <option value="2021">2021</option>
                     <option value="2022">2022</option>
@@ -774,7 +800,9 @@ export default function ROLIDashboard() {
                       ? [...new Set(allData.filter(d => d.year === '2025').map(d => d.country))].sort()
                       : currentRegion === 'European Union'
                         ? EU_COUNTRIES.filter(c => allData.some(d => d.year === '2025' && d.country === c)).sort()
-                        : [...new Set(allData.filter(d => d.year === '2025' && d.region === currentRegion).map(d => d.country))].sort();
+                        : currentRegion === 'EU enlargement'
+                          ? EU_ENLARGEMENT_COUNTRIES.filter(c => allData.some(d => d.year === '2025' && d.country === c)).sort()
+                          : [...new Set(allData.filter(d => d.year === '2025' && d.region === currentRegion).map(d => d.country))].sort();
 
                     return (
                       <select
@@ -806,7 +834,7 @@ export default function ROLIDashboard() {
                 </div>
                 {radarYearsExpanded && (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 16px' }}>
-                    {['2020', '2021', '2022', '2023', '2024', '2025'].map(year => (
+                    {['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025'].map(year => (
                       <label key={year} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                         <input
                           type="checkbox"

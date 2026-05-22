@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Interactive React dashboard for the World Justice Project Rule of Law Index (ROLI). Visualizes global rule of law data across 8 factors and 44 sub-factors from 2019-2025, with support for regional filtering and multiple chart types.
+Interactive React dashboard for the World Justice Project Rule of Law Index (ROLI). Visualizes global rule of law data across 8 factors and 44 sub-factors from 2015-2025, with support for regional filtering and multiple chart types.
 
 ## Collaborator Roles
 
@@ -100,7 +100,7 @@ src/
 ├── index.js                  # React entry point
 │
 ├── charts/                   # All chart components
-│   ├── TimeSeriesChart.js    # Line chart showing 2019-2025 trends
+│   ├── TimeSeriesChart.js    # Line chart showing 2015-2025 trends
 │   ├── CountryProfileChart.js # Country performance breakdown
 │   ├── TopBottomChart.js     # Horizontal bar chart (top/bottom performers)
 │   ├── RadarChartView.js     # Multi-year radar with factor selection
@@ -179,13 +179,17 @@ Data filtering happens in `useMemo` hooks to prevent unnecessary re-renders.
 
 **`src/config/constants.js`** exports:
 - `ACTIVE_YEAR` - Default year filter (currently '2025'). Update when new data is released
-- `REGION_OPTIONS` - 9 regions including 'global' and 'European Union'
+- `REGION_OPTIONS` - 10 regions including 'global', 'European Union', and 'EU Enlargement'
 - `EU_COUNTRIES` - Array of 27 EU member state names for European Union filtering
+- `EU_ENLARGEMENT_COUNTRIES` - Array of 10 EU candidate countries for EU Enlargement filtering
 - `VARIABLE_OPTIONS` - Overall Index (1), Factors (8), Sub-factors (44)
   - Each has `value`, `label`, and `category` for grouping
 - `SUBFACTOR_GROUPS` - Groups sub-factors by parent factor for UI organization
 - `COLORS` - Color palette (top5, bottom5, background, text, muted, divider)
 - `TS_COLORS` - Time series specific colors
+- `FACTOR_COLORS` - Color for each of the 8 factors (f1-f8) in Country Profile chart
+- `FACTOR_SHORT_LABELS` - Short display names for factors (e.g., '1. Constraints on Government Powers')
+- `SUBFACTOR_SHORT_LABELS` - Short display names for all 44 subfactors
 
 ### Chart-Specific Logic
 
@@ -196,14 +200,14 @@ Data filtering happens in `useMemo` hooks to prevent unnecessary re-renders.
 - SVG export: Legend at top with 18px boxes, 16px text, vertically centered
 
 **TimeSeriesChart**
-- 2019-2025 data only (filtered with parseInt(d.year) >= 2019)
+- 2015-2025 data range (configurable via yearRange prop, default [2015, 2025])
 - Supports individual countries or regional/global averages
 - Fixed Y-axis scale: 0 to 1 with ticks at 0.00, 0.20, 0.40, 0.60, 0.80, 1.00
 - First/last year labels aligned (not rotated)
 - SVG export includes embedded fonts
 
 **RadarChartView**
-- Multi-year overlay (different colors per year: 2020-2025)
+- Multi-year overlay (different colors per year: 2015-2025)
 - Dynamic factor/subfactor selection via collapsible accordions in sidebar
 - Minimum 3 factors/subfactors required for radar display
 - Default selection: Overall Index + 8 main factors
@@ -328,7 +332,7 @@ All scores rounded to 3 decimal places.
 
 **Data filtering**: Two-stage filter - first by year, then by region (if not global)
 - Uses `filterByRegion()` and `matchesRegion()` helpers from `src/utils/regionFilter.js`
-- European Union filtering works by country list (EU_COUNTRIES) rather than data region field
+- European Union and EU Enlargement filtering work by country list (EU_COUNTRIES, EU_ENLARGEMENT_COUNTRIES) rather than data region field
 
 **Memoization**: Heavy use of `useMemo` for derived data (chartData, averages, available countries)
 
@@ -433,7 +437,7 @@ connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com;
 
 ### Modifying Colors
 
-Edit `COLORS` or `TS_COLORS` in `src/constants.js`. Changes propagate to all components.
+Edit `COLORS` or `TS_COLORS` in `src/config/constants.js`. Changes propagate to all components.
 
 ### Adding/Modifying Factors or Sub-factors
 

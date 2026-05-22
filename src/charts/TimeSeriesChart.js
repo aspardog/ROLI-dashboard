@@ -11,7 +11,7 @@ const CHART_SIZES = {
   bipanel: { width: '100%', height: 400, maxWidth: '600px' }
 };
 
-function TimeSeriesChart({ allData, country, variable, label, selectedRegion, regionLabel, showRegionalAvg = false, showGlobalAvg = false, countryRegion = null, yearRange = [2020, 2025] }) {
+function TimeSeriesChart({ allData, country, variable, label, selectedRegion, regionLabel, showRegionalAvg = false, showGlobalAvg = false, countryRegion = null, yearRange = [2015, 2025] }) {
   const chartRef = useRef(null);
   const [exportMode, setExportMode] = useState(null);
 

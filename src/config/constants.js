@@ -6,6 +6,7 @@ const REGION_OPTIONS = [
   { value: 'Eastern Europe and Central Asia', label: 'Eastern Europe and Central Asia' },
   { value: 'EU, EFTA, and North America',     label: 'EU, EFTA, and North America' },
   { value: 'European Union',                  label: 'European Union' },
+  { value: 'EU enlargement',                  label: 'EU Enlargement' },
   { value: 'Latin America and Caribbean',     label: 'Latin America and Caribbean' },
   { value: 'Middle East and North Africa',    label: 'Middle East and North Africa' },
   { value: 'South Asia',                      label: 'South Asia' },
@@ -41,6 +42,20 @@ const EU_COUNTRIES = [
   'Slovenia',
   'Spain',
   'Sweden',
+];
+
+// EU enlargement candidate countries
+const EU_ENLARGEMENT_COUNTRIES = [
+  'Albania',
+  'Bosnia and Herzegovina',
+  'Georgia',
+  'Kosovo',
+  'Moldova',
+  'Montenegro',
+  'North Macedonia',
+  'Serbia',
+  'Türkiye',
+  'Ukraine',
 ];
 
 
@@ -213,4 +228,4 @@ const SUBFACTOR_SHORT_LABELS = {
   sf87: '8.7 Due process and rights of the accused',
 };
 
-export { ACTIVE_YEAR, REGION_OPTIONS, VARIABLE_OPTIONS, SUBFACTOR_GROUPS, COLORS, TS_COLORS, FACTOR_COLORS, FACTOR_SHORT_LABELS, SUBFACTOR_SHORT_LABELS, EU_COUNTRIES };
+export { ACTIVE_YEAR, REGION_OPTIONS, VARIABLE_OPTIONS, SUBFACTOR_GROUPS, COLORS, TS_COLORS, FACTOR_COLORS, FACTOR_SHORT_LABELS, SUBFACTOR_SHORT_LABELS, EU_COUNTRIES, EU_ENLARGEMENT_COUNTRIES };
