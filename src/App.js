@@ -26,6 +26,41 @@ const CHART_TABS = [
 
 const AVAILABLE_YEARS = ['2025', '2024', '2023', '2022', '2021', '2020', '2019', '2018', '2017', '2016', '2015'];
 
+function getTimeSeriesEntityLabel(entity) {
+  if (entity === '__region_global') return 'Global Average';
+  if (entity.startsWith('__region_')) return `${entity.replace('__region_', '')} Average`;
+  return entity;
+}
+
+function selectedEntitiesToSeries(entities, allData, averages, variable, startYear, endYear) {
+  return entities.map(entity => {
+    const points = [];
+
+    for (let year = startYear; year <= endYear; year += 1) {
+      const yearKey = String(year);
+      let value = null;
+
+      if (entity.startsWith('__region_')) {
+        const regionName = entity.replace('__region_', '');
+        value = regionName === 'global'
+          ? (averages.global?.[yearKey]?.[variable] ?? null)
+          : (averages.regions?.[regionName]?.[yearKey]?.[variable] ?? null);
+      } else {
+        const entry = allData.find(d => d.year === yearKey && d.country === entity);
+        value = entry?.[variable] ?? null;
+      }
+
+      if (value != null) points.push({ year: yearKey, value });
+    }
+
+    return {
+      key: entity,
+      label: getTimeSeriesEntityLabel(entity),
+      points,
+    };
+  }).filter(series => series.points.length >= 2);
+}
+
 export default function ROLIDashboard() {
   const [allData, setAllData] = useState([]);
   const [averages, setAverages] = useState({ global: {}, regions: {} });
@@ -34,8 +69,11 @@ export default function ROLIDashboard() {
   const [dataError, setDataError] = useState(null);
   const [selectedRegion, setSelectedRegion] = useState('global');
   const [selectedVariable, setSelectedVariable] = useState('roli');
+  const [timeSeriesMode, setTimeSeriesMode] = useState('countries');
   const [timeSeriesEntities, setTimeSeriesEntities] = useState(['__region_global']);
   const [expandedTimeSeriesRegions, setExpandedTimeSeriesRegions] = useState({});
+  const [timeSeriesCountry, setTimeSeriesCountry] = useState('');
+  const [timeSeriesVariables, setTimeSeriesVariables] = useState(['roli', 'f1', 'f2']);
   const [showRegionalAvg, setShowRegionalAvg] = useState(false);
   const [showGlobalAvg, setShowGlobalAvg] = useState(false);
   const [chartType, setChartType] = useState('timeseries');
@@ -137,6 +175,10 @@ export default function ROLIDashboard() {
     return getCountriesForRegionYear(metadata, selectedProfileRegion, ACTIVE_YEAR);
   }, [metadata, selectedProfileRegion]);
 
+  const timeSeriesCountryOptions = useMemo(() => {
+    return getCountriesForRegionYear(metadata, selectedRegion, ACTIVE_YEAR);
+  }, [metadata, selectedRegion]);
+
   useEffect(() => {
     setTimeSeriesEntities(current => current.filter(entity => {
       if (entity.startsWith('__region_')) return true;
@@ -146,6 +188,85 @@ export default function ROLIDashboard() {
       return availableCountries.includes(entity);
     }) : ['__region_global']);
   }, [availableCountries]);
+
+  useEffect(() => {
+    if (!timeSeriesCountryOptions.includes(timeSeriesCountry)) {
+      setTimeSeriesCountry(timeSeriesCountryOptions[0] || '');
+    }
+  }, [timeSeriesCountry, timeSeriesCountryOptions]);
+
+  useEffect(() => {
+    if (timeSeriesMode === 'countryFactors') {
+      setShowRegionalAvg(false);
+      setShowGlobalAvg(false);
+    }
+  }, [timeSeriesMode]);
+
+  const timeSeriesReferenceSeries = useMemo(() => {
+    const [startYear, endYear] = yearRange;
+    const refs = [];
+
+    if (timeSeriesMode === 'countries') {
+      if (showRegionalAvg && selectedRegion !== 'global' && selectedVariable) {
+        const points = [];
+        for (let year = startYear; year <= endYear; year += 1) {
+          const value = averages.regions?.[selectedRegion]?.[String(year)]?.[selectedVariable] ?? null;
+          if (value != null) points.push({ year: String(year), value });
+        }
+        if (points.length >= 2) refs.push({ key: 'regionalAvg', label: `${regionLabel} Average`, points, style: 'referenceRegional' });
+      }
+
+      if (showGlobalAvg && selectedVariable) {
+        const points = [];
+        for (let year = startYear; year <= endYear; year += 1) {
+          const value = averages.global?.[String(year)]?.[selectedVariable] ?? null;
+          if (value != null) points.push({ year: String(year), value });
+        }
+        if (points.length >= 2) refs.push({ key: 'globalAvg', label: 'Global Average', points, style: 'referenceGlobal' });
+      }
+    }
+
+    return refs;
+  }, [averages, yearRange, timeSeriesMode, showRegionalAvg, selectedRegion, selectedVariable, regionLabel, showGlobalAvg]);
+
+  const timeSeriesSeries = useMemo(() => {
+    const [startYear, endYear] = yearRange;
+
+    if (timeSeriesMode === 'countries') {
+      return selectedEntitiesToSeries(timeSeriesEntities, allData, averages, selectedVariable, startYear, endYear);
+    }
+
+    if (!timeSeriesCountry) return [];
+
+    return timeSeriesVariables.map(variableKey => {
+      const variableLabel = VARIABLE_OPTIONS.find(option => option.value === variableKey)?.label || variableKey;
+      const points = [];
+
+      for (let year = startYear; year <= endYear; year += 1) {
+        const entry = allData.find(d => d.year === String(year) && d.country === timeSeriesCountry);
+        const value = entry?.[variableKey] ?? null;
+        if (value != null) points.push({ year: String(year), value });
+      }
+
+      return {
+        key: variableKey,
+        label: variableLabel,
+        points,
+      };
+    }).filter(series => series.points.length >= 2);
+  }, [timeSeriesMode, timeSeriesEntities, allData, averages, selectedVariable, yearRange, timeSeriesCountry, timeSeriesVariables]);
+
+  const timeSeriesSubtitle = useMemo(() => {
+    if (timeSeriesMode === 'countries') {
+      return timeSeriesSeries.length === 1
+        ? `${timeSeriesSeries[0].label} ${yearRange[0]}–${yearRange[1]}`
+        : `Comparing ${timeSeriesSeries.length} categories, ${yearRange[0]}–${yearRange[1]}`;
+    }
+
+    return timeSeriesCountry
+      ? `${timeSeriesCountry} ${yearRange[0]}–${yearRange[1]}`
+      : `${yearRange[0]}–${yearRange[1]}`;
+  }, [timeSeriesMode, timeSeriesSeries, yearRange, timeSeriesCountry]);
 
   if (roliData.length === 0) {
     return <div style={{ minHeight: '100vh', backgroundColor: COLORS.background, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -250,6 +371,14 @@ export default function ROLIDashboard() {
           {/* Time Series Controls */}
           {chartType === 'timeseries' && (
             <>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Mode</label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', border: '1px solid #e5e5e5', borderRadius: '6px', overflow: 'hidden' }}>
+                  <button onClick={() => setTimeSeriesMode('countries')} style={{ padding: '12px 10px', fontSize: '12px', fontWeight: '600', border: 'none', backgroundColor: timeSeriesMode === 'countries' ? COLORS.primary : 'white', color: timeSeriesMode === 'countries' ? 'white' : COLORS.text, cursor: 'pointer' }}>Countries</button>
+                  <button onClick={() => setTimeSeriesMode('countryFactors')} style={{ padding: '12px 10px', fontSize: '12px', fontWeight: '600', border: 'none', borderLeft: '1px solid #e5e5e5', backgroundColor: timeSeriesMode === 'countryFactors' ? COLORS.primary : 'white', color: timeSeriesMode === 'countryFactors' ? 'white' : COLORS.text, cursor: 'pointer' }}>One Country, Many Variables</button>
+                </div>
+              </div>
+
               {/* Region Dropdown */}
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Region Reference</label>
@@ -263,7 +392,7 @@ export default function ROLIDashboard() {
                 </div>
               </div>
 
-              {/* Categories to Compare */}
+              {timeSeriesMode === 'countries' && (
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.primary, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Categories to Compare</label>
 
@@ -347,8 +476,9 @@ export default function ROLIDashboard() {
                   })}
                 </div>
               </div>
+              )}
 
-              {/* Factor and Subfactor Dropdown */}
+              {timeSeriesMode === 'countries' && (
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Factor and Subfactor</label>
                 <div style={{ position: 'relative' }}>
@@ -370,6 +500,87 @@ export default function ROLIDashboard() {
                   </div>
                 </div>
               </div>
+              )}
+
+              {timeSeriesMode === 'countryFactors' && (
+                <>
+                  <div style={{ marginBottom: '20px' }}>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Country</label>
+                    <div style={{ position: 'relative' }}>
+                      <select value={timeSeriesCountry} onChange={(e) => setTimeSeriesCountry(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
+                        {timeSeriesCountryOptions.map(country => (<option key={country} value={country}>{country}</option>))}
+                      </select>
+                      <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                        <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: '20px' }}>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.primary, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Factors & Subfactors to Compare</label>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '340px', overflowY: 'auto', paddingRight: '8px' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '4px 0' }}>
+                        <input
+                          type="checkbox"
+                          checked={timeSeriesVariables.includes('roli')}
+                          onChange={(e) => {
+                            if (e.target.checked && timeSeriesVariables.length < 7) {
+                              setTimeSeriesVariables([...timeSeriesVariables, 'roli']);
+                            } else if (!e.target.checked && timeSeriesVariables.length > 1) {
+                              setTimeSeriesVariables(timeSeriesVariables.filter(variable => variable !== 'roli'));
+                            }
+                          }}
+                          style={{ cursor: 'pointer', width: '14px', height: '14px', accentColor: COLORS.primary }}
+                        />
+                        <span style={{ fontSize: '13px', color: COLORS.text, fontWeight: '600' }}>WJP Rule of Law Index: Overall Score</span>
+                      </label>
+                      {SUBFACTOR_GROUPS.map(group => {
+                        const factorKey = group.category.replace('sf', 'f');
+                        const factorOption = VARIABLE_OPTIONS.find(option => option.value === factorKey);
+                        const subfactors = VARIABLE_OPTIONS.filter(option => option.category === group.category);
+                        return (
+                          <div key={group.category} style={{ marginBottom: '8px' }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '4px 0' }}>
+                              <input
+                                type="checkbox"
+                                checked={timeSeriesVariables.includes(factorKey)}
+                                onChange={(e) => {
+                                  if (e.target.checked && timeSeriesVariables.length < 7) {
+                                    setTimeSeriesVariables([...timeSeriesVariables, factorKey]);
+                                  } else if (!e.target.checked && timeSeriesVariables.length > 1) {
+                                    setTimeSeriesVariables(timeSeriesVariables.filter(variable => variable !== factorKey));
+                                  }
+                                }}
+                                style={{ cursor: 'pointer', width: '14px', height: '14px', accentColor: COLORS.primary }}
+                              />
+                              <span style={{ fontSize: '13px', color: COLORS.text, fontWeight: '500' }}>{factorOption?.label}</span>
+                            </label>
+                            <div style={{ marginLeft: '22px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                              {subfactors.map(subfactor => (
+                                <label key={subfactor.value} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '2px 0' }}>
+                                  <input
+                                    type="checkbox"
+                                    checked={timeSeriesVariables.includes(subfactor.value)}
+                                    onChange={(e) => {
+                                      if (e.target.checked && timeSeriesVariables.length < 7) {
+                                        setTimeSeriesVariables([...timeSeriesVariables, subfactor.value]);
+                                      } else if (!e.target.checked && timeSeriesVariables.length > 1) {
+                                        setTimeSeriesVariables(timeSeriesVariables.filter(variable => variable !== subfactor.value));
+                                      }
+                                    }}
+                                    style={{ cursor: 'pointer', width: '12px', height: '12px', accentColor: COLORS.primary }}
+                                  />
+                                  <span style={{ fontSize: '11px', color: COLORS.muted }}>{subfactor.label}</span>
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </>
+              )}
 
               {/* Time Period Range Slider - Start year movable, end year fixed at 2025 */}
               <div style={{ marginBottom: '20px' }}>
@@ -413,10 +624,13 @@ export default function ROLIDashboard() {
 
               <div style={{ padding: '12px', backgroundColor: '#f8f7f4', borderRadius: '6px', marginBottom: '20px' }}>
                 <p style={{ fontSize: '12px', color: COLORS.muted, margin: 0, lineHeight: 1.5 }}>
-                  Select up to 7 countries or regional averages to compare over time.
+                  {timeSeriesMode === 'countries'
+                    ? 'Select up to 7 countries or regional averages to compare over time.'
+                    : 'Select one country and up to 7 factors or subfactors to compare over time.'}
                 </p>
               </div>
 
+              {timeSeriesMode === 'countries' && (
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Reference Lines</label>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -432,6 +646,7 @@ export default function ROLIDashboard() {
                   )}
                 </div>
               </div>
+              )}
             </>
           )}
 
@@ -1028,7 +1243,16 @@ export default function ROLIDashboard() {
             </div>
           }>
             {chartType === 'topbottom' && <TopBottomChart allData={allData} averages={averages} selectedRegion={selectedRegion} selectedYear={selectedYear} variable={selectedVariable} label={selectedLabel} regionLabel={regionLabel} />}
-            {chartType === 'timeseries' && timeSeriesEntities.length > 0 && <TimeSeriesChart allData={allData} averages={averages} selectedEntities={timeSeriesEntities} variable={selectedVariable} label={selectedLabel} selectedRegion={selectedRegion} regionLabel={regionLabel} showRegionalAvg={showRegionalAvg} showGlobalAvg={showGlobalAvg} yearRange={yearRange} />}
+            {chartType === 'timeseries' && timeSeriesSeries.length > 0 && (
+              <TimeSeriesChart
+                series={timeSeriesSeries}
+                label={timeSeriesMode === 'countries' ? selectedLabel : 'Time Series'}
+                subtitle={timeSeriesSubtitle}
+                variable={timeSeriesMode === 'countries' ? selectedVariable : timeSeriesCountry}
+                referenceSeries={timeSeriesReferenceSeries}
+                yearRange={yearRange}
+              />
+            )}
             {chartType === 'factors' && (
               <FactorComparisonChart
                 allData={allData}

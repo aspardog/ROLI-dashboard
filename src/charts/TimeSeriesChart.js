@@ -2,7 +2,7 @@ import { useMemo, useRef, useState, useCallback, memo } from 'react';
 import PropTypes from 'prop-types';
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, ResponsiveContainer, LabelList } from 'recharts';
 import { TS_COLORS } from '../config';
-import { prepareSVGClone, embedFonts, downloadSVG as downloadSVGHelper, createLegendItem, getAverageProfile } from '../utils';
+import { prepareSVGClone, embedFonts, downloadSVG as downloadSVGHelper, createLegendItem } from '../utils';
 import { ChartCard } from '../components';
 
 const CHART_SIZES = {
@@ -20,76 +20,17 @@ const SERIES_COLORS = [
   '#FF9500',
 ];
 
-function getEntityLabel(entity) {
-  if (entity === '__region_global') return 'Global Average';
-  if (entity.startsWith('__region_')) return `${entity.replace('__region_', '')} Average`;
-  return entity;
+function getSeriesColor(index, style) {
+  if (style === 'referenceRegional') return TS_COLORS.regionalAvg;
+  if (style === 'referenceGlobal') return TS_COLORS.globalAvg;
+  return SERIES_COLORS[index % SERIES_COLORS.length];
 }
 
-function TimeSeriesChart({ allData, averages, selectedEntities = [], variable, label, selectedRegion = 'global', regionLabel = 'Global', showRegionalAvg = false, showGlobalAvg = false, yearRange = [2015, 2025] }) {
+function TimeSeriesChart({ series = [], referenceSeries = [], variable, label, subtitle, yearRange = [2015, 2025] }) {
   const chartRef = useRef(null);
   const [exportMode, setExportMode] = useState(null);
 
-  const regionalAvgSeries = useMemo(() => {
-    if (!showRegionalAvg || selectedRegion === 'global') return {};
-    const [startYear, endYear] = yearRange;
-    const result = {};
-
-    for (let year = startYear; year <= endYear; year += 1) {
-      const profile = getAverageProfile(averages, selectedRegion, String(year));
-      if (profile?.[variable] != null) {
-        result[String(year)] = profile[variable];
-      }
-    }
-
-    return result;
-  }, [averages, selectedRegion, showRegionalAvg, variable, yearRange]);
-
-  const globalAvgSeries = useMemo(() => {
-    if (!showGlobalAvg) return {};
-    const [startYear, endYear] = yearRange;
-    const result = {};
-
-    for (let year = startYear; year <= endYear; year += 1) {
-      const profile = getAverageProfile(averages, 'global', String(year));
-      if (profile?.[variable] != null) {
-        result[String(year)] = profile[variable];
-      }
-    }
-
-    return result;
-  }, [averages, showGlobalAvg, variable, yearRange]);
-
-  const entitySeries = useMemo(() => {
-    const [startYear, endYear] = yearRange;
-
-    return selectedEntities.map(entity => {
-      const points = [];
-
-      for (let year = startYear; year <= endYear; year += 1) {
-        const yearKey = String(year);
-        let value = null;
-
-        if (entity.startsWith('__region_')) {
-          const regionName = entity.replace('__region_', '');
-          value = getAverageProfile(averages, regionName, yearKey)?.[variable] ?? null;
-        } else {
-          const entry = allData.find(d => d.year === yearKey && d.country === entity);
-          value = entry?.[variable] ?? null;
-        }
-
-        if (value != null) {
-          points.push({ year: yearKey, value });
-        }
-      }
-
-      return {
-        key: entity,
-        label: getEntityLabel(entity),
-        points,
-      };
-    }).filter(series => series.points.length >= 2);
-  }, [allData, averages, selectedEntities, variable, yearRange]);
+  const allSeries = useMemo(() => [...referenceSeries, ...series], [referenceSeries, series]);
 
   const chartData = useMemo(() => {
     const [startYear, endYear] = yearRange;
@@ -97,38 +38,32 @@ function TimeSeriesChart({ allData, averages, selectedEntities = [], variable, l
 
     for (let year = startYear; year <= endYear; year += 1) {
       const row = { year: String(year) };
-      entitySeries.forEach(series => {
-        const point = series.points.find(item => item.year === row.year);
-        row[series.key] = point?.value ?? null;
+      allSeries.forEach((currentSeries) => {
+        const point = currentSeries.points.find(item => item.year === row.year);
+        row[currentSeries.key] = point?.value ?? null;
       });
-      row.regionalAvg = regionalAvgSeries[row.year] ?? null;
-      row.globalAvg = globalAvgSeries[row.year] ?? null;
       rows.push(row);
     }
 
     return rows;
-  }, [entitySeries, yearRange, regionalAvgSeries, globalAvgSeries]);
-
-  const chartSubtitle = entitySeries.length === 1
-    ? `${entitySeries[0].label} ${yearRange[0]}–${yearRange[1]}`
-    : `Comparing ${entitySeries.length} categories, ${yearRange[0]}–${yearRange[1]}`;
+  }, [allSeries, yearRange]);
 
   const captureAndDownload = useCallback(async (format) => {
     const svg = chartRef.current?.querySelector('svg');
     if (!svg) return;
 
     const isBipanel = format === 'bipanel';
-    const legendHeight = entitySeries.length > 0 ? 80 : 0;
+    const legendHeight = allSeries.length > 0 ? 80 : 0;
     const { clone, bbox } = prepareSVGClone(svg, legendHeight, 'top', {});
     await embedFonts(clone);
 
-    if (entitySeries.length > 0) {
+    if (allSeries.length > 0) {
       const legendY = bbox.y - legendHeight + 10;
       let xOffset = bbox.x + 10;
 
-      entitySeries.forEach((series, index) => {
-        const labelText = series.label.length > 28 ? `${series.label.slice(0, 25)}...` : series.label;
-        const items = createLegendItem(xOffset, legendY, SERIES_COLORS[index % SERIES_COLORS.length], labelText, 'line', {
+      allSeries.forEach((currentSeries, index) => {
+        const labelText = currentSeries.label.length > 28 ? `${currentSeries.label.slice(0, 25)}...` : currentSeries.label;
+        const items = createLegendItem(xOffset, legendY, getSeriesColor(index, currentSeries.style), labelText, 'line', {
           width: 28,
           height: 5,
           textOptions: { fontSize: 13, fontWeight: 500 }
@@ -136,31 +71,12 @@ function TimeSeriesChart({ allData, averages, selectedEntities = [], variable, l
         items.forEach(el => clone.appendChild(el));
         xOffset += 28 + 6 + labelText.length * 7 + 24;
       });
-
-      if (showRegionalAvg && selectedRegion !== 'global') {
-        const items = createLegendItem(xOffset, legendY, TS_COLORS.regionalAvg, `${regionLabel} Average`, 'line', {
-          width: 28,
-          height: 5,
-          textOptions: { fontSize: 13, fontWeight: 500 }
-        });
-        items.forEach(el => clone.appendChild(el));
-        xOffset += 28 + 6 + `${regionLabel} Average`.length * 7 + 24;
-      }
-
-      if (showGlobalAvg) {
-        const items = createLegendItem(xOffset, legendY, TS_COLORS.globalAvg, 'Global Average', 'line', {
-          width: 28,
-          height: 5,
-          textOptions: { fontSize: 13, fontWeight: 500 }
-        });
-        items.forEach(el => clone.appendChild(el));
-      }
     }
 
     const suffix = isBipanel ? '_bipanel' : '';
-    const fileLabel = entitySeries.length === 1 ? entitySeries[0].label.replace(/\s+/g, '_') : `comparison_${entitySeries.length}_entities`;
+    const fileLabel = series.length === 1 ? series[0].label.replace(/\s+/g, '_') : `comparison_${series.length}_series`;
     downloadSVGHelper(clone, `ROLI_${fileLabel}_${variable}${suffix}.svg`);
-  }, [entitySeries, variable, regionLabel, selectedRegion, showGlobalAvg, showRegionalAvg]);
+  }, [allSeries, series, variable]);
 
   const downloadSVG = useCallback(async (format = 'full') => {
     if (format === 'bipanel') {
@@ -173,33 +89,21 @@ function TimeSeriesChart({ allData, averages, selectedEntities = [], variable, l
     }
   }, [captureAndDownload]);
 
-  if (entitySeries.length === 0) return null;
+  if (series.length === 0) return null;
 
   return (
     <ChartCard
       title={label}
-      subtitle={chartSubtitle}
+      subtitle={subtitle}
       onExport={downloadSVG}
     >
       <div style={{ display: 'flex', gap: '20px', marginBottom: '16px', paddingLeft: '16px', flexWrap: 'wrap' }}>
-        {entitySeries.map((series, index) => (
-          <div key={series.key} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '28px', height: '5px', backgroundColor: SERIES_COLORS[index % SERIES_COLORS.length], borderRadius: '3px' }} />
-            <span style={{ fontSize: '13px', color: TS_COLORS.axis }}>{series.label}</span>
+        {allSeries.map((currentSeries, index) => (
+          <div key={currentSeries.key} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ width: '28px', height: '5px', backgroundColor: getSeriesColor(index, currentSeries.style), borderRadius: '3px' }} />
+            <span style={{ fontSize: '13px', color: TS_COLORS.axis }}>{currentSeries.label}</span>
           </div>
         ))}
-        {showRegionalAvg && selectedRegion !== 'global' && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '28px', height: '5px', backgroundColor: TS_COLORS.regionalAvg, borderRadius: '3px' }} />
-            <span style={{ fontSize: '13px', color: TS_COLORS.axis }}>{regionLabel} Average</span>
-          </div>
-        )}
-        {showGlobalAvg && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '28px', height: '5px', backgroundColor: TS_COLORS.globalAvg, borderRadius: '3px' }} />
-            <span style={{ fontSize: '13px', color: TS_COLORS.axis }}>Global Average</span>
-          </div>
-        )}
       </div>
       <div ref={chartRef} style={{ maxWidth: exportMode ? CHART_SIZES[exportMode].maxWidth : CHART_SIZES.full.maxWidth }}>
         <ResponsiveContainer width="100%" height={exportMode ? CHART_SIZES[exportMode].height : CHART_SIZES.full.height}>
@@ -221,45 +125,22 @@ function TimeSeriesChart({ allData, averages, selectedEntities = [], variable, l
               axisLine={{ stroke: TS_COLORS.grid, strokeWidth: 1 }}
               tickLine={false}
             />
-            {showGlobalAvg && (
+            {allSeries.map((currentSeries, index) => (
               <Line
+                key={currentSeries.key}
                 type="linear"
-                dataKey="globalAvg"
-                stroke={TS_COLORS.globalAvg}
-                strokeWidth={3}
-                strokeDasharray="8 4"
-                dot={{ r: 0 }}
-                isAnimationActive={false}
-                connectNulls={false}
-              />
-            )}
-            {showRegionalAvg && selectedRegion !== 'global' && (
-              <Line
-                type="linear"
-                dataKey="regionalAvg"
-                stroke={TS_COLORS.regionalAvg}
-                strokeWidth={3}
-                strokeDasharray="8 4"
-                dot={{ r: 0 }}
-                isAnimationActive={false}
-                connectNulls={false}
-              />
-            )}
-            {entitySeries.map((series, index) => (
-              <Line
-                key={series.key}
-                type="linear"
-                dataKey={series.key}
-                stroke={SERIES_COLORS[index % SERIES_COLORS.length]}
-                strokeWidth={index === 0 ? 3.5 : 3}
-                dot={{ r: 4, fill: SERIES_COLORS[index % SERIES_COLORS.length], strokeWidth: 0 }}
+                dataKey={currentSeries.key}
+                stroke={getSeriesColor(index, currentSeries.style)}
+                strokeWidth={currentSeries.style ? 3 : (index - referenceSeries.length === 0 ? 3.5 : 3)}
+                strokeDasharray={currentSeries.style ? '8 4' : undefined}
+                dot={{ r: currentSeries.style ? 0 : 4, fill: getSeriesColor(index, currentSeries.style), strokeWidth: 0 }}
                 isAnimationActive={false}
                 connectNulls={false}
               >
                 <LabelList
-                  dataKey={series.key}
+                  dataKey={currentSeries.key}
                   content={({ x, y, value, index: pointIndex }) => {
-                    if (value == null || pointIndex !== chartData.length - 1) return null;
+                    if (currentSeries.style || value == null || pointIndex !== chartData.length - 1) return null;
                     return (
                       <text
                         x={x + 8}
@@ -267,7 +148,7 @@ function TimeSeriesChart({ allData, averages, selectedEntities = [], variable, l
                         textAnchor="start"
                         fontSize={12}
                         fontWeight={600}
-                        fill={SERIES_COLORS[index % SERIES_COLORS.length]}
+                        fill={getSeriesColor(index, currentSeries.style)}
                       >
                         {Number(value).toFixed(2)}
                       </text>
@@ -284,18 +165,27 @@ function TimeSeriesChart({ allData, averages, selectedEntities = [], variable, l
 }
 
 TimeSeriesChart.propTypes = {
-  allData: PropTypes.arrayOf(PropTypes.object).isRequired,
-  averages: PropTypes.shape({
-    global: PropTypes.object,
-    regions: PropTypes.object,
-  }),
-  selectedEntities: PropTypes.arrayOf(PropTypes.string),
+  series: PropTypes.arrayOf(PropTypes.shape({
+    key: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
+    points: PropTypes.arrayOf(PropTypes.shape({
+      year: PropTypes.string.isRequired,
+      value: PropTypes.number.isRequired,
+    })).isRequired,
+    style: PropTypes.string,
+  })),
+  referenceSeries: PropTypes.arrayOf(PropTypes.shape({
+    key: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
+    points: PropTypes.arrayOf(PropTypes.shape({
+      year: PropTypes.string.isRequired,
+      value: PropTypes.number.isRequired,
+    })).isRequired,
+    style: PropTypes.string,
+  })),
   variable: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
-  selectedRegion: PropTypes.string,
-  regionLabel: PropTypes.string,
-  showRegionalAvg: PropTypes.bool,
-  showGlobalAvg: PropTypes.bool,
+  subtitle: PropTypes.string,
   yearRange: PropTypes.arrayOf(PropTypes.number),
 };
 
