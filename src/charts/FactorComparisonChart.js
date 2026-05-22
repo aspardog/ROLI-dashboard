@@ -2,7 +2,7 @@ import { useMemo, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, LabelList, ReferenceLine } from 'recharts';
 import { COLORS } from '../config';
-import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper, addWhiteBackground, filterByRegion } from '../utils';
+import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper, addWhiteBackground, getAverageProfile } from '../utils';
 import { ChartCard } from '../components';
 
 const FACTORS = [
@@ -61,7 +61,7 @@ const CustomYAxisTick = ({ x, y, payload }) => {
   );
 };
 
-function FactorComparisonChart({ allData, selectedRegion, selectedYear, availableCountries, selectedCountries = ['__region_global'] }) {
+function FactorComparisonChart({ allData, averages, selectedRegion, selectedYear, availableCountries, selectedCountries = ['__region_global'] }) {
   const chartRef = useRef(null);
 
   const chartData = useMemo(() => {
@@ -72,17 +72,8 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
 
       selectedCountries.forEach((country, index) => {
         if (country.startsWith('__region_')) {
-          // Calculate average for a specific region
           const regionName = country.replace('__region_', '');
-          const yearData = filterByRegion(
-            allData.filter(d => d.year === selectedYear),
-            regionName
-          );
-          const validData = yearData.filter(d => d[factor.key] != null);
-          const avg = validData.length > 0
-            ? validData.reduce((sum, d) => sum + d[factor.key], 0) / validData.length
-            : 0;
-          row[country] = avg;
+          row[country] = getAverageProfile(averages, regionName, selectedYear)?.[factor.key] ?? 0;
         } else {
           // Get data for specific country
           const countryData = allData.find(
@@ -96,7 +87,7 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
     });
 
     return data;
-  }, [allData, selectedCountries, selectedYear]);
+  }, [allData, averages, selectedCountries, selectedYear]);
 
   const getCountryLabel = (country) => {
     if (country.startsWith('__region_')) {
@@ -261,6 +252,10 @@ function FactorComparisonChart({ allData, selectedRegion, selectedYear, availabl
 
 FactorComparisonChart.propTypes = {
   allData: PropTypes.arrayOf(PropTypes.object).isRequired,
+  averages: PropTypes.shape({
+    global: PropTypes.object,
+    regions: PropTypes.object,
+  }),
   selectedRegion: PropTypes.string.isRequired,
   selectedYear: PropTypes.string.isRequired,
   availableCountries: PropTypes.arrayOf(PropTypes.string).isRequired,

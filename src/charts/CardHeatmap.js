@@ -47,7 +47,7 @@ function getChangeArrow(changePercent) {
 export default function CardHeatmap({
   allData,
   selectedYear = '2025',
-  baseYear = '2020',
+  baseYear = '2015',
   selectedRegion = 'global',
   selectedVariable = 'roli'
 }) {
@@ -72,12 +72,19 @@ export default function CardHeatmap({
 
     currentYearData.forEach(current => {
       const baseData = allData.find(d => d.country === current.country && d.year === baseYear);
-
       const currentValue = current[selectedVariable];
       const baseValue = baseData ? baseData[selectedVariable] : null;
-      const change = (currentValue !== null && baseValue !== null && baseValue !== 0)
-        ? (currentValue - baseValue) / baseValue
-        : null;
+      const precomputedComparison = current.comparisons?.[baseYear]?.[selectedVariable];
+      const changeAbsolute = Array.isArray(precomputedComparison)
+        ? precomputedComparison[0]
+        : currentValue !== null && baseValue !== null
+          ? currentValue - baseValue
+          : null;
+      const change = Array.isArray(precomputedComparison)
+        ? precomputedComparison[1]
+        : currentValue !== null && baseValue !== null && baseValue !== 0
+          ? (currentValue - baseValue) / baseValue
+          : null;
 
       result.push({
         country: current.country,
@@ -85,7 +92,7 @@ export default function CardHeatmap({
         value: currentValue,
         baseValue,
         change,
-        changeAbsolute: currentValue !== null && baseValue !== null ? currentValue - baseValue : null
+        changeAbsolute
       });
     });
 

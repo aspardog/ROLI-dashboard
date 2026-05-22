@@ -1,7 +1,7 @@
 import { useMemo, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { FACTOR_COLORS, FACTOR_SHORT_LABELS, SUBFACTOR_SHORT_LABELS, COLORS } from '../config';
-import { embedFonts, downloadSVG as downloadSVGHelper, createSVGElement, createTextElement, matchesRegion } from '../utils';
+import { embedFonts, downloadSVG as downloadSVGHelper, createSVGElement, createTextElement, getAverageProfile } from '../utils';
 import { ChartCard } from '../components';
 
 // Factor structure with their subfactors
@@ -16,38 +16,19 @@ const FACTOR_STRUCTURE = [
   { factor: 'f8', subfactors: ['sf81', 'sf82', 'sf83', 'sf84', 'sf85', 'sf86', 'sf87'] },
 ];
 
-function CountryProfileChart({ allData, selectedRegion, selectedCountry, selectedYear }) {
+function CountryProfileChart({ allData, averages, selectedRegion, selectedCountry, selectedYear }) {
   const chartRef = useRef(null);
 
   // Get data for the selected entity (country or regional average)
   const profileData = useMemo(() => {
     if (selectedCountry === '__regional_avg__') {
-      // Calculate regional or global average
-      const filtered = allData.filter(d => {
-        if (d.year !== selectedYear) return false;
-        if (!matchesRegion(d, selectedRegion)) return false;
-        return true;
-      });
-
-      if (filtered.length === 0) return null;
-
-      const result = {};
-      const allKeys = [...FACTOR_STRUCTURE.flatMap(f => [f.factor, ...f.subfactors])];
-
-      for (const key of allKeys) {
-        const values = filtered.map(d => d[key]).filter(v => v != null);
-        if (values.length > 0) {
-          result[key] = Math.round((values.reduce((s, v) => s + v, 0) / values.length) * 100) / 100;
-        }
-      }
-
-      return result;
+      return getAverageProfile(averages, selectedRegion, selectedYear);
     } else {
       // Get specific country data
       const countryData = allData.find(d => d.country === selectedCountry && d.year === selectedYear);
       return countryData || null;
     }
-  }, [allData, selectedRegion, selectedCountry, selectedYear]);
+  }, [allData, averages, selectedRegion, selectedCountry, selectedYear]);
 
   const title = useMemo(() => {
     if (selectedCountry === '__regional_avg__') {
@@ -286,6 +267,10 @@ function CountryProfileChart({ allData, selectedRegion, selectedCountry, selecte
 
 CountryProfileChart.propTypes = {
   allData: PropTypes.arrayOf(PropTypes.object).isRequired,
+  averages: PropTypes.shape({
+    global: PropTypes.object,
+    regions: PropTypes.object,
+  }),
   selectedRegion: PropTypes.string.isRequired,
   selectedCountry: PropTypes.string.isRequired,
   selectedYear: PropTypes.string.isRequired,

@@ -52,9 +52,17 @@ export default function LollipopChart({
 
       const currentValue = currentData[selectedVariable];
       const baseValue = baseData ? baseData[selectedVariable] : null;
-      const change = (currentValue !== null && baseValue !== null)
-        ? currentValue - baseValue
-        : null;
+      const precomputedComparison = currentData.comparisons?.[baseYear]?.[selectedVariable];
+      const change = Array.isArray(precomputedComparison)
+        ? precomputedComparison[0]
+        : currentValue !== null && baseValue !== null
+          ? currentValue - baseValue
+          : null;
+      const changePercent = Array.isArray(precomputedComparison)
+        ? (precomputedComparison[1] !== null ? precomputedComparison[1] * 100 : null)
+        : baseValue && baseValue !== 0
+          ? (change / baseValue) * 100
+          : null;
 
       result.push({
         country,
@@ -62,7 +70,7 @@ export default function LollipopChart({
         currentValue,
         baseValue,
         change,
-        changePercent: baseValue && baseValue !== 0 ? (change / baseValue) * 100 : null
+        changePercent
       });
     });
 

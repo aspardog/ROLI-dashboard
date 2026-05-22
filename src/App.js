@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
-import { ACTIVE_YEAR, REGION_OPTIONS, VARIABLE_OPTIONS, SUBFACTOR_GROUPS, COLORS, EU_COUNTRIES, EU_ENLARGEMENT_COUNTRIES } from './config';
+import { ACTIVE_YEAR, REGION_OPTIONS, VARIABLE_OPTIONS, SUBFACTOR_GROUPS, COLORS } from './config';
 import { InfoModal, HowToUseModal } from './modals';
-import { filterByRegion } from './utils';
+import { filterByRegion, normalizeDataBundle, getCountriesForRegionYear, getCountryRegion } from './utils';
 import './styles/responsive.css';
 
 // Lazy load chart components for better initial bundle size
@@ -24,8 +24,12 @@ const CHART_TABS = [
   { key: 'cardheatmap', label: 'CHANGE HEATMAP' }
 ];
 
+const AVAILABLE_YEARS = ['2025', '2024', '2023', '2022', '2021', '2020', '2019', '2018', '2017', '2016', '2015'];
+
 export default function ROLIDashboard() {
   const [allData, setAllData] = useState([]);
+  const [averages, setAverages] = useState({ global: {}, regions: {} });
+  const [metadata, setMetadata] = useState({ years: [], regions: [], countriesByYear: {}, regionCountriesByYear: {}, countryRegionMap: {} });
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [dataError, setDataError] = useState(null);
   const [selectedRegion, setSelectedRegion] = useState('global');
@@ -52,7 +56,7 @@ export default function ROLIDashboard() {
   const [heatmapRegion, setHeatmapRegion] = useState('global');
   const [heatmapFactors, setHeatmapFactors] = useState(['roli', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8']);
   const [cardHeatmapYear, setCardHeatmapYear] = useState('2025');
-  const [cardHeatmapBaseYear, setCardHeatmapBaseYear] = useState('2020');
+  const [cardHeatmapBaseYear, setCardHeatmapBaseYear] = useState('2015');
   const [cardHeatmapRegion, setCardHeatmapRegion] = useState('global');
   const [cardHeatmapVariable, setCardHeatmapVariable] = useState('roli');
   const selectedLabel = VARIABLE_OPTIONS.find(opt => opt.value === selectedVariable)?.label || selectedVariable;
@@ -61,7 +65,7 @@ export default function ROLIDashboard() {
   useEffect(() => {
     const CACHE_KEY = 'roli_data_cache';
     const CACHE_VERSION_KEY = 'roli_data_version';
-    const CURRENT_VERSION = '2025.1'; // Update this when data changes
+    const CURRENT_VERSION = '2025.4'; // Update this when data changes
 
     // Try to load from localStorage cache first
     const cachedVersion = localStorage.getItem(CACHE_VERSION_KEY);
@@ -69,8 +73,10 @@ export default function ROLIDashboard() {
 
     if (cachedVersion === CURRENT_VERSION && cachedData) {
       try {
-        const parsed = JSON.parse(cachedData);
-        setAllData(parsed);
+        const parsed = normalizeDataBundle(JSON.parse(cachedData));
+        setAllData(parsed.entries);
+        setAverages(parsed.averages);
+        setMetadata(parsed.metadata);
         setIsLoadingData(false);
         return; // Use cached data, skip fetch
       } catch (e) {
@@ -88,11 +94,14 @@ export default function ROLIDashboard() {
         return res.json();
       })
       .then(json => {
-        setAllData(json);
+        const parsed = normalizeDataBundle(json);
+        setAllData(parsed.entries);
+        setAverages(parsed.averages);
+        setMetadata(parsed.metadata);
         setIsLoadingData(false);
         // Cache the data for future visits
         try {
-          localStorage.setItem(CACHE_KEY, JSON.stringify(json));
+          localStorage.setItem(CACHE_KEY, JSON.stringify(parsed));
           localStorage.setItem(CACHE_VERSION_KEY, CURRENT_VERSION);
         } catch (e) {
           // localStorage might be full or disabled, ignore
@@ -105,6 +114,12 @@ export default function ROLIDashboard() {
         setIsLoadingData(false);
       });
   }, []);
+
+  useEffect(() => {
+    if (parseInt(cardHeatmapBaseYear, 10) > parseInt(cardHeatmapYear, 10)) {
+      setCardHeatmapBaseYear(cardHeatmapYear);
+    }
+  }, [cardHeatmapBaseYear, cardHeatmapYear]);
 
   const roliData = useMemo(() => {
     const byYear = allData.filter(d => d.year === ACTIVE_YEAR);
@@ -119,17 +134,13 @@ export default function ROLIDashboard() {
   // Detect the region of the selected country from the data
   const selectedCountryRegion = useMemo(() => {
     if (selectedCountry === '__regional_avg__') return null;
-    const countryData = allData.find(d => d.country === selectedCountry);
-    return countryData?.region || null;
-  }, [allData, selectedCountry]);
+    return getCountryRegion(metadata, selectedCountry);
+  }, [metadata, selectedCountry]);
 
   // Available countries for profile chart (based on profile region selection)
   const profileAvailableCountries = useMemo(() => {
-    const byYear = allData.filter(d => d.year === ACTIVE_YEAR);
-    const filtered = filterByRegion(byYear, selectedProfileRegion);
-    const set = new Set(filtered.map(d => d.country));
-    return [...set].sort();
-  }, [allData, selectedProfileRegion]);
+    return getCountriesForRegionYear(metadata, selectedProfileRegion, ACTIVE_YEAR);
+  }, [metadata, selectedProfileRegion]);
 
   useEffect(() => {
     if (selectedCountry !== '__regional_avg__' && !availableCountries.includes(selectedCountry)) {
@@ -490,11 +501,7 @@ export default function ROLIDashboard() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   {REGION_OPTIONS.filter(r => r.value !== 'global').map(region => {
                     const regionKey = `__region_${region.value}`;
-                    const regionCountries = region.value === 'European Union'
-                      ? EU_COUNTRIES.filter(c => allData.some(d => d.year === selectedYear && d.country === c)).sort()
-                      : region.value === 'EU enlargement'
-                        ? EU_ENLARGEMENT_COUNTRIES.filter(c => allData.some(d => d.year === selectedYear && d.country === c)).sort()
-                        : allData.filter(d => d.year === selectedYear && d.region === region.value).map(d => d.country).filter((v, i, a) => a.indexOf(v) === i).sort();
+                    const regionCountries = getCountriesForRegionYear(metadata, region.value, selectedYear);
                     const isExpanded = expandedFactorRegions[region.value];
                     const isRegionSelected = factorCompareCountries.includes(regionKey);
 
@@ -709,17 +716,9 @@ export default function ROLIDashboard() {
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Current Year</label>
                 <div style={{ position: 'relative' }}>
                   <select value={cardHeatmapYear} onChange={(e) => setCardHeatmapYear(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
-                    <option value="2025">2025</option>
-                    <option value="2024">2024</option>
-                    <option value="2023">2023</option>
-                    <option value="2022">2022</option>
-                    <option value="2021">2021</option>
-                    <option value="2020">2020</option>
-                    <option value="2019">2019</option>
-                    <option value="2018">2018</option>
-                    <option value="2017">2017</option>
-                    <option value="2016">2016</option>
-                    <option value="2015">2015</option>
+                    {AVAILABLE_YEARS.map(year => (
+                      <option key={year} value={year}>{year}</option>
+                    ))}
                   </select>
                   <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
                     <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
@@ -730,16 +729,13 @@ export default function ROLIDashboard() {
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Compare to Year</label>
                 <div style={{ position: 'relative' }}>
                   <select value={cardHeatmapBaseYear} onChange={(e) => setCardHeatmapBaseYear(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
-                    <option value="2015">2015</option>
-                    <option value="2016">2016</option>
-                    <option value="2017">2017</option>
-                    <option value="2018">2018</option>
-                    <option value="2019">2019</option>
-                    <option value="2020">2020</option>
-                    <option value="2021">2021</option>
-                    <option value="2022">2022</option>
-                    <option value="2023">2023</option>
-                    <option value="2024">2024</option>
+                    {AVAILABLE_YEARS
+                      .filter(year => parseInt(year, 10) <= parseInt(cardHeatmapYear, 10))
+                      .slice()
+                      .reverse()
+                      .map(year => (
+                        <option key={year} value={year}>{year}</option>
+                      ))}
                   </select>
                   <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
                     <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
@@ -764,8 +760,7 @@ export default function ROLIDashboard() {
                   <select
                     value={selectedRadarEntity.startsWith('__region_') ? selectedRadarEntity.replace('__region_', '') : (() => {
                       // Find the region of the selected country
-                      const countryData = allData.find(d => d.country === selectedRadarEntity);
-                      return countryData?.region || 'global';
+                      return getCountryRegion(metadata, selectedRadarEntity) || 'global';
                     })()}
                     onChange={(e) => {
                       const region = e.target.value;
@@ -793,16 +788,9 @@ export default function ROLIDashboard() {
                     const currentRegion = selectedRadarEntity.startsWith('__region_')
                       ? selectedRadarEntity.replace('__region_', '')
                       : (() => {
-                          const countryData = allData.find(d => d.country === selectedRadarEntity);
-                          return countryData?.region || 'global';
+                          return getCountryRegion(metadata, selectedRadarEntity) || 'global';
                         })();
-                    const radarCountries = currentRegion === 'global'
-                      ? [...new Set(allData.filter(d => d.year === '2025').map(d => d.country))].sort()
-                      : currentRegion === 'European Union'
-                        ? EU_COUNTRIES.filter(c => allData.some(d => d.year === '2025' && d.country === c)).sort()
-                        : currentRegion === 'EU enlargement'
-                          ? EU_ENLARGEMENT_COUNTRIES.filter(c => allData.some(d => d.year === '2025' && d.country === c)).sort()
-                          : [...new Set(allData.filter(d => d.year === '2025' && d.region === currentRegion).map(d => d.country))].sort();
+                    const radarCountries = getCountriesForRegionYear(metadata, currentRegion, '2025');
 
                     return (
                       <select
@@ -966,11 +954,12 @@ export default function ROLIDashboard() {
               <p style={{ fontSize: '16px', color: COLORS.muted }}>Loading chart...</p>
             </div>
           }>
-            {chartType === 'topbottom' && <TopBottomChart allData={allData} selectedRegion={selectedRegion} selectedYear={selectedYear} variable={selectedVariable} label={selectedLabel} regionLabel={regionLabel} />}
-            {chartType === 'timeseries' && selectedCountry && <TimeSeriesChart allData={allData} country={selectedCountry} variable={selectedVariable} label={selectedLabel} selectedRegion={selectedRegion} regionLabel={regionLabel} showRegionalAvg={showRegionalAvg} showGlobalAvg={showGlobalAvg} countryRegion={selectedCountryRegion} yearRange={yearRange} />}
+            {chartType === 'topbottom' && <TopBottomChart allData={allData} averages={averages} selectedRegion={selectedRegion} selectedYear={selectedYear} variable={selectedVariable} label={selectedLabel} regionLabel={regionLabel} />}
+            {chartType === 'timeseries' && selectedCountry && <TimeSeriesChart allData={allData} averages={averages} country={selectedCountry} variable={selectedVariable} label={selectedLabel} selectedRegion={selectedRegion} regionLabel={regionLabel} showRegionalAvg={showRegionalAvg} showGlobalAvg={showGlobalAvg} countryRegion={selectedCountryRegion} yearRange={yearRange} />}
             {chartType === 'factors' && (
               <FactorComparisonChart
                 allData={allData}
+                averages={averages}
                 selectedRegion={selectedRegion}
                 selectedYear={selectedYear}
                 availableCountries={availableCountries}
@@ -980,6 +969,7 @@ export default function ROLIDashboard() {
             {chartType === 'radar' && (
               <RadarChartView
                 allData={allData}
+                averages={averages}
                 selectedEntity={selectedRadarEntity}
                 selectedYears={selectedRadarYears}
                 selectedFactors={selectedRadarFactors}
@@ -988,6 +978,7 @@ export default function ROLIDashboard() {
             {chartType === 'profile' && (
               <CountryProfileChart
                 allData={allData}
+                averages={averages}
                 selectedRegion={selectedProfileRegion}
                 selectedCountry={selectedProfileCountry}
                 selectedYear={ACTIVE_YEAR}
@@ -1018,7 +1009,7 @@ export default function ROLIDashboard() {
       <div className="dashboard-footer" style={{ maxWidth: '1100px', margin: '40px auto 0', textAlign: 'center', paddingBottom: '40px' }}>
         <p style={{ fontSize: '13px', color: COLORS.muted, marginBottom: '8px' }}>
           Source: World Justice Project — Rule of Law Index® {
-            chartType === 'timeseries' ? '2020–2025' :
+            chartType === 'timeseries' ? `${yearRange[0]}–${yearRange[1]}` :
             chartType === 'radar' ? [...selectedRadarYears].sort().join(', ') :
             chartType === 'profile' ? ACTIVE_YEAR :
             chartType === 'factors' ? selectedYear :

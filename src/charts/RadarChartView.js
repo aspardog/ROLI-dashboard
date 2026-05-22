@@ -2,7 +2,7 @@ import { useMemo, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from 'recharts';
 import { COLORS, VARIABLE_OPTIONS } from '../config';
-import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper, matchesRegion } from '../utils';
+import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper, getAverageProfile } from '../utils';
 import { ChartCard } from '../components';
 
 // All possible factors and subfactors with their labels
@@ -107,6 +107,7 @@ const CustomAxisTick = ({ payload, x, y, cx, cy, combinedData, sortedYears, rada
 
 function RadarChartView({
   allData,
+  averages,
   selectedEntity,
   selectedYears,
   selectedFactors = ['roli', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8']
@@ -139,24 +140,16 @@ function RadarChartView({
     const sortedYears = [...selectedYears].sort();
 
     return sortedYears.map(year => {
-      const yearData = allData.filter(d => d.year === year);
-
       const factorData = radarFactors.map(factor => {
         let value = 0;
 
         if (selectedEntity === '__region_global') {
-          const validData = yearData.filter(d => d[factor.key] != null);
-          value = validData.length > 0
-            ? Math.round((validData.reduce((sum, d) => sum + d[factor.key], 0) / validData.length) * 100) / 100
-            : 0;
+          value = getAverageProfile(averages, 'global', year)?.[factor.key] ?? 0;
         } else if (selectedEntity.startsWith('__region_')) {
           const regionName = selectedEntity.replace('__region_', '');
-          const regionData = yearData.filter(d => matchesRegion(d, regionName) && d[factor.key] != null);
-          value = regionData.length > 0
-            ? Math.round((regionData.reduce((sum, d) => sum + d[factor.key], 0) / regionData.length) * 100) / 100
-            : 0;
+          value = getAverageProfile(averages, regionName, year)?.[factor.key] ?? 0;
         } else {
-          const countryData = yearData.find(d => d.country === selectedEntity);
+          const countryData = allData.find(d => d.year === year && d.country === selectedEntity);
           value = countryData?.[factor.key] ?? 0;
         }
 
@@ -165,7 +158,7 @@ function RadarChartView({
 
       return { year, data: factorData };
     });
-  }, [allData, selectedEntity, selectedYears, radarFactors]);
+  }, [allData, averages, selectedEntity, selectedYears, radarFactors]);
 
   // Combined data for multi-year radar
   const combinedData = useMemo(() => {
@@ -299,6 +292,10 @@ function RadarChartView({
 
 RadarChartView.propTypes = {
   allData: PropTypes.arrayOf(PropTypes.object).isRequired,
+  averages: PropTypes.shape({
+    global: PropTypes.object,
+    regions: PropTypes.object,
+  }),
   selectedEntity: PropTypes.string.isRequired,
   selectedYears: PropTypes.arrayOf(PropTypes.string).isRequired,
   selectedFactors: PropTypes.arrayOf(PropTypes.string)

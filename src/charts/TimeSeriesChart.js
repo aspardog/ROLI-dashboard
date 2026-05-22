@@ -2,7 +2,7 @@ import { useMemo, useRef, useState, useCallback, memo } from 'react';
 import PropTypes from 'prop-types';
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, ResponsiveContainer, LabelList } from 'recharts';
 import { TS_COLORS } from '../config';
-import { prepareSVGClone, embedFonts, downloadSVG as downloadSVGHelper, createLegendItem, matchesRegion } from '../utils';
+import { prepareSVGClone, embedFonts, downloadSVG as downloadSVGHelper, createLegendItem, getAverageProfile } from '../utils';
 import { ChartCard } from '../components';
 
 // Chart dimension configurations
@@ -11,7 +11,7 @@ const CHART_SIZES = {
   bipanel: { width: '100%', height: 400, maxWidth: '600px' }
 };
 
-function TimeSeriesChart({ allData, country, variable, label, selectedRegion, regionLabel, showRegionalAvg = false, showGlobalAvg = false, countryRegion = null, yearRange = [2015, 2025] }) {
+function TimeSeriesChart({ allData, averages, country, variable, label, selectedRegion, regionLabel, showRegionalAvg = false, showGlobalAvg = false, countryRegion = null, yearRange = [2015, 2025] }) {
   const chartRef = useRef(null);
   const [exportMode, setExportMode] = useState(null);
 
@@ -22,59 +22,45 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
   const regionalAvgSeries = useMemo(() => {
     if (!showRegionalAvg || !effectiveRegion) return {};
     const [startYear, endYear] = yearRange;
-    const filtered = allData.filter(d => {
-      if (!matchesRegion(d, effectiveRegion)) return false;
-      const yr = parseInt(d.year);
-      return d[variable] != null && yr >= startYear && yr <= endYear;
-    });
-    const byYear = {};
-    for (const d of filtered) {
-      if (!byYear[d.year]) byYear[d.year] = [];
-      byYear[d.year].push(d[variable]);
-    }
     const result = {};
-    for (const [year, vals] of Object.entries(byYear)) {
-      result[year] = Math.round((vals.reduce((s, v) => s + v, 0) / vals.length) * 1000) / 1000;
+
+    for (let year = startYear; year <= endYear; year += 1) {
+      const profile = getAverageProfile(averages, effectiveRegion, String(year));
+      if (profile?.[variable] != null) {
+        result[String(year)] = profile[variable];
+      }
     }
+
     return result;
-  }, [allData, variable, effectiveRegion, showRegionalAvg, yearRange]);
+  }, [averages, variable, effectiveRegion, showRegionalAvg, yearRange]);
 
   // Calculate global average series
   const globalAvgSeries = useMemo(() => {
     if (!showGlobalAvg) return {};
     const [startYear, endYear] = yearRange;
-    const filtered = allData.filter(d => {
-      const yr = parseInt(d.year);
-      return d[variable] != null && yr >= startYear && yr <= endYear;
-    });
-    const byYear = {};
-    for (const d of filtered) {
-      if (!byYear[d.year]) byYear[d.year] = [];
-      byYear[d.year].push(d[variable]);
-    }
     const result = {};
-    for (const [year, vals] of Object.entries(byYear)) {
-      result[year] = Math.round((vals.reduce((s, v) => s + v, 0) / vals.length) * 1000) / 1000;
+
+    for (let year = startYear; year <= endYear; year += 1) {
+      const profile = getAverageProfile(averages, 'global', String(year));
+      if (profile?.[variable] != null) {
+        result[String(year)] = profile[variable];
+      }
     }
+
     return result;
-  }, [allData, variable, showGlobalAvg, yearRange]);
+  }, [averages, variable, showGlobalAvg, yearRange]);
 
   const series = useMemo(() => {
     const [startYear, endYear] = yearRange;
     if (country === '__regional_avg__') {
-      const filtered = allData.filter(d => {
-        if (!matchesRegion(d, selectedRegion)) return false;
-        const yr = parseInt(d.year);
-        return d[variable] != null && yr >= startYear && yr <= endYear;
-      });
-      const byYear = {};
-      for (const d of filtered) {
-        if (!byYear[d.year]) byYear[d.year] = [];
-        byYear[d.year].push(d[variable]);
+      const result = [];
+      for (let year = startYear; year <= endYear; year += 1) {
+        const profile = getAverageProfile(averages, selectedRegion, String(year));
+        if (profile?.[variable] != null) {
+          result.push({ year: String(year), value: profile[variable] });
+        }
       }
-      return Object.entries(byYear)
-        .sort(([a], [b]) => a.localeCompare(b))
-        .map(([year, vals]) => ({ year, value: Math.round((vals.reduce((s, v) => s + v, 0) / vals.length) * 1000) / 1000 }));
+      return result;
     }
     return allData
       .filter(d => {
@@ -363,6 +349,10 @@ function TimeSeriesChart({ allData, country, variable, label, selectedRegion, re
 
 TimeSeriesChart.propTypes = {
   allData: PropTypes.arrayOf(PropTypes.object).isRequired,
+  averages: PropTypes.shape({
+    global: PropTypes.object,
+    regions: PropTypes.object,
+  }),
   country: PropTypes.string.isRequired,
   variable: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,

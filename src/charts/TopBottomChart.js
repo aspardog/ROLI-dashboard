@@ -2,10 +2,10 @@ import { useMemo, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { BarChart, Bar, XAxis, YAxis, Cell, ResponsiveContainer, LabelList, ReferenceLine } from 'recharts';
 import { COLORS } from '../config';
-import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper, filterByRegion } from '../utils';
+import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper, filterByRegion, getAverageProfile } from '../utils';
 import { ChartCard } from '../components';
 
-function TopBottomChart({ allData, selectedRegion, selectedYear, variable, label, regionLabel }) {
+function TopBottomChart({ allData, averages, selectedRegion, selectedYear, variable, label, regionLabel }) {
   const data = useMemo(() => {
     const byYear = allData.filter(d => d.year === selectedYear);
     return filterByRegion(byYear, selectedRegion);
@@ -21,10 +21,8 @@ function TopBottomChart({ allData, selectedRegion, selectedYear, variable, label
   }, [data, variable]);
 
   const average = useMemo(() => {
-    const valid = data.filter(d => d[variable] != null);
-    if (valid.length === 0) return null;
-    return valid.reduce((sum, d) => sum + d[variable], 0) / valid.length;
-  }, [data, variable]);
+    return getAverageProfile(averages, selectedRegion, selectedYear)?.[variable] ?? null;
+  }, [averages, selectedRegion, selectedYear, variable]);
 
   const chartRef = useRef(null);
 
@@ -141,6 +139,10 @@ function TopBottomChart({ allData, selectedRegion, selectedYear, variable, label
 
 TopBottomChart.propTypes = {
   allData: PropTypes.arrayOf(PropTypes.object).isRequired,
+  averages: PropTypes.shape({
+    global: PropTypes.object,
+    regions: PropTypes.object,
+  }),
   selectedRegion: PropTypes.string.isRequired,
   selectedYear: PropTypes.string.isRequired,
   variable: PropTypes.string.isRequired,
