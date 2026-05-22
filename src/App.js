@@ -196,8 +196,26 @@ export default function ROLIDashboard() {
   }, [metadata, selectedProfileRegion]);
 
   const timeSeriesCountryOptions = useMemo(() => {
-    return getCountriesForRegionYear(metadata, selectedRegion, ACTIVE_YEAR);
-  }, [metadata, selectedRegion]);
+    const options = [];
+
+    options.push({
+      value: selectedRegion === 'global' ? '__region_global' : `__region_${selectedRegion}`,
+      label: selectedRegion === 'global' ? 'Global Average' : `${regionLabel} Average`
+    });
+
+    if (selectedRegion !== 'global') {
+      options.push({
+        value: '__region_global',
+        label: 'Global Average'
+      });
+    }
+
+    getCountriesForRegionYear(metadata, selectedRegion, ACTIVE_YEAR).forEach(country => {
+      options.push({ value: country, label: country });
+    });
+
+    return options;
+  }, [metadata, selectedRegion, regionLabel]);
 
   useEffect(() => {
     setTimeSeriesEntities(current => current.filter(entity => {
@@ -222,8 +240,8 @@ export default function ROLIDashboard() {
   }, [selectedRegion, timeSeriesMode]);
 
   useEffect(() => {
-    if (!timeSeriesCountryOptions.includes(timeSeriesCountry)) {
-      setTimeSeriesCountry(timeSeriesCountryOptions[0] || '');
+    if (!timeSeriesCountryOptions.some(option => option.value === timeSeriesCountry)) {
+      setTimeSeriesCountry(timeSeriesCountryOptions[0]?.value || '');
     }
   }, [timeSeriesCountry, timeSeriesCountryOptions]);
 
@@ -283,8 +301,27 @@ export default function ROLIDashboard() {
       const points = [];
 
       for (let year = startYear; year <= endYear; year += 1) {
-        const entry = allData.find(d => d.year === String(year) && d.country === timeSeriesCountry);
-        const value = entry?.[variableKey] ?? null;
+        const yearKey = String(year);
+        let value = null;
+
+        if (timeSeriesCountry.startsWith('__region_')) {
+          const regionName = timeSeriesCountry.replace('__region_', '');
+          value = regionName === 'global'
+            ? (averages.global?.[yearKey]?.[variableKey] ?? null)
+            : (averages.regions?.[regionName]?.[yearKey]?.[variableKey] ?? null);
+
+          if (value == null) {
+            const yearEntries = allData.filter(entry => entry.year === yearKey);
+            const matchingEntries = regionName === 'global'
+              ? yearEntries
+              : filterByRegion(yearEntries, regionName);
+            value = computeAverageFromEntries(matchingEntries, variableKey);
+          }
+        } else {
+          const entry = allData.find(d => d.year === yearKey && d.country === timeSeriesCountry);
+          value = entry?.[variableKey] ?? null;
+        }
+
         if (value != null) points.push({ year: String(year), value });
       }
 
@@ -305,7 +342,7 @@ export default function ROLIDashboard() {
     }
 
     return timeSeriesCountry
-      ? `${timeSeriesCountry} ${yearRange[0]}–${yearRange[1]}`
+      ? `${getTimeSeriesEntityLabel(timeSeriesCountry)} ${yearRange[0]}–${yearRange[1]}`
       : `${yearRange[0]}–${yearRange[1]}`;
   }, [timeSeriesMode, timeSeriesSeries, yearRange, timeSeriesCountry]);
 
@@ -546,10 +583,10 @@ export default function ROLIDashboard() {
               {timeSeriesMode === 'countryFactors' && (
                 <>
                   <div style={{ marginBottom: '20px' }}>
-                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Country</label>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Entity</label>
                     <div style={{ position: 'relative' }}>
                       <select value={timeSeriesCountry} onChange={(e) => setTimeSeriesCountry(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
-                        {timeSeriesCountryOptions.map(country => (<option key={country} value={country}>{country}</option>))}
+                        {timeSeriesCountryOptions.map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
                       </select>
                       <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
                         <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
