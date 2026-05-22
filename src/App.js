@@ -34,7 +34,8 @@ export default function ROLIDashboard() {
   const [dataError, setDataError] = useState(null);
   const [selectedRegion, setSelectedRegion] = useState('global');
   const [selectedVariable, setSelectedVariable] = useState('roli');
-  const [selectedCountry, setSelectedCountry] = useState('__regional_avg__');
+  const [timeSeriesEntities, setTimeSeriesEntities] = useState(['__region_global']);
+  const [expandedTimeSeriesRegions, setExpandedTimeSeriesRegions] = useState({});
   const [showRegionalAvg, setShowRegionalAvg] = useState(false);
   const [showGlobalAvg, setShowGlobalAvg] = useState(false);
   const [chartType, setChartType] = useState('timeseries');
@@ -131,22 +132,20 @@ export default function ROLIDashboard() {
     return [...set].sort();
   }, [roliData]);
 
-  // Detect the region of the selected country from the data
-  const selectedCountryRegion = useMemo(() => {
-    if (selectedCountry === '__regional_avg__') return null;
-    return getCountryRegion(metadata, selectedCountry);
-  }, [metadata, selectedCountry]);
-
   // Available countries for profile chart (based on profile region selection)
   const profileAvailableCountries = useMemo(() => {
     return getCountriesForRegionYear(metadata, selectedProfileRegion, ACTIVE_YEAR);
   }, [metadata, selectedProfileRegion]);
 
   useEffect(() => {
-    if (selectedCountry !== '__regional_avg__' && !availableCountries.includes(selectedCountry)) {
-      setSelectedCountry(availableCountries[0] || '');
-    }
-  }, [availableCountries, selectedCountry]);
+    setTimeSeriesEntities(current => current.filter(entity => {
+      if (entity.startsWith('__region_')) return true;
+      return availableCountries.includes(entity);
+    }).length > 0 ? current.filter(entity => {
+      if (entity.startsWith('__region_')) return true;
+      return availableCountries.includes(entity);
+    }) : ['__region_global']);
+  }, [availableCountries]);
 
   if (roliData.length === 0) {
     return <div style={{ minHeight: '100vh', backgroundColor: COLORS.background, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -253,7 +252,7 @@ export default function ROLIDashboard() {
             <>
               {/* Region Dropdown */}
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Region</label>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Region Reference</label>
                 <div style={{ position: 'relative' }}>
                   <select value={selectedRegion} onChange={(e) => setSelectedRegion(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
                     {REGION_OPTIONS.map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
@@ -264,17 +263,88 @@ export default function ROLIDashboard() {
                 </div>
               </div>
 
-              {/* Country Dropdown */}
+              {/* Categories to Compare */}
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Country</label>
-                <div style={{ position: 'relative' }}>
-                  <select value={selectedCountry} onChange={(e) => setSelectedCountry(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
-                    <option value="__regional_avg__">{selectedRegion === 'global' ? 'Global Average' : 'Regional Average'}</option>
-                    {availableCountries.map(c => (<option key={c} value={c}>{c}</option>))}
-                  </select>
-                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
-                  </div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.primary, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Categories to Compare</label>
+
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '8px' }}>
+                  <input
+                    type="checkbox"
+                    checked={timeSeriesEntities.includes('__region_global')}
+                    onChange={(e) => {
+                      if (e.target.checked && timeSeriesEntities.length < 7) {
+                        setTimeSeriesEntities([...timeSeriesEntities, '__region_global']);
+                      } else if (!e.target.checked) {
+                        setTimeSeriesEntities(timeSeriesEntities.filter(entity => entity !== '__region_global'));
+                      }
+                    }}
+                    style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: COLORS.primary }}
+                  />
+                  <span style={{ fontSize: '14px', color: COLORS.primary, fontWeight: '600' }}>Global Average</span>
+                </label>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  {REGION_OPTIONS.filter(region => region.value !== 'global').map(region => {
+                    const regionKey = `__region_${region.value}`;
+                    const regionCountries = getCountriesForRegionYear(metadata, region.value, ACTIVE_YEAR);
+                    const isExpanded = expandedTimeSeriesRegions[region.value];
+                    const isRegionSelected = timeSeriesEntities.includes(regionKey);
+
+                    return (
+                      <div key={region.value}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: isExpanded ? '8px' : '0' }}>
+                          <input
+                            type="checkbox"
+                            checked={isRegionSelected}
+                            onChange={(e) => {
+                              if (e.target.checked && timeSeriesEntities.length < 7) {
+                                setTimeSeriesEntities([...timeSeriesEntities, regionKey]);
+                              } else if (!e.target.checked) {
+                                setTimeSeriesEntities(timeSeriesEntities.filter(entity => entity !== regionKey));
+                              }
+                            }}
+                            disabled={!isRegionSelected && timeSeriesEntities.length >= 7}
+                            style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: COLORS.primary }}
+                          />
+                          <span
+                            onClick={() => setExpandedTimeSeriesRegions({ ...expandedTimeSeriesRegions, [region.value]: !isExpanded })}
+                            style={{ flex: 1, fontSize: '14px', color: COLORS.primary, fontWeight: '500', cursor: 'pointer', textDecoration: 'underline' }}
+                          >
+                            {region.label}
+                          </span>
+                          <span
+                            onClick={() => setExpandedTimeSeriesRegions({ ...expandedTimeSeriesRegions, [region.value]: !isExpanded })}
+                            style={{ fontSize: '14px', color: COLORS.primary, cursor: 'pointer', fontWeight: '300' }}
+                          >
+                            {isExpanded ? '−' : '+'}
+                          </span>
+                        </div>
+
+                        {isExpanded && (
+                          <div style={{ paddingLeft: '24px', display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '8px', maxHeight: '200px', overflowY: 'auto' }}>
+                            {regionCountries.map(country => (
+                              <label key={country} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: timeSeriesEntities.length >= 7 && !timeSeriesEntities.includes(country) ? 'not-allowed' : 'pointer' }}>
+                                <input
+                                  type="checkbox"
+                                  checked={timeSeriesEntities.includes(country)}
+                                  onChange={(e) => {
+                                    if (e.target.checked && timeSeriesEntities.length < 7) {
+                                      setTimeSeriesEntities([...timeSeriesEntities, country]);
+                                    } else if (!e.target.checked) {
+                                      setTimeSeriesEntities(timeSeriesEntities.filter(entity => entity !== country));
+                                    }
+                                  }}
+                                  disabled={!timeSeriesEntities.includes(country) && timeSeriesEntities.length >= 7}
+                                  style={{ cursor: 'pointer', width: '14px', height: '14px', accentColor: COLORS.primary }}
+                                />
+                                <span style={{ fontSize: '13px', color: timeSeriesEntities.length >= 7 && !timeSeriesEntities.includes(country) ? COLORS.muted : COLORS.text }}>{country}</span>
+                              </label>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -341,24 +411,27 @@ export default function ROLIDashboard() {
                 </div>
               </div>
 
-              {/* Reference Lines */}
-              {selectedCountry !== '__regional_avg__' && (
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Reference Lines</label>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ padding: '12px', backgroundColor: '#f8f7f4', borderRadius: '6px', marginBottom: '20px' }}>
+                <p style={{ fontSize: '12px', color: COLORS.muted, margin: 0, lineHeight: 1.5 }}>
+                  Select up to 7 countries or regional averages to compare over time.
+                </p>
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Reference Lines</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={showGlobalAvg} onChange={(e) => setShowGlobalAvg(e.target.checked)} style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: COLORS.primary }} />
+                    <span style={{ fontSize: '14px', color: COLORS.text }}>Global Average</span>
+                  </label>
+                  {selectedRegion !== 'global' && (
                     <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
-                      <input type="checkbox" checked={showGlobalAvg} onChange={(e) => setShowGlobalAvg(e.target.checked)} style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: COLORS.primary }} />
-                      <span style={{ fontSize: '14px', color: COLORS.text }}>Global</span>
+                      <input type="checkbox" checked={showRegionalAvg} onChange={(e) => setShowRegionalAvg(e.target.checked)} style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: COLORS.primary }} />
+                      <span style={{ fontSize: '14px', color: COLORS.text }}>{regionLabel}</span>
                     </label>
-                    {selectedCountryRegion && (
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
-                        <input type="checkbox" checked={showRegionalAvg} onChange={(e) => setShowRegionalAvg(e.target.checked)} style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: COLORS.primary }} />
-                        <span style={{ fontSize: '14px', color: COLORS.text }}>{selectedCountryRegion}</span>
-                      </label>
-                    )}
-                  </div>
+                  )}
                 </div>
-              )}
+              </div>
             </>
           )}
 
@@ -955,7 +1028,7 @@ export default function ROLIDashboard() {
             </div>
           }>
             {chartType === 'topbottom' && <TopBottomChart allData={allData} averages={averages} selectedRegion={selectedRegion} selectedYear={selectedYear} variable={selectedVariable} label={selectedLabel} regionLabel={regionLabel} />}
-            {chartType === 'timeseries' && selectedCountry && <TimeSeriesChart allData={allData} averages={averages} country={selectedCountry} variable={selectedVariable} label={selectedLabel} selectedRegion={selectedRegion} regionLabel={regionLabel} showRegionalAvg={showRegionalAvg} showGlobalAvg={showGlobalAvg} countryRegion={selectedCountryRegion} yearRange={yearRange} />}
+            {chartType === 'timeseries' && timeSeriesEntities.length > 0 && <TimeSeriesChart allData={allData} averages={averages} selectedEntities={timeSeriesEntities} variable={selectedVariable} label={selectedLabel} selectedRegion={selectedRegion} regionLabel={regionLabel} showRegionalAvg={showRegionalAvg} showGlobalAvg={showGlobalAvg} yearRange={yearRange} />}
             {chartType === 'factors' && (
               <FactorComparisonChart
                 allData={allData}
