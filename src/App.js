@@ -25,6 +25,11 @@ const CHART_TABS = [
 ];
 
 const AVAILABLE_YEARS = ['2025', '2024', '2023', '2022', '2021', '2020', '2019', '2018', '2017', '2016', '2015'];
+const DEFAULT_TIME_SERIES_REGION = REGION_OPTIONS.find(option => option.value !== 'global')?.value || 'global';
+
+function getDefaultTimeSeriesEntity(region) {
+  return region === 'global' ? '__region_global' : `__region_${region}`;
+}
 
 function getTimeSeriesEntityLabel(entity) {
   if (entity === '__region_global') return 'Global Average';
@@ -82,10 +87,10 @@ export default function ROLIDashboard() {
   const [metadata, setMetadata] = useState({ years: [], regions: [], countriesByYear: {}, regionCountriesByYear: {}, countryRegionMap: {} });
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [dataError, setDataError] = useState(null);
-  const [selectedRegion, setSelectedRegion] = useState('global');
+  const [selectedRegion, setSelectedRegion] = useState(DEFAULT_TIME_SERIES_REGION);
   const [selectedVariable, setSelectedVariable] = useState('roli');
   const [timeSeriesMode, setTimeSeriesMode] = useState('countries');
-  const [timeSeriesEntities, setTimeSeriesEntities] = useState(['__region_global']);
+  const [timeSeriesEntities, setTimeSeriesEntities] = useState([getDefaultTimeSeriesEntity(DEFAULT_TIME_SERIES_REGION)]);
   const [expandedTimeSeriesRegions, setExpandedTimeSeriesRegions] = useState({});
   const [timeSeriesCountry, setTimeSeriesCountry] = useState('');
   const [timeSeriesVariables, setTimeSeriesVariables] = useState(['roli', 'f1', 'f2']);
@@ -201,8 +206,20 @@ export default function ROLIDashboard() {
     }).length > 0 ? current.filter(entity => {
       if (entity.startsWith('__region_')) return true;
       return availableCountries.includes(entity);
-    }) : ['__region_global']);
-  }, [availableCountries]);
+    }) : [getDefaultTimeSeriesEntity(selectedRegion)]);
+  }, [availableCountries, selectedRegion]);
+
+  useEffect(() => {
+    if (timeSeriesMode !== 'countries') return;
+
+    const defaultEntity = getDefaultTimeSeriesEntity(selectedRegion);
+    setTimeSeriesEntities(current => {
+      if (current.length !== 1) return current;
+      if (!current[0].startsWith('__region_')) return current;
+      if (current[0] === defaultEntity) return current;
+      return [defaultEntity];
+    });
+  }, [selectedRegion, timeSeriesMode]);
 
   useEffect(() => {
     if (!timeSeriesCountryOptions.includes(timeSeriesCountry)) {
