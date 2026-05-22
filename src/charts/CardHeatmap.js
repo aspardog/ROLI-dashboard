@@ -44,6 +44,13 @@ function getChangeArrow(changePercent) {
   }
 }
 
+function getChangeSortBucket(changePercent) {
+  if (changePercent === null || changePercent === undefined || isNaN(changePercent)) return 1;
+  if (changePercent > 1) return 0;
+  if (changePercent < -1) return 2;
+  return 1;
+}
+
 export default function CardHeatmap({
   allData,
   selectedYear = '2025',
@@ -96,8 +103,22 @@ export default function CardHeatmap({
       });
     });
 
-    // Sort alphabetically by country name
-    result.sort((a, b) => a.country.localeCompare(b.country));
+    // Sort by change: biggest improvements first, then neutral, then declines.
+    result.sort((a, b) => {
+      const changeA = a.change !== null ? a.change * 100 : null;
+      const changeB = b.change !== null ? b.change * 100 : null;
+      const bucketA = getChangeSortBucket(changeA);
+      const bucketB = getChangeSortBucket(changeB);
+
+      if (bucketA !== bucketB) return bucketA - bucketB;
+
+      if (changeA === null && changeB === null) return a.country.localeCompare(b.country);
+      if (changeA === null) return 1;
+      if (changeB === null) return -1;
+      if (changeA !== changeB) return changeB - changeA;
+
+      return a.country.localeCompare(b.country);
+    });
 
     return result;
   }, [allData, selectedYear, baseYear, selectedRegion, selectedVariable]);
