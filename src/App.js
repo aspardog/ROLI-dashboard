@@ -32,6 +32,12 @@ function getTimeSeriesEntityLabel(entity) {
   return entity;
 }
 
+function computeAverageFromEntries(entries, variable) {
+  const values = entries.map(entry => entry[variable]).filter(value => value != null);
+  if (values.length === 0) return null;
+  return Math.round((values.reduce((sum, value) => sum + value, 0) / values.length) * 1000) / 1000;
+}
+
 function selectedEntitiesToSeries(entities, allData, averages, variable, startYear, endYear) {
   return entities.map((entity, index) => {
     const points = [];
@@ -45,6 +51,14 @@ function selectedEntitiesToSeries(entities, allData, averages, variable, startYe
         value = regionName === 'global'
           ? (averages.global?.[yearKey]?.[variable] ?? null)
           : (averages.regions?.[regionName]?.[yearKey]?.[variable] ?? null);
+
+        if (value == null) {
+          const yearEntries = allData.filter(entry => entry.year === yearKey);
+          const matchingEntries = regionName === 'global'
+            ? yearEntries
+            : filterByRegion(yearEntries, regionName);
+          value = computeAverageFromEntries(matchingEntries, variable);
+        }
       } else {
         const entry = allData.find(d => d.year === yearKey && d.country === entity);
         value = entry?.[variable] ?? null;
@@ -105,7 +119,7 @@ export default function ROLIDashboard() {
   useEffect(() => {
     const CACHE_KEY = 'roli_data_cache';
     const CACHE_VERSION_KEY = 'roli_data_version';
-    const CURRENT_VERSION = '2025.4'; // Update this when data changes
+    const CURRENT_VERSION = '2025.5'; // Update this when data changes
 
     // Try to load from localStorage cache first
     const cachedVersion = localStorage.getItem(CACHE_VERSION_KEY);
@@ -211,7 +225,11 @@ export default function ROLIDashboard() {
       if (showRegionalAvg && selectedRegion !== 'global' && selectedVariable) {
         const points = [];
         for (let year = startYear; year <= endYear; year += 1) {
-          const value = averages.regions?.[selectedRegion]?.[String(year)]?.[selectedVariable] ?? null;
+          const yearKey = String(year);
+          let value = averages.regions?.[selectedRegion]?.[yearKey]?.[selectedVariable] ?? null;
+          if (value == null) {
+            value = computeAverageFromEntries(filterByRegion(allData.filter(entry => entry.year === yearKey), selectedRegion), selectedVariable);
+          }
           if (value != null) points.push({ year: String(year), value });
         }
         if (points.length >= 2) refs.push({ key: 'regionalAvg', dataKey: 'reference_regional', label: `${regionLabel} Average`, points, style: 'referenceRegional' });
@@ -220,7 +238,11 @@ export default function ROLIDashboard() {
       if (showGlobalAvg && selectedVariable) {
         const points = [];
         for (let year = startYear; year <= endYear; year += 1) {
-          const value = averages.global?.[String(year)]?.[selectedVariable] ?? null;
+          const yearKey = String(year);
+          let value = averages.global?.[yearKey]?.[selectedVariable] ?? null;
+          if (value == null) {
+            value = computeAverageFromEntries(allData.filter(entry => entry.year === yearKey), selectedVariable);
+          }
           if (value != null) points.push({ year: String(year), value });
         }
         if (points.length >= 2) refs.push({ key: 'globalAvg', dataKey: 'reference_global', label: 'Global Average', points, style: 'referenceGlobal' });
@@ -228,7 +250,7 @@ export default function ROLIDashboard() {
     }
 
     return refs;
-  }, [averages, yearRange, timeSeriesMode, showRegionalAvg, selectedRegion, selectedVariable, regionLabel, showGlobalAvg]);
+  }, [allData, averages, yearRange, timeSeriesMode, showRegionalAvg, selectedRegion, selectedVariable, regionLabel, showGlobalAvg]);
 
   const timeSeriesSeries = useMemo(() => {
     const [startYear, endYear] = yearRange;
