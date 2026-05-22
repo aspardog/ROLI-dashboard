@@ -181,8 +181,10 @@ export default function CardHeatmap({
       svg += `<text x="${x + 95}" y="${y + 55}" font-size="16" fill="${colors.text}">${arrow}</text>`;
 
       // Score details
-      svg += `<text x="${x + 12}" y="${y + 78}" font-size="10" fill="${COLORS.muted}">${baseYear}: ${item.baseValue !== null ? item.baseValue.toFixed(2) : '—'}</text>`;
-      svg += `<text x="${x + cardWidth - 12}" y="${y + 78}" text-anchor="end" font-size="10" fill="${COLORS.muted}">${selectedYear}: ${item.value !== null ? item.value.toFixed(2) : '—'}</text>`;
+      svg += `<text x="${x + 12}" y="${y + 78}" font-size="10" fill="${COLORS.muted}">${baseYear}:</text>`;
+      svg += `<text x="${x + 40}" y="${y + 78}" font-size="11" font-weight="700" fill="${COLORS.text}">${item.baseValue !== null ? item.baseValue.toFixed(2) : '—'}</text>`;
+      svg += `<text x="${x + cardWidth - 46}" y="${y + 78}" text-anchor="end" font-size="10" fill="${COLORS.muted}">${selectedYear}:</text>`;
+      svg += `<text x="${x + cardWidth - 12}" y="${y + 78}" text-anchor="end" font-size="11" font-weight="700" fill="${COLORS.text}">${item.value !== null ? item.value.toFixed(2) : '—'}</text>`;
     });
 
     // Legend
@@ -329,12 +331,15 @@ export default function CardHeatmap({
                 {/* Score details */}
                 <div style={{
                   fontSize: '11px',
-                  color: COLORS.muted,
                   display: 'flex',
                   justifyContent: 'space-between'
                 }}>
-                  <span>{baseYear}: {item.baseValue !== null ? item.baseValue.toFixed(2) : '—'}</span>
-                  <span>{selectedYear}: {item.value !== null ? item.value.toFixed(2) : '—'}</span>
+                  <span style={{ color: COLORS.muted }}>
+                    {baseYear}: <span style={{ fontWeight: '700', color: COLORS.text }}>{item.baseValue !== null ? item.baseValue.toFixed(2) : '—'}</span>
+                  </span>
+                  <span style={{ color: COLORS.muted }}>
+                    {selectedYear}: <span style={{ fontWeight: '700', color: COLORS.text }}>{item.value !== null ? item.value.toFixed(2) : '—'}</span>
+                  </span>
                 </div>
               </div>
             </div>
