@@ -139,14 +139,14 @@ function TimeSeriesChart({ series = [], referenceSeries = [], variable, label, s
               >
                 <LabelList
                   dataKey={currentSeries.dataKey || currentSeries.key}
-                  content={({ x, y, value, index: pointIndex }) => {
-                    if (currentSeries.style || value == null || pointIndex !== chartData.length - 1) return null;
+                  content={({ x, y, value }) => {
+                    if (currentSeries.style || value == null) return null;
                     return (
                       <text
-                        x={x + 8}
-                        y={y}
-                        textAnchor="start"
-                        fontSize={12}
+                        x={x}
+                        y={y - 10}
+                        textAnchor="middle"
+                        fontSize={11}
                         fontWeight={600}
                         fill={getSeriesColor(index, currentSeries.style)}
                       >
