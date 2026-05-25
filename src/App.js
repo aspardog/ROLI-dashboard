@@ -600,7 +600,7 @@ export default function ROLIDashboard() {
                                 style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: COLORS.primary }}
                               />
                               <div
-                                onClick={(e) => { e.preventDefault(); setExpandedTimeSeriesRegions({ ...expandedTimeSeriesRegions, [region.value]: !isExpanded }); }}
+                                onClick={() => setExpandedTimeSeriesRegions(prev => ({ ...prev, [region.value]: !prev[region.value] }))}
                                 style={{ flex: 1, display: 'flex', alignItems: 'center', cursor: 'pointer' }}
                               >
                                 <span style={{ flex: 1, fontSize: '14px', color: COLORS.primary, fontWeight: '500', textDecoration: 'underline' }}>
