@@ -599,18 +599,17 @@ export default function ROLIDashboard() {
                                 onChange={() => setTimeSeriesCountry(regionKey)}
                                 style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: COLORS.primary }}
                               />
-                              <span
-                                onClick={() => setExpandedTimeSeriesRegions({ ...expandedTimeSeriesRegions, [region.value]: !isExpanded })}
-                                style={{ flex: 1, fontSize: '14px', color: COLORS.primary, fontWeight: '500', cursor: 'pointer', textDecoration: 'underline' }}
+                              <div
+                                onClick={(e) => { e.preventDefault(); setExpandedTimeSeriesRegions({ ...expandedTimeSeriesRegions, [region.value]: !isExpanded }); }}
+                                style={{ flex: 1, display: 'flex', alignItems: 'center', cursor: 'pointer' }}
                               >
-                                {region.label}
-                              </span>
-                              <span
-                                onClick={() => setExpandedTimeSeriesRegions({ ...expandedTimeSeriesRegions, [region.value]: !isExpanded })}
-                                style={{ fontSize: '14px', color: COLORS.primary, cursor: 'pointer', fontWeight: '300' }}
-                              >
-                                {isExpanded ? '−' : '+'}
-                              </span>
+                                <span style={{ flex: 1, fontSize: '14px', color: COLORS.primary, fontWeight: '500', textDecoration: 'underline' }}>
+                                  {region.label}
+                                </span>
+                                <span style={{ fontSize: '14px', color: COLORS.primary, fontWeight: '300' }}>
+                                  {isExpanded ? '−' : '+'}
+                                </span>
+                              </div>
                             </div>
 
                             {isExpanded && (
