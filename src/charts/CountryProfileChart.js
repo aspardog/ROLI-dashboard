@@ -53,15 +53,15 @@ function CountryProfileChart({ allData, averages, selectedRegion, selectedCountr
     const displayValue = value != null ? value.toFixed(2) : '—';
 
     return (
-      <div style={{ marginBottom: '6px' }}>
-        <div style={{ fontSize: '12px', color: COLORS.text, marginBottom: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+      <div style={{ marginBottom: '4px' }}>
+        <div style={{ fontSize: '10px', color: COLORS.text, marginBottom: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {label}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ flex: 1, height: '12px', backgroundColor: '#e8e8e8', borderRadius: '2px', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{ flex: 1, height: '10px', backgroundColor: '#e8e8e8', borderRadius: '2px', overflow: 'hidden' }}>
             <div style={{ width: barWidth, height: '100%', backgroundColor: color, borderRadius: '2px' }} />
           </div>
-          <span style={{ fontSize: '12px', fontWeight: '600', color: COLORS.text, minWidth: '32px', textAlign: 'right' }}>
+          <span style={{ fontSize: '10px', fontWeight: '600', color: COLORS.text, minWidth: '28px', textAlign: 'right' }}>
             {displayValue}
           </span>
         </div>
@@ -75,14 +75,14 @@ function CountryProfileChart({ allData, averages, selectedRegion, selectedCountr
     const factorLabel = FACTOR_SHORT_LABELS[factor];
 
     return (
-      <div style={{ marginBottom: '24px' }}>
+      <div style={{ marginBottom: '16px' }}>
         <div style={{
-          fontSize: '14px',
+          fontSize: '11px',
           fontWeight: '700',
           color: color,
-          marginBottom: '12px',
+          marginBottom: '8px',
           borderBottom: `2px solid ${color}`,
-          paddingBottom: '4px'
+          paddingBottom: '3px'
         }}>
           {factorLabel}
         </div>
@@ -249,8 +249,8 @@ function CountryProfileChart({ allData, averages, selectedRegion, selectedCountr
       <div ref={chartRef} style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: '24px',
-        padding: '16px'
+        gap: '12px 16px',
+        padding: '12px 16px'
       }}>
         {FACTOR_STRUCTURE.map(({ factor, subfactors }) => (
           <FactorSection
