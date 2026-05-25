@@ -459,7 +459,7 @@ export default function ROLIDashboard() {
 
               {timeSeriesMode === 'countries' && (
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.primary, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Categories to Compare</label>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.primary, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Countries to Compare</label>
 
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '8px' }}>
                   <input
@@ -570,14 +570,68 @@ export default function ROLIDashboard() {
               {timeSeriesMode === 'countryFactors' && (
                 <>
                   <div style={{ marginBottom: '20px' }}>
-                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Entity</label>
-                    <div style={{ position: 'relative' }}>
-                      <select value={timeSeriesCountry} onChange={(e) => setTimeSeriesCountry(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
-                        {timeSeriesCountryOptions.map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
-                      </select>
-                      <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-                        <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
-                      </div>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.primary, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Country to Compare</label>
+
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '8px' }}>
+                      <input
+                        type="radio"
+                        name="timeSeriesCountry"
+                        checked={timeSeriesCountry === '__region_global'}
+                        onChange={() => setTimeSeriesCountry('__region_global')}
+                        style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: COLORS.primary }}
+                      />
+                      <span style={{ fontSize: '14px', color: COLORS.primary, fontWeight: '600' }}>Global Average</span>
+                    </label>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      {REGION_OPTIONS.filter(region => region.value !== 'global').map(region => {
+                        const regionKey = `__region_${region.value}`;
+                        const regionCountries = getCountriesForRegionYear(metadata, region.value, ACTIVE_YEAR);
+                        const isExpanded = expandedTimeSeriesRegions[region.value];
+
+                        return (
+                          <div key={region.value}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: isExpanded ? '8px' : '0' }}>
+                              <input
+                                type="radio"
+                                name="timeSeriesCountry"
+                                checked={timeSeriesCountry === regionKey}
+                                onChange={() => setTimeSeriesCountry(regionKey)}
+                                style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: COLORS.primary }}
+                              />
+                              <span
+                                onClick={() => setExpandedTimeSeriesRegions({ ...expandedTimeSeriesRegions, [region.value]: !isExpanded })}
+                                style={{ flex: 1, fontSize: '14px', color: COLORS.primary, fontWeight: '500', cursor: 'pointer', textDecoration: 'underline' }}
+                              >
+                                {region.label}
+                              </span>
+                              <span
+                                onClick={() => setExpandedTimeSeriesRegions({ ...expandedTimeSeriesRegions, [region.value]: !isExpanded })}
+                                style={{ fontSize: '14px', color: COLORS.primary, cursor: 'pointer', fontWeight: '300' }}
+                              >
+                                {isExpanded ? '−' : '+'}
+                              </span>
+                            </div>
+
+                            {isExpanded && (
+                              <div style={{ paddingLeft: '24px', display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '8px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {regionCountries.map(country => (
+                                  <label key={country} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                                    <input
+                                      type="radio"
+                                      name="timeSeriesCountry"
+                                      checked={timeSeriesCountry === country}
+                                      onChange={() => setTimeSeriesCountry(country)}
+                                      style={{ cursor: 'pointer', width: '14px', height: '14px', accentColor: COLORS.primary }}
+                                    />
+                                    <span style={{ fontSize: '13px', color: COLORS.text }}>{country}</span>
+                                  </label>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
 
@@ -829,9 +883,9 @@ export default function ROLIDashboard() {
                 </div>
               </div>
 
-              {/* Categories to Compare */}
+              {/* Countries to Compare */}
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.primary, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Categories to Compare</label>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.primary, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Countries to Compare</label>
 
                 {/* Global Average */}
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '8px' }}>
