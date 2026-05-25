@@ -18,14 +18,22 @@ const ALL_FACTORS_MAP = {
   f8: { label: 'Criminal Justice', shortLabel: 'Criminal Justice' },
 };
 
-// Build short labels for subfactors using predefined short labels
+// Build short labels for subfactors using predefined short labels (without number prefix)
 VARIABLE_OPTIONS.filter(v => v.value.startsWith('sf')).forEach(sf => {
   const shortLabel = SUBFACTOR_SHORT_LABELS[sf.value] || sf.label;
-  // Add line break after the number prefix (e.g., "1.1 " -> "1.1\n")
-  const formattedShortLabel = shortLabel.replace(/^(\d+\.\d+)\s+/, '$1\n');
+  // Remove the number prefix (e.g., "1.1 Limited by legislature" -> "Limited by legislature")
+  const labelWithoutNumber = shortLabel.replace(/^\d+\.\d+\s+/, '');
+  // Add line breaks for labels longer than 20 characters
+  let formattedLabel = labelWithoutNumber;
+  if (labelWithoutNumber.length > 20) {
+    // Split at roughly the middle on a word boundary
+    const words = labelWithoutNumber.split(' ');
+    const midPoint = Math.ceil(words.length / 2);
+    formattedLabel = words.slice(0, midPoint).join(' ') + '\n' + words.slice(midPoint).join(' ');
+  }
   ALL_FACTORS_MAP[sf.value] = {
     label: sf.label,
-    shortLabel: formattedShortLabel
+    shortLabel: formattedLabel
   };
 });
 
