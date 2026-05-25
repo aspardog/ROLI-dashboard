@@ -131,7 +131,7 @@ function TimeSeriesChart({ series = [], referenceSeries = [], variable, label, s
                 type="linear"
                 dataKey={currentSeries.dataKey || currentSeries.key}
                 stroke={getSeriesColor(index, currentSeries.style)}
-                strokeWidth={currentSeries.style ? 3 : (index - referenceSeries.length === 0 ? 3.5 : 3)}
+                strokeWidth={currentSeries.style ? 3 : (index - referenceSeries.length === 0 ? 4.5 : 4)}
                 strokeDasharray={currentSeries.style ? '8 4' : undefined}
                 dot={{ r: currentSeries.style ? 0 : 4, fill: getSeriesColor(index, currentSeries.style), strokeWidth: 0 }}
                 isAnimationActive={false}
@@ -144,9 +144,9 @@ function TimeSeriesChart({ series = [], referenceSeries = [], variable, label, s
                     return (
                       <text
                         x={x}
-                        y={y - 10}
+                        y={y - 12}
                         textAnchor="middle"
-                        fontSize={11}
+                        fontSize={13}
                         fontWeight={600}
                         fill={getSeriesColor(index, currentSeries.style)}
                       >
