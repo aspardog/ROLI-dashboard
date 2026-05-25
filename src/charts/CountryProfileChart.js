@@ -128,12 +128,14 @@ function CountryProfileChart({ allData, averages, selectedRegion, selectedCountr
       return headerHeight + contentHeight;
     });
 
-    // Row 1: Factors 1-4, Row 2: Factors 5-8
-    const row1Height = Math.max(...factorHeights.slice(0, 4));
-    const row2Height = Math.max(...factorHeights.slice(4, 8));
+    // 2 columns, 4 rows layout
+    const row1Height = Math.max(factorHeights[0], factorHeights[1]);
+    const row2Height = Math.max(factorHeights[2], factorHeights[3]);
+    const row3Height = Math.max(factorHeights[4], factorHeights[5]);
+    const row4Height = Math.max(factorHeights[6], factorHeights[7]);
 
-    const svgWidth = margin * 2 + colWidth * 4 + colGap * 3;
-    const svgHeight = margin * 2 + titleHeight + row1Height + rowGap + row2Height;
+    const svgWidth = margin * 2 + colWidth * 2 + colGap;
+    const svgHeight = margin * 2 + titleHeight + row1Height + row2Height + row3Height + row4Height + rowGap * 3;
 
     const svg = document.createElementNS(ns, 'svg');
     svg.setAttribute('width', svgWidth);
@@ -150,17 +152,18 @@ function CountryProfileChart({ allData, averages, selectedRegion, selectedCountr
     });
     svg.appendChild(titleText);
 
-    // Render each factor
+    // Render each factor (2 columns, 4 rows)
+    const rowHeights = [0, row1Height, row1Height + row2Height, row1Height + row2Height + row3Height];
     FACTOR_STRUCTURE.forEach((factorDef, index) => {
       const { factor, subfactors } = factorDef;
       const color = FACTOR_COLORS[factor];
       const factorLabel = FACTOR_SHORT_LABELS[factor];
 
-      const row = index < 4 ? 0 : 1;
-      const col = index % 4;
+      const row = Math.floor(index / 2);
+      const col = index % 2;
 
       const x = margin + col * (colWidth + colGap);
-      const y = margin + titleHeight + (row === 0 ? 0 : row1Height + rowGap);
+      const y = margin + titleHeight + rowHeights[row] + row * rowGap;
 
       // Factor header
       const headerText = createTextElement(x, y + 14 * scale, factorLabel, {
@@ -248,8 +251,8 @@ function CountryProfileChart({ allData, averages, selectedRegion, selectedCountr
     >
       <div ref={chartRef} style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: '24px',
+        gridTemplateColumns: 'repeat(2, 1fr)',
+        gap: '32px 48px',
         padding: '16px'
       }}>
         {FACTOR_STRUCTURE.map(({ factor, subfactors }) => (
