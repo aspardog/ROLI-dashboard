@@ -206,6 +206,14 @@ Data filtering happens in `useMemo` hooks to prevent unnecessary re-renders.
 - First/last year labels aligned (not rotated)
 - SVG export includes embedded fonts
 
+**CountryProfileChart**
+- Displays all 8 factors with their subfactors in horizontal 4-column × 2-row grid layout
+- Compact sizing for screen fit: 10px fonts for labels/values, 11px for headers, 10px bar height
+- Each factor section shows: colored header with factor name, horizontal bars for each subfactor
+- Supports countries and regional averages (via `__regional_avg__` key)
+- SVG export: 4 columns × 2 rows layout with embedded fonts
+- Bipanel export option (scale 0.55) for smaller output
+
 **RadarChartView**
 - Multi-year overlay (different colors per year: 2015-2025)
 - Dynamic factor/subfactor selection via collapsible accordions in sidebar
