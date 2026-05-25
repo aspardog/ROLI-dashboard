@@ -1,7 +1,7 @@
 import { useMemo, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from 'recharts';
-import { COLORS, VARIABLE_OPTIONS } from '../config';
+import { COLORS, VARIABLE_OPTIONS, SUBFACTOR_SHORT_LABELS } from '../config';
 import { prepareSVGClone, embedFonts, createLegendItem, downloadSVG as downloadSVGHelper, getAverageProfile } from '../utils';
 import { ChartCard } from '../components';
 
@@ -18,12 +18,14 @@ const ALL_FACTORS_MAP = {
   f8: { label: 'Criminal Justice', shortLabel: 'Criminal Justice' },
 };
 
-// Build short labels for subfactors from VARIABLE_OPTIONS
+// Build short labels for subfactors using predefined short labels
 VARIABLE_OPTIONS.filter(v => v.value.startsWith('sf')).forEach(sf => {
-  // Extract short label like "1.1 - Limited by the legislature" -> "1.1 Limited by legislature"
+  const shortLabel = SUBFACTOR_SHORT_LABELS[sf.value] || sf.label;
+  // Add line break after the number prefix (e.g., "1.1 " -> "1.1\n")
+  const formattedShortLabel = shortLabel.replace(/^(\d+\.\d+)\s+/, '$1\n');
   ALL_FACTORS_MAP[sf.value] = {
-    label: sf.label.replace(/^\d+\.\d+ - /, ''),
-    shortLabel: sf.label.replace(' - ', '\n').substring(0, 30)
+    label: sf.label,
+    shortLabel: formattedShortLabel
   };
 });
 
