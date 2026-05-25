@@ -114,9 +114,16 @@ function RadarChartView({
 }) {
   const chartRef = useRef(null);
 
-  // Build radarFactors from selectedFactors
+  // Build radarFactors from selectedFactors, ensuring 'roli' is always first (top of radar)
   const radarFactors = useMemo(() => {
-    return selectedFactors.map(key => ({
+    // Sort factors so 'roli' is always first if present
+    const sortedFactors = [...selectedFactors].sort((a, b) => {
+      if (a === 'roli') return -1;
+      if (b === 'roli') return 1;
+      return 0;
+    });
+
+    return sortedFactors.map(key => ({
       key,
       label: ALL_FACTORS_MAP[key]?.label || key,
       shortLabel: ALL_FACTORS_MAP[key]?.shortLabel || key
