@@ -12,6 +12,7 @@ const FactorComparisonChart = lazy(() => import('./charts/FactorComparisonChart'
 const CountryProfileChart = lazy(() => import('./charts/CountryProfileChart'));
 const HumanRightsHeatmap = lazy(() => import('./charts/HumanRightsHeatmap'));
 const CardHeatmap = lazy(() => import('./charts/CardHeatmap'));
+const CountryChangeHeatmap = lazy(() => import('./charts/CountryChangeHeatmap'));
 
 // Tab configuration for chart type switcher
 const CHART_TABS = [
@@ -21,7 +22,8 @@ const CHART_TABS = [
   { key: 'radar', label: 'RADAR CHART' },
   { key: 'factors', label: 'FACTOR COMPARISON' },
   { key: 'heatmap', label: 'SCORE HEATMAP' },
-  { key: 'cardheatmap', label: 'CHANGE HEATMAP' }
+  { key: 'cardheatmap', label: 'CHANGE HEATMAP' },
+  { key: 'countrychange', label: 'COUNTRY CHANGE' }
 ];
 
 const AVAILABLE_YEARS = ['2025', '2024', '2023', '2022', '2021', '2020', '2019', '2018', '2017', '2016', '2015'];
@@ -118,6 +120,11 @@ export default function ROLIDashboard() {
   const [cardHeatmapBaseYear, setCardHeatmapBaseYear] = useState('2015');
   const [cardHeatmapRegion, setCardHeatmapRegion] = useState('global');
   const [cardHeatmapVariable, setCardHeatmapVariable] = useState('roli');
+  const [countryChangeCountry, setCountryChangeCountry] = useState('__region_global');
+  const [countryChangeFactor, setCountryChangeFactor] = useState('f1');
+  const [countryChangeYear, setCountryChangeYear] = useState('2025');
+  const [countryChangeBaseYear, setCountryChangeBaseYear] = useState('2015');
+  const [countryChangeRegion, setCountryChangeRegion] = useState('global');
   const selectedLabel = VARIABLE_OPTIONS.find(opt => opt.value === selectedVariable)?.label || selectedVariable;
   const regionLabel = REGION_OPTIONS.find(opt => opt.value === selectedRegion)?.label || selectedRegion;
 
@@ -179,6 +186,12 @@ export default function ROLIDashboard() {
       setCardHeatmapBaseYear(cardHeatmapYear);
     }
   }, [cardHeatmapBaseYear, cardHeatmapYear]);
+
+  useEffect(() => {
+    if (parseInt(countryChangeBaseYear, 10) > parseInt(countryChangeYear, 10)) {
+      setCountryChangeBaseYear(countryChangeYear);
+    }
+  }, [countryChangeBaseYear, countryChangeYear]);
 
   const roliData = useMemo(() => {
     const byYear = allData.filter(d => d.year === ACTIVE_YEAR);
@@ -1115,6 +1128,83 @@ export default function ROLIDashboard() {
             </>
           )}
 
+          {/* Country Change Heatmap Controls */}
+          {chartType === 'countrychange' && (
+            <>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Region</label>
+                <div style={{ position: 'relative' }}>
+                  <select value={countryChangeRegion} onChange={(e) => { setCountryChangeRegion(e.target.value); setCountryChangeCountry(e.target.value === 'global' ? '__region_global' : `__region_${e.target.value}`); }} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
+                    {REGION_OPTIONS.map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
+                  </select>
+                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Country</label>
+                <div style={{ position: 'relative' }}>
+                  <select value={countryChangeCountry} onChange={(e) => setCountryChangeCountry(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
+                    <option value={countryChangeRegion === 'global' ? '__region_global' : `__region_${countryChangeRegion}`}>
+                      {countryChangeRegion === 'global' ? 'Global Average' : `${REGION_OPTIONS.find(r => r.value === countryChangeRegion)?.label || countryChangeRegion} Average`}
+                    </option>
+                    {getCountriesForRegionYear(metadata, countryChangeRegion, countryChangeYear).map(c => (<option key={c} value={c}>{c}</option>))}
+                  </select>
+                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Factor</label>
+                <div style={{ position: 'relative' }}>
+                  <select value={countryChangeFactor} onChange={(e) => setCountryChangeFactor(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
+                    {VARIABLE_OPTIONS.filter(o => o.category === 'factor').map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
+                  </select>
+                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Current Year</label>
+                <div style={{ position: 'relative' }}>
+                  <select value={countryChangeYear} onChange={(e) => setCountryChangeYear(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
+                    {AVAILABLE_YEARS.map(year => (
+                      <option key={year} value={year}>{year}</option>
+                    ))}
+                  </select>
+                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Compare to Year</label>
+                <div style={{ position: 'relative' }}>
+                  <select value={countryChangeBaseYear} onChange={(e) => setCountryChangeBaseYear(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
+                    {AVAILABLE_YEARS
+                      .filter(year => parseInt(year, 10) <= parseInt(countryChangeYear, 10))
+                      .slice()
+                      .reverse()
+                      .map(year => (
+                        <option key={year} value={year}>{year}</option>
+                      ))}
+                  </select>
+                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ padding: '12px', backgroundColor: '#f8f7f4', borderRadius: '6px', marginBottom: '20px' }}>
+                <p style={{ fontSize: '12px', color: COLORS.muted, margin: 0, lineHeight: 1.5 }}>
+                  See how a country's subfactors changed over time within a specific factor. Cards show percentage change for each subfactor.
+                </p>
+              </div>
+            </>
+          )}
+
           {/* Radar Controls */}
           {chartType === 'radar' && (
             <>
@@ -1375,6 +1465,16 @@ export default function ROLIDashboard() {
                 selectedVariable={cardHeatmapVariable}
               />
             )}
+            {chartType === 'countrychange' && (
+              <CountryChangeHeatmap
+                allData={allData}
+                averages={averages}
+                selectedCountry={countryChangeCountry}
+                selectedFactor={countryChangeFactor}
+                selectedYear={countryChangeYear}
+                baseYear={countryChangeBaseYear}
+              />
+            )}
           </Suspense>
         </div>
       </div>{/* Close dashboard-main-layout */}
@@ -1389,6 +1489,7 @@ export default function ROLIDashboard() {
             chartType === 'factors' ? selectedYear :
             chartType === 'heatmap' ? heatmapYear :
             chartType === 'cardheatmap' ? `${cardHeatmapBaseYear}–${cardHeatmapYear}` :
+            chartType === 'countrychange' ? `${countryChangeBaseYear}–${countryChangeYear}` :
             selectedYear
           }
         </p>

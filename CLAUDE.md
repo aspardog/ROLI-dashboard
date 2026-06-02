@@ -65,6 +65,12 @@ npm run build
 # Run tests
 npm test
 
+# Run a single test file
+npm test -- --testPathPattern="TimeSeriesChart"
+
+# Run tests in watch mode (default)
+npm test -- --watch
+
 # Re-generate JSON data from Excel source
 npm run parse-data
 
@@ -74,6 +80,8 @@ npm run audit
 # Automatically fix vulnerabilities
 npm run audit:fix
 ```
+
+**Note:** This project uses Create React App's default ESLint configuration via `react-app` preset. Linting runs automatically during `npm start` and `npm run build`. There is no separate lint command.
 
 ## Architecture
 
@@ -106,7 +114,8 @@ src/
 │   ├── RadarChartView.js     # Multi-year radar with factor selection
 │   ├── FactorComparisonChart.js # Multi-country factor comparison
 │   ├── HumanRightsHeatmap.js # Score heatmap table
-│   └── CardHeatmap.js        # Change heatmap with cards
+│   ├── CardHeatmap.js        # Change heatmap with cards
+│   └── CountryChangeHeatmap.js # Country subfactor change cards
 │
 ├── modals/                   # Modal components
 │   ├── index.js              # Barrel export
@@ -145,35 +154,29 @@ import { InfoModal, HowToUseModal } from './modals';
 
 ### State Management
 
-All state lives in `App.js`:
+All state lives in `App.js`, organized by purpose:
+
+**Core data & filters:**
 - `allData` - Full dataset loaded from JSON
-- `selectedRegion` - Filters data to region or 'global' (used by Time Series, Top/Bottom)
-- `selectedVariable` - Currently selected factor/sub-factor (e.g., 'roli', 'f1', 'sf11')
-- `selectedYear` - Year for Top/Bottom and Factor Comparison charts
-- `selectedCountry` - Country for Time Series chart ('__regional_avg__' for averages)
-- `chartType` - Active chart ('timeseries', 'profile', 'topbottom', 'radar', 'factors', 'heatmap', 'cardheatmap')
-- `yearRange` - Array [startYear, endYear] for Time Series chart range
-- `showRegionalAvg` / `showGlobalAvg` - Reference line toggles for Time Series
-- `selectedProfileCountry` / `selectedProfileRegion` - Country Profile chart selections
-- `selectedRadarEntity` - Entity for Radar chart ('__region_global', '__region_[name]', or country name)
-- `selectedRadarYears` - Years selected for Radar chart (array of year strings)
-- `selectedRadarFactors` - Factors/subfactors selected for Radar chart (array of keys like 'roli', 'f1', 'sf11')
-- `radarFactorsExpanded` - Boolean controlling Factors & Subfactors accordion visibility
-- `expandedRadarFactorGroups` - Accordion state for individual factor groups (object with factor keys)
-- `radarYearsExpanded` - Boolean controlling Years accordion visibility
-- `factorCompareCountries` - Countries/regions selected for Factor Comparison chart
-- `expandedFactorRegions` - Accordion state for Factor Comparison country selector
-- `isInfoModalOpen` - Boolean controlling visibility of InfoModal
-- `isHowToUseModalOpen` - Boolean controlling visibility of HowToUseModal
-- `heatmapYear` / `heatmapRegion` / `heatmapFactors` - Score Heatmap chart selections
-- `cardHeatmapYear` / `cardHeatmapBaseYear` / `cardHeatmapRegion` / `cardHeatmapVariable` - Change Heatmap chart selections
+- `selectedRegion`, `selectedVariable`, `selectedYear` - Global filters
+- `chartType` - Active visualization ('timeseries', 'profile', 'topbottom', 'radar', 'factors', 'heatmap', 'cardheatmap', 'countrychange')
 
-**Component-level state:**
-- `FactorComparisonChart.js`:
-  - `selectedCountries` - Array of country/region keys for comparison (default: `['__region_global']`)
-  - `expandedRegions` - Accordion state for region groups in country selector
+**Chart-specific selections:**
+- Time Series: `selectedCountry`, `yearRange`, `showRegionalAvg`, `showGlobalAvg`
+- Country Profile: `selectedProfileCountry`, `selectedProfileRegion`
+- Radar: `selectedRadarEntity`, `selectedRadarYears`, `selectedRadarFactors`
+- Factor Comparison: `factorCompareCountries`
+- Score Heatmap: `heatmapYear`, `heatmapRegion`, `heatmapFactors`
+- Change Heatmap: `cardHeatmapYear`, `cardHeatmapBaseYear`, `cardHeatmapRegion`, `cardHeatmapVariable`
+- Country Change: `countryChangeCountry`, `countryChangeFactor`, `countryChangeYear`, `countryChangeBaseYear`, `countryChangeRegion`
 
-Data filtering happens in `useMemo` hooks to prevent unnecessary re-renders.
+**UI state:**
+- Modal visibility: `isInfoModalOpen`, `isHowToUseModalOpen`
+- Accordion expansion states for various selectors
+
+**Key patterns:**
+- Data filtering happens in `useMemo` hooks to prevent unnecessary re-renders
+- Special values: `'__regional_avg__'` for regional averages, `'__region_[name]'` for region selection
 
 ### Constants Configuration
 
@@ -195,120 +198,61 @@ Data filtering happens in `useMemo` hooks to prevent unnecessary re-renders.
 
 **TopBottomChart**
 - Dynamic split: Shows min(5, floor(n/2)) top and bottom performers
-- Prevents overlap in small regions (automatically adjusts split count)
-- Regional average reference line with label
-- SVG export: Legend at top with 18px boxes, 16px text, vertically centered
+- Automatically adjusts for small regions to prevent overlap
+- Shows regional average reference line
 
 **TimeSeriesChart**
-- 2015-2025 data range (configurable via yearRange prop, default [2015, 2025])
+- 2015-2025 data range (configurable via yearRange prop)
 - Supports individual countries or regional/global averages
-- Fixed Y-axis scale: 0 to 1 with ticks at 0.00, 0.20, 0.40, 0.60, 0.80, 1.00
-- First/last year labels aligned (not rotated)
-- SVG export includes embedded fonts
+- Fixed Y-axis scale: 0 to 1
 
 **CountryProfileChart**
-- Displays all 8 factors with their subfactors in horizontal 4-column × 2-row grid layout
-- Compact sizing for screen fit: 10px fonts for labels/values, 11px for headers, 10px bar height
-- Each factor section shows: colored header with factor name, horizontal bars for each subfactor
+- Displays all 8 factors with their subfactors in 4-column × 2-row grid
 - Supports countries and regional averages (via `__regional_avg__` key)
-- SVG export: 4 columns × 2 rows layout with embedded fonts
-- Bipanel export option (scale 0.55) for smaller output
 
 **RadarChartView**
-- Multi-year overlay (different colors per year: 2015-2025)
-- Dynamic factor/subfactor selection via collapsible accordions in sidebar
-- Minimum 3 factors/subfactors required for radar display
-- Default selection: Overall Index + 8 main factors
-- Supports all 44 subfactors organized by parent factor
-- Strips number prefix from labels ("F1 - Constraints..." → "Constraints...")
+- Multi-year overlay with different colors per year
+- Dynamic factor/subfactor selection (minimum 3 required)
+- `ALL_FACTORS_MAP` in component maps keys to labels
 - Supports regional averages and individual countries
-- `selectedFactors` prop accepts array of keys (e.g., ['roli', 'f1', 'sf11', 'sf21'])
-- `ALL_FACTORS_MAP` in component maps keys to labels and short labels
-- Radial axis: 0.0, 0.2, 0.4, 0.6, 0.8, 1.0 with 11px font
-- SVG export: Year legend at top with color bars, 16px text, vertically centered
 
 **FactorComparisonChart**
 - Multi-country/region comparison across all 8 factors (up to 5 selections)
-- Year-specific snapshot (filter at top, centered)
-- Direct region selection via checkboxes:
-  - "Regional Averages" section: Global + 7 regions (uses `__region_global`, `__region_[name]` keys)
-  - "Individual Countries" section: Countries grouped by region in collapsible accordions
-- Dynamic spacing based on selections:
-  - 1-2 selections: 35% gap, 550-600px height
-  - 3 selections: 50% gap, 750px height
-  - 4 selections: 70% gap, 900px height
-  - 5 selections: 100% gap, 1100px height (prevents overcrowding)
-- Bar sizes scale down: 32px → 24px → 20px → 18px → 16px
-- Factor labels left-aligned for consistency
-- SVG export: Legend at top with 5px×30px bars, 16px text, vertically centered
+- Uses `__region_global` and `__region_[name]` keys for region selection
+- Dynamic spacing and sizing based on number of selections
 
 **HumanRightsHeatmap (Score Heatmap)**
-- Color-coded table showing scores for all countries and selected factors
-- Selectable factors/subfactors as columns with full names and line breaks for long labels
-- Color scale: red (0) → yellow (0.5) → green (1)
-- Filterable by year and region
+- Color-coded table: red (0) → yellow (0.5) → green (1)
 - Sticky country column for horizontal scrolling
-- SVG export with dynamically calculated header height for multi-line labels
 
 **CardHeatmap (Change Heatmap)**
 - Card-based visualization showing percentage change between two years
-- Each card displays: country name, percentage change, base year score, current year score
 - Color coding: green (improved), red (declined), gray (stable ±1%)
-- Arrow indicators: ↑↑ (+10%+), ↑ (improved), → (stable), ↓ (declined), ↓↓ (-10%+)
-- Filterable by region and variable (factor/subfactor)
-- Responsive grid layout with hover effects
+
+**CountryChangeHeatmap (Country Change)**
+- Shows one country/region + one factor → displays all subfactors as change cards
+- Answers: "How did [Country] change across the subfactors of [Factor] from [Year] to [Year]?"
+- Same card design as CardHeatmap but cards represent subfactors instead of countries
+- Calculates factor-level change displayed in header
+- Uses `__region_global` and `__region_[name]` keys for regional averages
 
 ### SVG Export
 
-All charts support SVG download with embedded fonts and professional legends:
+All charts support SVG download with embedded fonts:
 
-**Font Embedding:**
-1. `getEmbeddedFontCSS()` fetches Inter Tight from Google Fonts
-2. Converts font URLs to base64 data URIs
-3. Injects into `<style>` element in exported SVG
-4. Ensures self-contained, portable SVG files
-
-**Legend Positioning (as of 2025):**
-- All legends positioned at TOP of exported SVG (not bottom)
-- Larger, more visible elements:
-  - Text: 16px font (was 13px), uses COLORS.text for visibility
-  - TopBottomChart: 18px boxes
-  - RadarChartView: 4px height color bars (30px width)
-  - FactorComparisonChart: 5px height bars (30px width)
-- Vertical alignment: Color elements centered with text using `dominant-baseline='middle'`
-- White background covers entire SVG (chart + legend area)
-
-Charts manually construct legends in `downloadSVG()` functions using helper methods `el()` and `txt()`.
+**How it works:**
+1. `getEmbeddedFontCSS()` in `src/utils/svgExport.js` fetches Inter Tight from Google Fonts
+2. Converts font URLs to base64 data URIs for self-contained files
+3. Charts manually construct legends in `downloadSVG()` functions using helper methods `el()` and `txt()` from `src/utils/svgExportHelpers.js`
+4. Legends positioned at TOP of exported SVG with white background
 
 ### Informational Modals
 
-The dashboard includes two informational modals accessible from the header banner:
+Two modals in `src/modals/` accessible from header banner links:
+- **InfoModal** - "Learn about the Index →" - Explains ROLI structure, 8 factors, 44 sub-factors
+- **HowToUseModal** - "How to use this dashboard →" - Guide to all 7 visualization types
 
-**InfoModal (`src/modals/InfoModal.js`)**
-- Triggered by "Learn about the Index →" link in banner
-- Explains what the Rule of Law Index is and how it's structured
-- Lists all 8 factors with descriptions
-- Details all 44 sub-factors organized by parent factor
-- Scrollable modal with close button (×) and click-outside-to-close
-- Responsive styles for mobile devices
-
-**HowToUseModal (`src/modals/HowToUseModal.js`)**
-- Triggered by "How to use this dashboard →" link in banner
-- Provides usage guide for all 7 visualization types:
-  1. Time Series - trends over time
-  2. Country Profiles - detailed country breakdown
-  3. Top & Bottom Performers - rankings
-  4. Radar Chart - performance profiles
-  5. Factor Comparison - side-by-side comparisons
-  6. Score Heatmap - color-coded factor table
-  7. Change Heatmap - percentage change cards
-- Includes SVG export explanation
-- Same modal structure and behavior as InfoModal
-
-**Banner Implementation:**
-- Two separate inline button links below main description
-- Both styled consistently with underline and hover effects
-- State managed in App.js via `isInfoModalOpen` and `isHowToUseModalOpen`
+Both use click-outside-to-close and are state-controlled via `isInfoModalOpen`/`isHowToUseModalOpen` in App.js.
 
 ### Column Mapping (Excel → JSON)
 
@@ -350,18 +294,6 @@ All scores rounded to 3 decimal places.
 
 ### Performance Optimizations
 
-The dashboard implements several performance optimizations:
-
-**Font Loading (`public/index.html`):**
-- Preconnect to Google Fonts domains
-- Async font loading with `preload` + `onload` pattern
-- Fallback `<noscript>` for compatibility
-- Eliminates Flash of Unstyled Text (FOUT)
-
-**Data Prefetching:**
-- `<link rel="prefetch">` for `roli_data.json` in HTML head
-- Browser downloads data while parsing HTML
-
 **localStorage Caching (`src/App.js`):**
 ```js
 const CACHE_KEY = 'roli_data_cache';
@@ -369,61 +301,26 @@ const CACHE_VERSION_KEY = 'roli_data_version';
 const CURRENT_VERSION = '2025.1'; // Update when data changes
 ```
 - First visit: Fetches data → saves to localStorage
-- Subsequent visits: Instant load from cache (~300ms vs ~1500ms)
-- Version-controlled: Update `CURRENT_VERSION` to invalidate cache
+- Subsequent visits: Instant load from cache
+- **Important:** Update `CURRENT_VERSION` when data changes to invalidate cache
 
-**HTTP Caching (`vercel.json`):**
-- `roli_data.json`: 1 day cache + 7 days stale-while-revalidate
-- Static assets (`/static/*`): 1 year immutable cache
-
-**Code Splitting:**
+**Other optimizations:**
+- Font preloading in `public/index.html`
+- Data prefetching via `<link rel="prefetch">`
+- HTTP caching configured in `vercel.json`
 - Chart components lazy-loaded with `React.lazy()`
-- Reduces initial bundle size
-
-**Memoization:**
-- Heavy use of `useMemo` for derived data
-- `React.memo` on chart components
+- Heavy use of `useMemo` and `React.memo`
 
 ### Security
 
-The dashboard implements comprehensive security measures. For full details, see `docs/security/SECURITY.md`.
+Full details in `docs/security/SECURITY.md`.
 
-**HTTP Security Headers (`vercel.json`):**
+**Key points:**
+- HTTP security headers and CSP configured in `vercel.json`
+- npm overrides in `package.json` for transitive dependency vulnerabilities
+- Run `npm run audit` periodically; `npm run audit:fix` for automatic fixes
 
-| Header | Value | Purpose |
-|--------|-------|---------|
-| `X-Content-Type-Options` | `nosniff` | Prevents MIME type sniffing |
-| `X-Frame-Options` | `DENY` | Prevents clickjacking |
-| `X-XSS-Protection` | `1; mode=block` | Browser XSS filter |
-| `Referrer-Policy` | `strict-origin-when-cross-origin` | Controls referrer info |
-| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` | Disables sensitive APIs |
-| `Content-Security-Policy` | Strict CSP | Prevents XSS/code injection |
-
-**Content Security Policy:**
-```
-default-src 'self';
-script-src 'self' 'unsafe-inline' 'unsafe-eval';
-style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-font-src 'self' https://fonts.gstatic.com data:;
-img-src 'self' data: blob:;
-connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com;
-```
-
-**Dependency Security:**
-- npm overrides in `package.json` force secure versions of transitive dependencies
-- Regular security audits via `npm run audit`
-- Automatic fixes via `npm run audit:fix`
-
-**Code Security Practices:**
-- No `dangerouslySetInnerHTML` usage
-- No `eval()` or `new Function()` calls
-- No hardcoded secrets or API keys
-- All external resources use HTTPS
-- `.gitignore` excludes `.env` files and `/data/` directory
-
-**Known Limitations:**
-- `xlsx` (devDependency) has unfixable vulnerabilities but is only used offline for data parsing, never in production
-- Some `react-scripts` transitive dependencies have vulnerabilities; pinned to stable version
+**Known limitation:** `xlsx` (devDependency) has unfixable vulnerabilities but is only used offline for data parsing, never in production bundle.
 
 ## Common Tasks
 
