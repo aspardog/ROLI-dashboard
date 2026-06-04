@@ -2,7 +2,7 @@
   "name": "roli-dashboard",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://aspardog.github.io/roli-dashboard",
+  "homepage": "https://aspardog.github.io/ROLI-dashboard",
   "dependencies": {
     "prop-types": "^15.8.1",
     "randombytes": "2.1.0",
