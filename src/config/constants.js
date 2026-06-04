@@ -141,16 +141,12 @@ const COLORS = {
   secondary: '#181878',    // WJP Navy - for secondary navigation
   top5: '#5C2D91',         // Purple for highlights
   bottom5: '#fa4d57',      // Red for contrast
-  background: '#f8f9fa',   // Light gray background
+  background: '#FFFFFF',   // Clean white background
   backgroundAlt: '#f8f7f4', // Alternate background for sections
-  card: '#FFFFFF',         // White cards
   text: '#1a1a1a',
   muted: '#6b6b6b',
   divider: '#e5e5e5',
-  border: '#e0e0e0',
   white: '#FFFFFF',
-  success: '#10b981',      // Green for positive changes
-  danger: '#ef4444',       // Red for negative changes
 };
 
 const TS_COLORS = {

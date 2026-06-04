@@ -160,7 +160,7 @@ export default function ROLIDashboard() {
 
     // Fetch fresh data
     setIsLoadingData(true);
-    fetch(`${process.env.PUBLIC_URL}/roli_data.json`)
+    fetch('/roli_data.json')
       .then(res => {
         if (!res.ok) throw new Error('Failed to load data');
         return res.json();
@@ -409,71 +409,13 @@ export default function ROLIDashboard() {
 
   return (
     <div className="dashboard-container" style={{ minHeight: '100vh', backgroundColor: COLORS.background, fontFamily: "'Inter Tight', sans-serif" }}>
-      {/* WJP Navigation Bar - Purple with gradient */}
-      <div className="wjp-nav" style={{
-        background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.secondary} 100%)`,
-        padding: '16px 24px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-      }}>
+      {/* WJP Navigation Bar - Purple */}
+      <div className="wjp-nav" style={{ backgroundColor: COLORS.primary, padding: '14px 24px' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{
-              width: '36px',
-              height: '36px',
-              backgroundColor: 'rgba(255,255,255,0.2)',
-              borderRadius: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '18px',
-              fontWeight: '700',
-              color: COLORS.white
-            }}>
-              WJP
-            </div>
-            <span style={{ color: COLORS.white, fontSize: '20px', fontWeight: '700', letterSpacing: '-0.3px' }}>Rule of Law Index®</span>
-          </div>
-          <nav style={{ display: 'flex', gap: '8px' }}>
-            <button
-              onClick={() => setIsInfoModalOpen(true)}
-              style={{
-                background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)',
-                color: COLORS.white,
-                fontSize: '13px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                padding: '10px 20px',
-                borderRadius: '6px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseOver={(e) => e.target.style.background = 'rgba(255,255,255,0.2)'}
-              onMouseOut={(e) => e.target.style.background = 'rgba(255,255,255,0.1)'}
-            >
-              About the Index
-            </button>
-            <button
-              onClick={() => setIsHowToUseModalOpen(true)}
-              style={{
-                background: COLORS.white,
-                border: 'none',
-                color: COLORS.primary,
-                fontSize: '13px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                padding: '10px 20px',
-                borderRadius: '6px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseOver={(e) => { e.target.style.transform = 'translateY(-1px)'; e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'; }}
-              onMouseOut={(e) => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = 'none'; }}
-            >
-              How to Use
-            </button>
+          <span style={{ color: COLORS.white, fontSize: '18px', fontWeight: '600' }}>Rule of Law Index®</span>
+          <nav style={{ display: 'flex', gap: '32px' }}>
+            <button onClick={() => setIsInfoModalOpen(true)} style={{ background: 'none', border: 'none', color: COLORS.white, fontSize: '14px', fontWeight: '500', cursor: 'pointer', padding: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>ABOUT</button>
+            <button onClick={() => setIsHowToUseModalOpen(true)} style={{ background: 'none', border: 'none', color: COLORS.white, fontSize: '14px', fontWeight: '500', cursor: 'pointer', padding: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>HOW TO USE IT</button>
           </nav>
         </div>
       </div>
@@ -483,83 +425,42 @@ export default function ROLIDashboard() {
       <HowToUseModal isOpen={isHowToUseModalOpen} onClose={() => setIsHowToUseModalOpen(false)} />
 
       {/* Main Content */}
-      <div style={{ padding: '40px 24px', backgroundColor: '#f8f9fa' }}>
+      <div style={{ padding: '32px 24px' }}>
         {/* Header Banner */}
-        <div className="dashboard-header" style={{
-          maxWidth: '1100px',
-          margin: '0 auto 40px',
-          textAlign: 'center',
-          padding: '32px 24px',
-          backgroundColor: COLORS.white,
-          borderRadius: '16px',
-          boxShadow: '0 2px 12px rgba(0,0,0,0.06)'
-        }}>
-          <div style={{
-            display: 'inline-block',
-            padding: '6px 16px',
-            backgroundColor: `${COLORS.primary}10`,
-            borderRadius: '20px',
-            marginBottom: '16px'
-          }}>
-            <span style={{ fontSize: '12px', fontWeight: '600', color: COLORS.primary, textTransform: 'uppercase', letterSpacing: '1px' }}>
-              2015–2025 Data
-            </span>
-          </div>
+        <div className="dashboard-header" style={{ maxWidth: '1100px', margin: '0 auto 32px', textAlign: 'center' }}>
           <h1 style={{
-            fontSize: '36px',
-            fontWeight: '800',
-            color: COLORS.text,
+            fontSize: '32px',
+            fontWeight: '700',
+            color: COLORS.primary,
             margin: '0 0 12px 0',
             fontFamily: "'Inter Tight', sans-serif",
-            lineHeight: '1.2',
-            letterSpacing: '-0.5px'
+            lineHeight: '1.2'
           }}>
-            Rule of Law Index® <span style={{ color: COLORS.primary }}>Dashboard</span>
+            WJP Rule of Law Index® dashboard
           </h1>
-          <p style={{ fontSize: '17px', lineHeight: '1.6', color: COLORS.muted, margin: '0 auto', maxWidth: '550px' }}>
+          <p style={{ fontSize: '16px', lineHeight: '1.6', color: COLORS.muted, margin: '0 auto', maxWidth: '600px' }}>
             Explore results and download publication-ready visuals for presentations and reports.
           </p>
         </div>
 
         {/* Chart Type Tabs */}
-        <div className="chart-tabs" style={{
-          maxWidth: '1100px',
-          margin: '0 auto 32px',
-          display: 'flex',
-          justifyContent: 'center',
-          flexWrap: 'wrap',
-          gap: '8px',
-          padding: '0 16px'
-        }}>
-          {CHART_TABS.map((tab) => (
+        <div className="chart-tabs" style={{ maxWidth: '1100px', margin: '0 auto 32px', display: 'flex', justifyContent: 'center', gap: '0' }}>
+          {CHART_TABS.map((tab, index) => (
             <button
               key={tab.key}
               onClick={() => setChartType(tab.key)}
               style={{
-                padding: '12px 20px',
-                fontSize: '12px',
+                padding: '14px 24px',
+                fontSize: '13px',
                 fontWeight: '600',
                 textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                border: chartType === tab.key ? 'none' : '1px solid #e0e0e0',
-                borderRadius: '8px',
-                backgroundColor: chartType === tab.key ? COLORS.primary : COLORS.white,
-                color: chartType === tab.key ? COLORS.white : COLORS.text,
+                letterSpacing: '0.3px',
+                border: '1px solid #e5e5e5',
+                borderLeft: index === 0 ? '1px solid #e5e5e5' : 'none',
+                backgroundColor: chartType === tab.key ? COLORS.primary : 'white',
+                color: chartType === tab.key ? 'white' : COLORS.text,
                 cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: chartType === tab.key ? '0 4px 12px rgba(92, 45, 145, 0.3)' : '0 1px 3px rgba(0,0,0,0.05)'
-              }}
-              onMouseOver={(e) => {
-                if (chartType !== tab.key) {
-                  e.target.style.borderColor = COLORS.primary;
-                  e.target.style.color = COLORS.primary;
-                }
-              }}
-              onMouseOut={(e) => {
-                if (chartType !== tab.key) {
-                  e.target.style.borderColor = '#e0e0e0';
-                  e.target.style.color = COLORS.text;
-                }
+                transition: 'all 0.15s ease'
               }}
             >
               {tab.label}
@@ -568,20 +469,10 @@ export default function ROLIDashboard() {
         </div>
 
       {/* Two-Column Layout: Sidebar + Chart */}
-      <div className="dashboard-main-layout" style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', gap: '24px' }}>
+      <div className="dashboard-main-layout" style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', gap: '32px' }}>
 
         {/* Left Sidebar - Controls */}
-        <div className="controls-sidebar" style={{
-          width: '300px',
-          flexShrink: 0,
-          backgroundColor: COLORS.white,
-          borderRadius: '12px',
-          padding: '24px',
-          boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-          alignSelf: 'flex-start',
-          position: 'sticky',
-          top: '24px'
-        }}>
+        <div className="controls-sidebar" style={{ width: '280px', flexShrink: 0 }}>
 
           {/* Time Series Controls */}
           {chartType === 'timeseries' && (
