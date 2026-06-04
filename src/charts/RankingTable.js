@@ -224,7 +224,7 @@ export default function RankingTable({
       colX += colWidths.country;
 
       // Score
-      svg += `<text x="${colX + colWidths.score / 2}" y="${y + 20}" text-anchor="middle" font-size="13" font-weight="600" fill="${COLORS.text}">${row.score.toFixed(3)}</text>`;
+      svg += `<text x="${colX + colWidths.score / 2}" y="${y + 20}" text-anchor="middle" font-size="13" font-weight="600" fill="${COLORS.text}">${row.score.toFixed(2)}</text>`;
       colX += colWidths.score;
 
       // Global Rank
@@ -408,7 +408,7 @@ export default function RankingTable({
                     fontWeight: '600',
                     color: COLORS.text
                   }}>
-                    {row.score.toFixed(3)}
+                    {row.score.toFixed(2)}
                   </td>
                   <td style={{
                     padding: '10px 16px',
