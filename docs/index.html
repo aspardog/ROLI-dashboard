@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROLI Dashboard - Rule of Law Index Visualization Tool</title>
+    <meta name="description" content="Interactive dashboard for exploring the World Justice Project Rule of Law Index data from 2015-2025.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background: #ffffff;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #5C2D91 0%, #181878 100%);
+            color: white;
+            padding: 20px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: white;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: white;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #5C2D91 0%, #181878 100%);
+            color: white;
+            padding: 80px 24px 120px;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            font-size: 52px;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            letter-spacing: -1px;
+        }
+
+        .hero p {
+            font-size: 20px;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #5C2D91;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Stats Section */
+        .stats {
+            background: white;
+            margin-top: -60px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .stats-grid {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .stat-item {
+            padding: 40px 24px;
+            text-align: center;
+            border-right: 1px solid #f0f0f0;
+        }
+
+        .stat-item:last-child {
+            border-right: none;
+        }
+
+        .stat-number {
+            font-size: 42px;
+            font-weight: 800;
+            color: #5C2D91;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        /* About Section */
+        .about {
+            padding: 100px 24px;
+            background: #f8f9fa;
+        }
+
+        .about-content {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            color: #5C2D91;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 40px;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 24px;
+            letter-spacing: -0.5px;
+        }
+
+        .about-text {
+            font-size: 18px;
+            color: #555;
+            line-height: 1.8;
+            max-width: 700px;
+        }
+
+        .about-text p {
+            margin-bottom: 20px;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 24px;
+            background: white;
+        }
+
+        .features-content {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .features-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+        }
+
+        .feature-card {
+            background: #f8f9fa;
+            padding: 40px 32px;
+            border-radius: 16px;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        }
+
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #5C2D91 0%, #181878 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            font-size: 24px;
+        }
+
+        .feature-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+        }
+
+        .feature-desc {
+            font-size: 15px;
+            color: #666;
+            line-height: 1.7;
+        }
+
+        /* Problem Section */
+        .problem {
+            padding: 100px 24px;
+            background: linear-gradient(135deg, #5C2D91 0%, #181878 100%);
+            color: white;
+        }
+
+        .problem-content {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .problem .section-label {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .problem .section-title {
+            color: white;
+        }
+
+        .problem-text {
+            font-size: 18px;
+            line-height: 1.8;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+
+        /* Factors Section */
+        .factors {
+            padding: 100px 24px;
+            background: white;
+        }
+
+        .factors-content {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .factors-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-top: 50px;
+        }
+
+        .factor-card {
+            padding: 28px 24px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid;
+            transition: all 0.2s;
+        }
+
+        .factor-card:hover {
+            transform: translateX(4px);
+        }
+
+        .factor-card:nth-child(1) { border-color: #1a6b6b; }
+        .factor-card:nth-child(2) { border-color: #7cb342; }
+        .factor-card:nth-child(3) { border-color: #00838f; }
+        .factor-card:nth-child(4) { border-color: #607d8b; }
+        .factor-card:nth-child(5) { border-color: #7b1fa2; }
+        .factor-card:nth-child(6) { border-color: #43a047; }
+        .factor-card:nth-child(7) { border-color: #fb8c00; }
+        .factor-card:nth-child(8) { border-color: #e53935; }
+
+        .factor-number {
+            font-size: 13px;
+            font-weight: 700;
+            color: #999;
+            margin-bottom: 8px;
+        }
+
+        .factor-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 100px 24px;
+            background: #f8f9fa;
+            text-align: center;
+        }
+
+        .cta-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .cta .section-title {
+            margin-bottom: 20px;
+        }
+
+        .cta p {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 32px;
+        }
+
+        /* Footer */
+        .footer {
+            background: #1a1a1a;
+            color: white;
+            padding: 60px 24px 40px;
+        }
+
+        .footer-content {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 40px;
+        }
+
+        .footer-brand {
+            max-width: 300px;
+        }
+
+        .footer-brand .logo {
+            margin-bottom: 16px;
+        }
+
+        .footer-brand p {
+            font-size: 14px;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.7;
+        }
+
+        .footer-links h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .footer-links a {
+            display: block;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-size: 15px;
+            margin-bottom: 12px;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            max-width: 1100px;
+            margin: 60px auto 0;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            font-size: 14px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .hero h1 { font-size: 36px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .stat-item:nth-child(2) { border-right: none; }
+            .features-grid { grid-template-columns: 1fr; }
+            .factors-grid { grid-template-columns: repeat(2, 1fr); }
+            .nav-links { display: none; }
+        }
+
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 28px; }
+            .hero p { font-size: 16px; }
+            .section-title { font-size: 28px; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .stat-item { border-right: none; border-bottom: 1px solid #f0f0f0; }
+            .stat-item:last-child { border-bottom: none; }
+            .factors-grid { grid-template-columns: 1fr; }
+            .cta-buttons { flex-direction: column; align-items: center; }
+            .btn { width: 100%; max-width: 300px; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="logo">
+                <div class="logo-icon">WJP</div>
+                <span class="logo-text">ROLI Dashboard</span>
+            </a>
+            <nav class="nav-links">
+                <a href="#about">About</a>
+                <a href="#features">Features</a>
+                <a href="#factors">Factors</a>
+                <a href="https://github.com/aspardog/ROLI-dashboard" target="_blank">GitHub</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="badge">World Justice Project</div>
+            <h1>Rule of Law Index Dashboard</h1>
+            <p>An interactive visualization tool to explore global rule of law data across 142 countries, 8 factors, and 44 sub-factors from 2015 to 2025.</p>
+            <div class="cta-buttons">
+                <a href="https://roli-dashboard.vercel.app" target="_blank" class="btn btn-primary">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+                    Launch Dashboard
+                </a>
+                <a href="https://github.com/aspardog/ROLI-dashboard" target="_blank" class="btn btn-secondary">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                    View Source
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number">142</div>
+                <div class="stat-label">Countries</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">8</div>
+                <div class="stat-label">Factors</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">44</div>
+                <div class="stat-label">Sub-factors</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">11</div>
+                <div class="stat-label">Years of Data</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About -->
+    <section class="about" id="about">
+        <div class="about-content">
+            <div class="section-label">About the Index</div>
+            <h2 class="section-title">What is the Rule of Law Index?</h2>
+            <div class="about-text">
+                <p>The <strong>WJP Rule of Law Index</strong> is the world's leading source for original, independent data on the rule of law. It measures how the rule of law is experienced and perceived by the general public worldwide.</p>
+                <p>Published annually by the <strong>World Justice Project</strong>, the Index provides scores and rankings based on surveys of more than 150,000 households and 3,600 legal practitioners and experts worldwide.</p>
+                <p>The Index measures rule of law adherence across eight factors: Constraints on Government Powers, Absence of Corruption, Open Government, Fundamental Rights, Order and Security, Regulatory Enforcement, Civil Justice, and Criminal Justice.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features" id="features">
+        <div class="features-content">
+            <div class="features-header">
+                <div class="section-label">Dashboard Features</div>
+                <h2 class="section-title">What Can You Do?</h2>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>
+                    </div>
+                    <h3 class="feature-title">Time Series Analysis</h3>
+                    <p class="feature-desc">Track how countries' rule of law scores have changed from 2015 to 2025. Compare multiple countries or analyze trends within specific factors.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20M2 12h20"/></svg>
+                    </div>
+                    <h3 class="feature-title">Country Profiles</h3>
+                    <p class="feature-desc">Deep dive into individual country performance across all 8 factors and 44 sub-factors. Understand strengths and weaknesses at a glance.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+                    </div>
+                    <h3 class="feature-title">Rankings & Comparisons</h3>
+                    <p class="feature-desc">See top and bottom performers globally or by region. Compare countries side-by-side with interactive heatmaps and radar charts.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+                    </div>
+                    <h3 class="feature-title">Export Ready</h3>
+                    <p class="feature-desc">Download any chart as publication-ready SVG files with embedded fonts. Perfect for reports, presentations, and research papers.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                    </div>
+                    <h3 class="feature-title">Score Heatmaps</h3>
+                    <p class="feature-desc">Visualize all countries and factors in color-coded tables. Quickly identify patterns, outliers, and regional trends.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    </div>
+                    <h3 class="feature-title">Change Analysis</h3>
+                    <p class="feature-desc">Track percentage changes between any two years. See which countries improved or declined across any indicator.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section class="problem">
+        <div class="problem-content">
+            <div class="section-label">The Challenge</div>
+            <h2 class="section-title">Why This Dashboard?</h2>
+            <p class="problem-text">The World Justice Project publishes extensive data on rule of law worldwide, but navigating and visualizing this data has traditionally required technical expertise. Researchers, journalists, policymakers, and advocates need accessible tools to explore trends, make comparisons, and communicate findings effectively.</p>
+            <p class="problem-text">This dashboard bridges that gap by providing an intuitive interface to explore 11 years of rule of law data across 142 countries, with publication-ready visualizations that can be exported instantly.</p>
+            <a href="https://roli-dashboard.vercel.app" target="_blank" class="btn btn-primary">Explore the Dashboard</a>
+        </div>
+    </section>
+
+    <!-- Factors -->
+    <section class="factors" id="factors">
+        <div class="factors-content">
+            <div class="section-label">Methodology</div>
+            <h2 class="section-title">The 8 Factors of Rule of Law</h2>
+            <div class="factors-grid">
+                <div class="factor-card">
+                    <div class="factor-number">Factor 1</div>
+                    <div class="factor-name">Constraints on Government Powers</div>
+                </div>
+                <div class="factor-card">
+                    <div class="factor-number">Factor 2</div>
+                    <div class="factor-name">Absence of Corruption</div>
+                </div>
+                <div class="factor-card">
+                    <div class="factor-number">Factor 3</div>
+                    <div class="factor-name">Open Government</div>
+                </div>
+                <div class="factor-card">
+                    <div class="factor-number">Factor 4</div>
+                    <div class="factor-name">Fundamental Rights</div>
+                </div>
+                <div class="factor-card">
+                    <div class="factor-number">Factor 5</div>
+                    <div class="factor-name">Order and Security</div>
+                </div>
+                <div class="factor-card">
+                    <div class="factor-number">Factor 6</div>
+                    <div class="factor-name">Regulatory Enforcement</div>
+                </div>
+                <div class="factor-card">
+                    <div class="factor-number">Factor 7</div>
+                    <div class="factor-name">Civil Justice</div>
+                </div>
+                <div class="factor-card">
+                    <div class="factor-number">Factor 8</div>
+                    <div class="factor-name">Criminal Justice</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta">
+        <div class="cta-content">
+            <h2 class="section-title">Ready to Explore?</h2>
+            <p>Start analyzing rule of law data from 142 countries with interactive visualizations and exportable charts.</p>
+            <a href="https://roli-dashboard.vercel.app" target="_blank" class="btn btn-primary" style="background: #5C2D91; color: white;">
+                Launch Dashboard
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <a href="#" class="logo">
+                    <div class="logo-icon">WJP</div>
+                    <span class="logo-text">ROLI Dashboard</span>
+                </a>
+                <p>An open-source visualization tool for the World Justice Project Rule of Law Index data.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Resources</h4>
+                <a href="https://worldjusticeproject.org" target="_blank">World Justice Project</a>
+                <a href="https://worldjusticeproject.org/rule-of-law-index" target="_blank">Rule of Law Index</a>
+                <a href="https://github.com/aspardog/ROLI-dashboard" target="_blank">GitHub Repository</a>
+            </div>
+            <div class="footer-links">
+                <h4>Dashboard</h4>
+                <a href="https://roli-dashboard.vercel.app" target="_blank">Launch App</a>
+                <a href="https://github.com/aspardog/ROLI-dashboard/issues" target="_blank">Report Issues</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>Data source: World Justice Project. This dashboard is an independent project and is not officially affiliated with WJP.</p>
+        </div>
+    </footer>
+</body>
+</html>
