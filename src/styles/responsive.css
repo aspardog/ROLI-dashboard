@@ -1,6 +1,34 @@
 /* Google Fonts import for serif titles */
 @import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap');
 
+/* Global smooth transitions */
+* {
+  box-sizing: border-box;
+}
+
+button, select, input {
+  transition: all 0.2s ease;
+}
+
+/* Custom scrollbar for sidebar */
+.controls-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.controls-sidebar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.controls-sidebar::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.controls-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
 /* Two-column layout responsive breakpoints */
 @media (max-width: 900px) {
   /* Stack sidebar above chart on tablets */
@@ -11,6 +39,8 @@
   .controls-sidebar {
     width: 100% !important;
     margin-bottom: 24px;
+    position: relative !important;
+    top: 0 !important;
   }
 
   .chart-area {
