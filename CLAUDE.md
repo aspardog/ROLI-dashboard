@@ -160,7 +160,22 @@ All state lives in `App.js`, organized by purpose:
 **Core data & filters:**
 - `allData` - Full dataset loaded from JSON
 - `selectedRegion`, `selectedVariable`, `selectedYear` - Global filters
-- `chartType` - Active visualization ('timeseries', 'profile', 'topbottom', 'radar', 'factors', 'heatmap', 'cardheatmap', 'countrychange', 'ranking')
+- `chartType` - Active visualization (see CHART_TABS below)
+
+**Chart Type Configuration (`CHART_TABS` in App.js):**
+```js
+const CHART_TABS = [
+  { key: 'timeseries', label: 'TIME SERIES' },
+  { key: 'profile', label: 'COUNTRY PROFILES' },
+  { key: 'topbottom', label: 'TOP & BOTTOM PERFORMERS' },
+  { key: 'radar', label: 'RADAR CHART' },
+  { key: 'factors', label: 'FACTOR COMPARISON' },
+  { key: 'heatmap', label: 'SCORE HEATMAP' },
+  { key: 'cardheatmap', label: 'CHANGE HEATMAP' },
+  { key: 'countrychange', label: 'COUNTRY CHANGE' },
+  { key: 'ranking', label: 'RANKINGS' }
+];
+```
 
 **Chart-specific selections:**
 - Time Series: `selectedCountry`, `yearRange`, `showRegionalAvg`, `showGlobalAvg`
@@ -259,7 +274,7 @@ All charts support SVG download with embedded fonts:
 
 Two modals in `src/modals/` accessible from header banner links:
 - **InfoModal** - "Learn about the Index →" - Explains ROLI structure, 8 factors, 44 sub-factors
-- **HowToUseModal** - "How to use this dashboard →" - Guide to all 7 visualization types
+- **HowToUseModal** - "How to use this dashboard →" - Guide to all 9 visualization types
 
 Both use click-outside-to-close and are state-controlled via `isInfoModalOpen`/`isHowToUseModalOpen` in App.js.
 
@@ -307,7 +322,7 @@ All scores rounded to 3 decimal places.
 ```js
 const CACHE_KEY = 'roli_data_cache';
 const CACHE_VERSION_KEY = 'roli_data_version';
-const CURRENT_VERSION = '2025.1'; // Update when data changes
+const CURRENT_VERSION = '2025.5'; // Update when data changes
 ```
 - First visit: Fetches data → saves to localStorage
 - Subsequent visits: Instant load from cache
@@ -398,3 +413,30 @@ See `docs/maintainer/SYNC_GUIDE.md` for detailed instructions and troubleshootin
 - **craco** - Webpack configuration overrides
 - **xlsx** - Excel parsing in data pipeline
 - **Inter Tight font** (Google Fonts) - Typography
+
+## Deployment
+
+### GitHub Pages (Production)
+
+**Live URL:** https://aspardog.github.io/roli-dashboard
+
+**Automatic deployment:** Every push to `main` triggers the GitHub Actions workflow (`.github/workflows/deploy-gh-pages.yml`) which:
+1. Builds the React app with `npm run build`
+2. Deploys the `build/` folder to GitHub Pages
+
+**First-time setup (already done):**
+1. Go to repository Settings → Pages
+2. Under "Build and deployment", select "GitHub Actions" as the source
+3. The workflow will handle the rest automatically
+
+**Manual trigger:** You can also trigger a deploy manually from Actions → "Deploy to GitHub Pages" → "Run workflow"
+
+### Local Development
+
+```bash
+npm start  # → http://localhost:3000
+```
+
+### Vercel (Alternative)
+
+The repository also has `vercel.json` configured for deployment to Vercel if needed as an alternative hosting option.

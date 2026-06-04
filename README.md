@@ -4,7 +4,7 @@ An interactive dashboard for the **World Justice Project Rule of Law Index (ROLI
 
 ## Features
 
-- **Seven visualization types**:
+- **Nine visualization types**:
   - **Time Series** — Line chart showing 2015-2025 trends with regional averages
   - **Country Profiles** — Detailed country performance breakdown
   - **Top & Bottom Performers** — Dynamic bar chart that adapts when regions have fewer than 10 countries
@@ -12,6 +12,8 @@ An interactive dashboard for the **World Justice Project Rule of Law Index (ROLI
   - **Factor Comparison** — Multi-country comparison across all 8 factors
   - **Score Heatmap** — Color-coded table showing all countries and factors at a glance
   - **Change Heatmap** — Card-based visualization showing percentage change between years
+  - **Country Change** — Analyze how a single country changed across all sub-factors within a factor
+  - **Rankings** — Sortable country rankings with regional and global positions, rank change indicators
 - **Built-in documentation**:
   - **"Learn about the Index"** — In-app modal explaining the Rule of Law Index structure, 8 factors, and 44 sub-factors
   - **"How to use this dashboard"** — Interactive guide to each visualization type
@@ -45,6 +47,12 @@ npm run parse-data
 ```
 
 This writes `roli_data.json` to both `data/` (canonical copy) and `public/` (served by the app).
+
+## Live Demo
+
+**GitHub Pages:** [https://aspardog.github.io/roli-dashboard](https://aspardog.github.io/roli-dashboard)
+
+The dashboard is automatically deployed to GitHub Pages on every push to `main`.
 
 ## Collaboration Workflow
 
@@ -83,7 +91,7 @@ This repository has Claude Code integration:
 ```
 src/
 ├── App.js                 # Main dashboard component
-├── charts/                # All chart components (7 visualizations)
+├── charts/                # All chart components (9 visualizations)
 ├── modals/                # InfoModal, HowToUseModal
 ├── components/            # Reusable UI (ChartCard)
 ├── config/                # Constants, colors, regions, EU countries
@@ -116,4 +124,4 @@ Full details on the directory layout, data pipeline, column mapping, and craco c
 
 The dashboard also includes **in-app documentation** accessible via two links in the header:
 - **Learn about the Index** — Opens a modal with comprehensive information about the Rule of Law Index
-- **How to use this dashboard** — Opens a guide explaining each of the seven visualization types
+- **How to use this dashboard** — Opens a guide explaining each of the nine visualization types

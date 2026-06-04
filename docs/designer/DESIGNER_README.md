@@ -56,12 +56,12 @@ git pull origin main
 
 ### 🎨 Primary Design Files (modify freely):
 
-**`src/constants.js`** (lines 52-62)
+**`src/config/constants.js`** (lines 52-62)
 - **Purpose:** All color definitions, regions, variables
 - **What to change:** Colors (HEX codes), palette adjustments
 - **What NOT to change:** Variable names, structure, exported data
 
-**`src/responsive.css`**
+**`src/styles/responsive.css`**
 - **Purpose:** Mobile and responsive styles
 - **What to change:** Font sizes, padding, margins, breakpoints, mobile layouts
 - **What NOT to change:** Class names (can break component references)
@@ -71,24 +71,31 @@ git pull origin main
 - **What to change:** fontSize, fontWeight, color, margin, padding, borderRadius, backgroundColor
 - **What NOT to change:** Component logic, state management, data flow, function names
 
-**`src/InfoModal.js`**
+**`src/modals/InfoModal.js`**
 - **Purpose:** "Learn about the Index" modal styling
 - **What to change:** Modal appearance, typography, spacing, colors
 - **What NOT to change:** Content structure, onClick handlers, component logic
 
-**`src/HowToUseModal.js`**
+**`src/modals/HowToUseModal.js`**
 - **Purpose:** "How to use" modal styling
 - **What to change:** Similar to InfoModal - appearance only
 - **What NOT to change:** Component logic
 
 ### 📊 Chart Components (modify styles only):
 
-**`src/TopBottomChart.js`**
-**`src/TimeSeriesChart.js`**
-**`src/RadarChartView.js`**
-**`src/FactorComparisonChart.js`**
-- **What to change:** Container styles, titles, spacing, colors via COLORS constants
-- **What NOT to change:** Recharts configuration, data processing, calculations
+All chart components are in `src/charts/`:
+- **`TimeSeriesChart.js`** - Line chart for trends
+- **`CountryProfileChart.js`** - Country performance breakdown
+- **`TopBottomChart.js`** - Top & bottom performers
+- **`RadarChartView.js`** - Multi-year radar
+- **`FactorComparisonChart.js`** - Factor comparison
+- **`HumanRightsHeatmap.js`** - Score heatmap table
+- **`CardHeatmap.js`** - Change heatmap cards
+- **`CountryChangeHeatmap.js`** - Country subfactor changes
+- **`RankingTable.js`** - Sortable rankings table
+
+**What to change:** Container styles, titles, spacing, colors via COLORS constants
+**What NOT to change:** Recharts configuration, data processing, calculations
 
 ---
 
@@ -96,8 +103,9 @@ git pull origin main
 
 ❌ `package.json` - Dependencies configuration
 ❌ `craco.config.js` - Build configuration
-❌ `src/parse-roli-data.js` - Data parser
-❌ `src/svgExport.js` - SVG export logic
+❌ `scripts/parse-roli-data.js` - Data parser
+❌ `src/utils/svgExport.js` - SVG export logic
+❌ `src/utils/regionFilter.js` - Region filtering logic
 ❌ Files in `data/` folder - Source data
 ❌ Files in `public/` folder (except index.html if designer knows HTML)
 ❌ `.github/workflows/` - CI/CD configuration
@@ -106,7 +114,7 @@ git pull origin main
 
 ## Design System Reference
 
-### Current Colors (from src/constants.js):
+### Current Colors (from src/config/constants.js):
 ```javascript
 COLORS = {
   top5: '#4a90e2',      // Blue for top 5 countries
@@ -189,7 +197,7 @@ Main User regularly updates `main` with new features, bug fixes, and data update
 
 ### Change Dashboard Colors:
 
-1. Open `src/constants.js`
+1. Open `src/config/constants.js`
 2. Find `export const COLORS` (around line 52)
 3. Change HEX values:
    ```javascript
@@ -203,7 +211,7 @@ Main User regularly updates `main` with new features, bug fixes, and data update
 
 ### Change Font Sizes:
 
-**Option A:** Global changes in `src/responsive.css`
+**Option A:** Global changes in `src/styles/responsive.css`
 ```css
 .dashboard-header h1 {
   font-size: 32px !important;  /* Change this */
@@ -301,7 +309,7 @@ style={{
 1. **Visual check:** Does it look good in the browser?
 2. **Responsive check:** Resize browser window - does it work on mobile/tablet?
 3. **Multiple browsers:** Test in Chrome, Firefox, Safari if possible
-4. **All chart types:** Switch between Time Series, Top/Bottom, Radar, Factor Comparison
+4. **All chart types:** Switch between all 9 visualizations (Time Series, Country Profiles, Top/Bottom, Radar, Factor Comparison, Score Heatmap, Change Heatmap, Country Change, Rankings)
 5. **Both modals:** Open "Learn about Index" and "How to Use" modals
 
 ### Taking screenshots:
@@ -358,13 +366,13 @@ Your design changes are successful when:
 │ Start session: SYNC with main (git pull origin main)│
 │ Can modify:    Styles, colors, spacing, fonts       │
 │ Cannot modify: Logic, data, configuration           │
-│ Main files:    src/constants.js (colors)            │
-│                src/responsive.css (mobile)          │
+│ Main files:    src/config/constants.js (colors)     │
+│                src/styles/responsive.css (mobile)   │
 │                App.js (inline styles)               │
 │ Workflow:      Sync → Edit → Save → Check browser  │
 │                → Commit → Push → PR                 │
 │ Test on:       Desktop, tablet, mobile              │
-│                All 4 chart types, both modals       │
+│                All 9 chart types, both modals       │
 └──────────────────────────────────────────────────────┘
 ```
 

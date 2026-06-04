@@ -73,7 +73,7 @@ export default function HowToUseModal({ isOpen, onClose }) {
           </h2>
 
           <p style={{ fontSize: '16px', lineHeight: '1.7', color: COLORS.text, marginBottom: '24px' }}>
-            This dashboard currently includes <strong>seven visualizations</strong>. Use the chart toggles to switch views, then refine what you see using the filters (year, geography, and indicator selection).
+            This dashboard currently includes <strong>nine visualizations</strong>. Use the chart toggles to switch views, then refine what you see using the filters (year, geography, and indicator selection).
           </p>
 
           {/* Time Series */}
@@ -167,6 +167,34 @@ export default function HowToUseModal({ isOpen, onClose }) {
             <li style={{ marginBottom: '8px' }}>Choose a <strong>region</strong> and the <strong>indicator</strong> (overall score, factor, or sub-factor).</li>
             <li style={{ marginBottom: '8px' }}>Cards show <strong>percentage change</strong> with color coding: <strong>green = improved</strong>, <strong>red = declined</strong>, <strong>gray = stable</strong>.</li>
             <li style={{ marginBottom: '8px' }}>Use it to quickly identify which countries have made <strong>progress or regressed</strong> over a specific period.</li>
+          </ul>
+
+          {/* Country Change */}
+          <h3 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, marginTop: '32px', marginBottom: '12px' }}>
+            8) Country Change
+          </h3>
+          <p style={{ fontSize: '15px', lineHeight: '1.7', color: COLORS.text, marginBottom: '8px' }}>
+            Use this view to analyze <strong>how a single country changed across all sub-factors</strong> within a specific factor.
+          </p>
+          <ul style={{ fontSize: '15px', lineHeight: '1.7', color: COLORS.text, marginBottom: '24px', paddingLeft: '20px' }}>
+            <li style={{ marginBottom: '8px' }}>Select a <strong>country</strong> (or regional average) and a <strong>factor</strong>.</li>
+            <li style={{ marginBottom: '8px' }}>Choose the <strong>base year</strong> and <strong>current year</strong> to compare.</li>
+            <li style={{ marginBottom: '8px' }}>See all <strong>sub-factors</strong> displayed as change cards with percentage change.</li>
+            <li style={{ marginBottom: '8px' }}>Use it to understand <strong>where a country improved or declined</strong> within a specific dimension of rule of law.</li>
+          </ul>
+
+          {/* Rankings */}
+          <h3 style={{ fontSize: '20px', fontWeight: '600', color: COLORS.text, marginTop: '32px', marginBottom: '12px' }}>
+            9) Rankings
+          </h3>
+          <p style={{ fontSize: '15px', lineHeight: '1.7', color: COLORS.text, marginBottom: '8px' }}>
+            Use this view to see <strong>sortable country rankings</strong> with regional and global positions.
+          </p>
+          <ul style={{ fontSize: '15px', lineHeight: '1.7', color: COLORS.text, marginBottom: '24px', paddingLeft: '20px' }}>
+            <li style={{ marginBottom: '8px' }}>Select a <strong>year</strong>, <strong>region</strong>, and <strong>indicator</strong> (overall score, factor, or sub-factor).</li>
+            <li style={{ marginBottom: '8px' }}>See each country's <strong>regional rank</strong>, <strong>score</strong>, and <strong>global rank</strong>.</li>
+            <li style={{ marginBottom: '8px' }}>Compare to a <strong>base year</strong> to see rank changes: <strong>green ▲ = moved up</strong>, <strong>red ▼ = moved down</strong>.</li>
+            <li style={{ marginBottom: '8px' }}>Click column headers to <strong>sort</strong> by any metric.</li>
           </ul>
 
           {/* Export visuals */}

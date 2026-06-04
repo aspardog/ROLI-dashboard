@@ -4,7 +4,7 @@ Esta es una guía visual de dónde están los estilos en cada archivo.
 
 ---
 
-## 🎨 src/constants.js
+## 🎨 src/config/constants.js
 
 **Qué contiene:** Todos los colores, regiones, variables
 
@@ -25,7 +25,7 @@ export const COLORS = {
 
 ---
 
-## 📱 src/responsive.css
+## 📱 src/styles/responsive.css
 
 **Qué contiene:** Estilos para móviles y tablets
 
@@ -147,7 +147,7 @@ export const COLORS = {
 
 ---
 
-## 🔵 src/InfoModal.js
+## 🔵 src/modals/InfoModal.js
 
 **Qué contiene:** Modal "Learn about the Index"
 
@@ -219,7 +219,7 @@ export const COLORS = {
 
 ---
 
-## 🎯 src/HowToUseModal.js
+## 🎯 src/modals/HowToUseModal.js
 
 **Qué contiene:** Modal "How to use this dashboard"
 
@@ -227,7 +227,7 @@ Tiene **la misma estructura** que InfoModal.js, solo cambia el contenido.
 
 ---
 
-## 📊 src/TopBottomChart.js
+## 📊 src/charts/TopBottomChart.js
 
 **Qué contiene:** Gráfico de Top & Bottom performers
 
@@ -273,7 +273,7 @@ Tiene **la misma estructura** que InfoModal.js, solo cambia el contenido.
 
 ---
 
-## 📈 src/TimeSeriesChart.js
+## 📈 src/charts/TimeSeriesChart.js
 
 **Qué contiene:** Gráfico de línea temporal
 
@@ -282,7 +282,7 @@ Similar estructura a TopBottomChart.js
 ### Colores de las líneas (usa `TS_COLORS` de constants.js)
 
 ```javascript
-// En src/constants.js línea ~64
+// En src/config/constants.js línea ~64
 export const TS_COLORS = {
   line: '#2c5aa0',           // Azul oscuro - Línea principal
   regionalAvg: '#e67e22',    // Naranja - Promedio regional
@@ -293,7 +293,7 @@ export const TS_COLORS = {
 
 ---
 
-## 🕸️ src/RadarChartView.js
+## 🕸️ src/charts/RadarChartView.js
 
 **Qué contiene:** Gráfico radar (multi-año)
 
@@ -313,7 +313,7 @@ const YEAR_COLORS = {
 
 ---
 
-## 📊 src/FactorComparisonChart.js
+## 📊 src/charts/FactorComparisonChart.js
 
 **Qué contiene:** Comparación de factores entre países
 
@@ -327,6 +327,73 @@ const ENTITY_COLORS = [
   '#d97706',  // Naranja
   '#7c3aed'   // Morado
 ];
+```
+
+---
+
+## 👤 src/charts/CountryProfileChart.js
+
+**Qué contiene:** Perfil detallado de un país con los 8 factores
+
+### Colores por factor (usa `FACTOR_COLORS` de constants.js)
+
+```javascript
+// En src/config/constants.js
+export const FACTOR_COLORS = {
+  f1: '#5C2D91',  // Morado WJP
+  f2: '#2E86AB',  // Azul
+  f3: '#1B998B',  // Verde azulado
+  // ... etc.
+};
+```
+
+---
+
+## 🌡️ src/charts/HumanRightsHeatmap.js
+
+**Qué contiene:** Heatmap de scores (Score Heatmap)
+
+### Escala de colores
+
+```javascript
+// Colores basados en el score (0-1)
+// Rojo (0) → Amarillo (0.5) → Verde (1)
+```
+
+---
+
+## 📊 src/charts/CardHeatmap.js
+
+**Qué contiene:** Heatmap de cambios con tarjetas (Change Heatmap)
+
+### Colores de cambio
+
+```javascript
+// Verde: mejora (cambio > 1%)
+// Rojo: declive (cambio < -1%)
+// Gris: estable (cambio entre -1% y 1%)
+```
+
+---
+
+## 🔄 src/charts/CountryChangeHeatmap.js
+
+**Qué contiene:** Cambios de un país en los subfactores de un factor específico
+
+Similar a CardHeatmap pero enfocado en un país/factor específico.
+
+---
+
+## 🏆 src/charts/RankingTable.js
+
+**Qué contiene:** Tabla de rankings ordenable
+
+### Indicadores de cambio
+
+```javascript
+// Verde ▲: subió en el ranking
+// Rojo ▼: bajó en el ranking
+// Gris —: sin cambio
 ```
 
 ---
@@ -419,8 +486,10 @@ Grises:
 
 - ❌ `package.json` - Configuración de dependencias
 - ❌ `craco.config.js` - Configuración de build
-- ❌ `src/parse-roli-data.js` - Parser de datos
-- ❌ `src/svgExport.js` - Exportación de SVG
+- ❌ `scripts/parse-roli-data.js` - Parser de datos
+- ❌ `src/utils/svgExport.js` - Exportación de SVG
+- ❌ `src/utils/svgExportHelpers.js` - Helpers de SVG
+- ❌ `src/utils/regionFilter.js` - Filtrado de regiones
 - ❌ Archivos en `data/` - Datos del proyecto
 - ❌ `public/` - Archivos públicos (excepto index.html si sabes HTML)
 
