@@ -13,6 +13,7 @@ const CountryProfileChart = lazy(() => import('./charts/CountryProfileChart'));
 const HumanRightsHeatmap = lazy(() => import('./charts/HumanRightsHeatmap'));
 const CardHeatmap = lazy(() => import('./charts/CardHeatmap'));
 const CountryChangeHeatmap = lazy(() => import('./charts/CountryChangeHeatmap'));
+const RankingTable = lazy(() => import('./charts/RankingTable'));
 
 // Tab configuration for chart type switcher
 const CHART_TABS = [
@@ -23,7 +24,8 @@ const CHART_TABS = [
   { key: 'factors', label: 'FACTOR COMPARISON' },
   { key: 'heatmap', label: 'SCORE HEATMAP' },
   { key: 'cardheatmap', label: 'CHANGE HEATMAP' },
-  { key: 'countrychange', label: 'COUNTRY CHANGE' }
+  { key: 'countrychange', label: 'COUNTRY CHANGE' },
+  { key: 'ranking', label: 'RANKINGS' }
 ];
 
 const AVAILABLE_YEARS = ['2025', '2024', '2023', '2022', '2021', '2020', '2019', '2018', '2017', '2016', '2015'];
@@ -125,6 +127,10 @@ export default function ROLIDashboard() {
   const [countryChangeYear, setCountryChangeYear] = useState('2025');
   const [countryChangeBaseYear, setCountryChangeBaseYear] = useState('2015');
   const [countryChangeRegion, setCountryChangeRegion] = useState('global');
+  const [rankingYear, setRankingYear] = useState(ACTIVE_YEAR);
+  const [rankingBaseYear, setRankingBaseYear] = useState('2015');
+  const [rankingRegion, setRankingRegion] = useState('global');
+  const [rankingVariable, setRankingVariable] = useState('roli');
   const selectedLabel = VARIABLE_OPTIONS.find(opt => opt.value === selectedVariable)?.label || selectedVariable;
   const regionLabel = REGION_OPTIONS.find(opt => opt.value === selectedRegion)?.label || selectedRegion;
 
@@ -192,6 +198,15 @@ export default function ROLIDashboard() {
       setCountryChangeBaseYear(countryChangeYear);
     }
   }, [countryChangeBaseYear, countryChangeYear]);
+
+  useEffect(() => {
+    if (parseInt(rankingBaseYear, 10) >= parseInt(rankingYear, 10)) {
+      const years = AVAILABLE_YEARS.filter(y => parseInt(y, 10) < parseInt(rankingYear, 10));
+      if (years.length > 0) {
+        setRankingBaseYear(years[years.length - 1]);
+      }
+    }
+  }, [rankingBaseYear, rankingYear]);
 
   const roliData = useMemo(() => {
     const byYear = allData.filter(d => d.year === ACTIVE_YEAR);
@@ -1205,6 +1220,61 @@ export default function ROLIDashboard() {
             </>
           )}
 
+          {/* Ranking Table Controls */}
+          {chartType === 'ranking' && (
+            <>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Region</label>
+                <div style={{ position: 'relative' }}>
+                  <select value={rankingRegion} onChange={(e) => setRankingRegion(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
+                    {REGION_OPTIONS.map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
+                  </select>
+                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Variable</label>
+                <div style={{ position: 'relative' }}>
+                  <select value={rankingVariable} onChange={(e) => setRankingVariable(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
+                    {VARIABLE_OPTIONS.map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
+                  </select>
+                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Year</label>
+                <div style={{ position: 'relative' }}>
+                  <select value={rankingYear} onChange={(e) => setRankingYear(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
+                    {AVAILABLE_YEARS.map(year => (<option key={year} value={year}>{year}</option>))}
+                  </select>
+                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Compare to Year</label>
+                <div style={{ position: 'relative' }}>
+                  <select value={rankingBaseYear} onChange={(e) => setRankingBaseYear(e.target.value)} style={{ width: '100%', padding: '12px 40px 12px 12px', fontSize: '15px', fontWeight: '500', color: COLORS.primary, border: '1px solid #e5e5e5', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', appearance: 'none', outline: 'none' }}>
+                    {AVAILABLE_YEARS.filter(y => y !== rankingYear).slice().reverse().map(year => (<option key={year} value={year}>{year}</option>))}
+                  </select>
+                  <div style={{ position: 'absolute', right: '0', top: '0', bottom: '0', width: '36px', backgroundColor: COLORS.primary, borderRadius: '0 4px 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <span style={{ color: 'white', fontSize: '10px' }}>▼</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ padding: '12px', backgroundColor: '#f8f7f4', borderRadius: '6px', marginBottom: '20px' }}>
+                <p style={{ fontSize: '12px', color: COLORS.muted, margin: 0, lineHeight: 1.5 }}>
+                  View country rankings by score. Shows regional rank, global rank, and rank change compared to the selected base year.
+                </p>
+              </div>
+            </>
+          )}
+
           {/* Radar Controls */}
           {chartType === 'radar' && (
             <>
@@ -1475,6 +1545,16 @@ export default function ROLIDashboard() {
                 baseYear={countryChangeBaseYear}
               />
             )}
+            {chartType === 'ranking' && (
+              <RankingTable
+                allData={allData}
+                selectedYear={rankingYear}
+                baseYear={rankingBaseYear}
+                selectedRegion={rankingRegion}
+                selectedVariable={rankingVariable}
+                variableLabel={VARIABLE_OPTIONS.find(opt => opt.value === rankingVariable)?.label || rankingVariable}
+              />
+            )}
           </Suspense>
         </div>
       </div>{/* Close dashboard-main-layout */}
@@ -1490,6 +1570,7 @@ export default function ROLIDashboard() {
             chartType === 'heatmap' ? heatmapYear :
             chartType === 'cardheatmap' ? `${cardHeatmapBaseYear}–${cardHeatmapYear}` :
             chartType === 'countrychange' ? `${countryChangeBaseYear}–${countryChangeYear}` :
+            chartType === 'ranking' ? `${rankingBaseYear}–${rankingYear}` :
             selectedYear
           }
         </p>

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
+import PropTypes from 'prop-types';
 import { COLORS, VARIABLE_OPTIONS } from '../config';
-import { getEmbeddedFontCSS } from '../utils/svgExport';
+import { getEmbeddedFontCSS } from '../utils';
 
 // Target countries from Asia & Pacific and Central Asia
 const TARGET_COUNTRIES = [
@@ -366,3 +367,10 @@ export default function LollipopChart({
     </div>
   );
 }
+
+LollipopChart.propTypes = {
+  allData: PropTypes.arrayOf(PropTypes.object).isRequired,
+  selectedYear: PropTypes.string,
+  baseYear: PropTypes.string,
+  selectedVariable: PropTypes.string
+};

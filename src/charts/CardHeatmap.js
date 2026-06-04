@@ -1,55 +1,7 @@
 import { useMemo } from 'react';
+import PropTypes from 'prop-types';
 import { COLORS, VARIABLE_OPTIONS } from '../config';
-import { getEmbeddedFontCSS } from '../utils/svgExport';
-import { filterByRegion } from '../utils';
-
-// Color scale based on percentage change: red (negative) to green (positive)
-function getChangeColor(changePercent) {
-  if (changePercent === null || changePercent === undefined || isNaN(changePercent)) {
-    return { bg: '#f5f5f5', accent: '#9e9e9e', text: COLORS.muted };
-  }
-
-  if (Math.abs(changePercent) < 1) {
-    // No significant change - neutral gray
-    return { bg: '#f5f5f5', accent: '#9e9e9e', text: COLORS.muted };
-  } else if (changePercent > 0) {
-    // Positive change - green scale
-    const intensity = Math.min(changePercent / 30, 1); // Max intensity at 30%
-    return {
-      bg: `rgba(76, 175, 80, ${0.08 + intensity * 0.12})`,
-      accent: `rgb(${76 - intensity * 30}, ${175 - intensity * 30}, ${80 - intensity * 30})`,
-      text: '#2e7d32'
-    };
-  } else {
-    // Negative change - red scale
-    const intensity = Math.min(Math.abs(changePercent) / 30, 1);
-    return {
-      bg: `rgba(244, 67, 54, ${0.08 + intensity * 0.12})`,
-      accent: `rgb(${244 - intensity * 46}, ${67 - intensity * 27}, ${54 - intensity * 14})`,
-      text: '#c62828'
-    };
-  }
-}
-
-// Get arrow symbol for change
-function getChangeArrow(changePercent) {
-  if (changePercent === null || changePercent === undefined || isNaN(changePercent)) {
-    return '—';
-  }
-  if (Math.abs(changePercent) < 1) return '→';
-  if (changePercent > 0) {
-    return changePercent >= 10 ? '↑↑' : '↑';
-  } else {
-    return changePercent <= -10 ? '↓↓' : '↓';
-  }
-}
-
-function getChangeSortBucket(changePercent) {
-  if (changePercent === null || changePercent === undefined || isNaN(changePercent)) return 1;
-  if (changePercent > 1) return 0;
-  if (changePercent < -1) return 2;
-  return 1;
-}
+import { getEmbeddedFontCSS, filterByRegion, getChangeColor, getChangeArrow, getChangeSortBucket } from '../utils';
 
 export default function CardHeatmap({
   allData,
@@ -392,3 +344,11 @@ export default function CardHeatmap({
     </div>
   );
 }
+
+CardHeatmap.propTypes = {
+  allData: PropTypes.arrayOf(PropTypes.object).isRequired,
+  selectedYear: PropTypes.string,
+  baseYear: PropTypes.string,
+  selectedRegion: PropTypes.string,
+  selectedVariable: PropTypes.string
+};

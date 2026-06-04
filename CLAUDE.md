@@ -115,7 +115,8 @@ src/
 │   ├── FactorComparisonChart.js # Multi-country factor comparison
 │   ├── HumanRightsHeatmap.js # Score heatmap table
 │   ├── CardHeatmap.js        # Change heatmap with cards
-│   └── CountryChangeHeatmap.js # Country subfactor change cards
+│   ├── CountryChangeHeatmap.js # Country subfactor change cards
+│   └── RankingTable.js       # Interactive ranking table
 │
 ├── modals/                   # Modal components
 │   ├── index.js              # Barrel export
@@ -159,7 +160,7 @@ All state lives in `App.js`, organized by purpose:
 **Core data & filters:**
 - `allData` - Full dataset loaded from JSON
 - `selectedRegion`, `selectedVariable`, `selectedYear` - Global filters
-- `chartType` - Active visualization ('timeseries', 'profile', 'topbottom', 'radar', 'factors', 'heatmap', 'cardheatmap', 'countrychange')
+- `chartType` - Active visualization ('timeseries', 'profile', 'topbottom', 'radar', 'factors', 'heatmap', 'cardheatmap', 'countrychange', 'ranking')
 
 **Chart-specific selections:**
 - Time Series: `selectedCountry`, `yearRange`, `showRegionalAvg`, `showGlobalAvg`
@@ -169,6 +170,7 @@ All state lives in `App.js`, organized by purpose:
 - Score Heatmap: `heatmapYear`, `heatmapRegion`, `heatmapFactors`
 - Change Heatmap: `cardHeatmapYear`, `cardHeatmapBaseYear`, `cardHeatmapRegion`, `cardHeatmapVariable`
 - Country Change: `countryChangeCountry`, `countryChangeFactor`, `countryChangeYear`, `countryChangeBaseYear`, `countryChangeRegion`
+- Ranking Table: `rankingYear`, `rankingBaseYear`, `rankingRegion`, `rankingVariable`
 
 **UI state:**
 - Modal visibility: `isInfoModalOpen`, `isHowToUseModalOpen`
@@ -235,6 +237,13 @@ All state lives in `App.js`, organized by purpose:
 - Same card design as CardHeatmap but cards represent subfactors instead of countries
 - Calculates factor-level change displayed in header
 - Uses `__region_global` and `__region_[name]` keys for regional averages
+
+**RankingTable (Rankings)**
+- Interactive sortable table showing country rankings
+- Shows regional rank, score, global rank, and rank change compared to base year
+- Sortable by any column (click header to toggle sort direction)
+- Filters by region and variable (any factor or subfactor)
+- Green ▲ indicates moved up in ranking, red ▼ indicates moved down
 
 ### SVG Export
 

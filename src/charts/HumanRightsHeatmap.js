@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
+import PropTypes from 'prop-types';
 import { COLORS, VARIABLE_OPTIONS } from '../config';
-import { getEmbeddedFontCSS } from '../utils/svgExport';
-import { filterByRegion } from '../utils';
+import { getEmbeddedFontCSS, filterByRegion } from '../utils';
 
 // Color scale from red (0) to yellow (0.5) to green (1)
 function getHeatmapColor(value) {
@@ -319,3 +319,10 @@ export default function HumanRightsHeatmap({
     </div>
   );
 }
+
+HumanRightsHeatmap.propTypes = {
+  allData: PropTypes.arrayOf(PropTypes.object).isRequired,
+  selectedYear: PropTypes.string,
+  selectedRegion: PropTypes.string,
+  selectedFactors: PropTypes.arrayOf(PropTypes.string)
+};
