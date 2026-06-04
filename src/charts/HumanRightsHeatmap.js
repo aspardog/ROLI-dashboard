@@ -155,10 +155,8 @@ export default function HumanRightsHeatmap({
         const x = padding + countryColWidth + (colIndex * (cellWidth + cellGap));
         const value = row.factors[factor.key];
         const color = getHeatmapColor(value);
-        const textColor = value > 0.5 ? '#1a1a1a' : 'white';
-
         svg += `<rect x="${x}" y="${y}" width="${cellWidth}" height="${cellHeight - 2}" fill="${color}" rx="3"/>`;
-        svg += `<text x="${x + cellWidth / 2}" y="${y + cellHeight / 2 + 4}" text-anchor="middle" font-size="13" font-weight="600" fill="${textColor}">${value !== null && value !== undefined ? value.toFixed(2) : '—'}</text>`;
+        svg += `<text x="${x + cellWidth / 2}" y="${y + cellHeight / 2 + 4}" text-anchor="middle" font-size="13" font-weight="600" fill="#1a1a1a">${value !== null && value !== undefined ? value.toFixed(2) : '—'}</text>`;
       });
     });
 
@@ -273,7 +271,6 @@ export default function HumanRightsHeatmap({
                 {factorsList.map(factor => {
                   const value = row.factors[factor.key];
                   const bgColor = getHeatmapColor(value);
-                  const textColor = value > 0.5 ? '#1a1a1a' : 'white';
 
                   return (
                     <td key={factor.key} style={{
@@ -283,7 +280,7 @@ export default function HumanRightsHeatmap({
                       borderLeft: '3px solid white',
                       borderRight: '3px solid white'
                     }}>
-                      <span style={{ fontWeight: '700', color: textColor, fontSize: '14px' }}>
+                      <span style={{ fontWeight: '700', color: '#1a1a1a', fontSize: '14px' }}>
                         {value !== null && value !== undefined ? value.toFixed(2) : '—'}
                       </span>
                     </td>
