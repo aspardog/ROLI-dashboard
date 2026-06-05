@@ -50,7 +50,9 @@ This writes `roli_data.json` to both `data/` (canonical copy) and `public/` (ser
 
 ## Live Demo
 
-**GitHub Pages:** [https://aspardog.github.io/roli-dashboard](https://aspardog.github.io/roli-dashboard)
+**Dashboard:** [https://aspardog.github.io/roli-dashboard](https://aspardog.github.io/roli-dashboard)
+
+**Documentation Site:** [https://aspardog.github.io/roli-dashboard/docs/](https://aspardog.github.io/roli-dashboard/docs/)
 
 The dashboard is automatically deployed to GitHub Pages on every push to `main`.
 

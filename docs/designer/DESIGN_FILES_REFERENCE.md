@@ -356,9 +356,16 @@ export const FACTOR_COLORS = {
 ### Escala de colores
 
 ```javascript
-// Colores basados en el score (0-1)
+// Colores de fondo basados en el score (0-1)
 // Rojo (0) → Amarillo (0.5) → Verde (1)
+
+// Color de texto: siempre negro (#1a1a1a)
+// Los labels de las celdas son negros independientemente del color de fondo
 ```
+
+### Scores
+- Los scores se muestran con **2 decimales** (ej: 0.75)
+- Los rankings se calculan con precisión completa internamente
 
 ---
 
