@@ -78,37 +78,31 @@
         .logo {
             display: inline-flex;
             align-items: center;
-            gap: 14px;
+            gap: 16px;
             text-decoration: none;
             min-width: 0;
         }
 
-        .logo-mark {
-            width: 48px;
-            height: 32px;
-            color: var(--wjp-violet);
+        .wjp-logo {
+            width: 206px;
+            max-width: 48vw;
+            height: auto;
+            display: block;
             flex: 0 0 auto;
         }
 
-        .logo-text {
-            display: grid;
-            line-height: 1.05;
-        }
-
-        .logo-text strong {
-            color: var(--wjp-ink);
-            font-size: 15px;
-            font-weight: 900;
-            letter-spacing: 0;
-        }
-
-        .logo-text span {
+        .site-tagline {
+            display: block;
+            padding-left: 16px;
+            border-left: 1px solid var(--wjp-line);
             color: var(--wjp-gray);
             font-family: "Lato", Arial, sans-serif;
             font-size: 12px;
-            font-weight: 700;
+            font-weight: 900;
             text-transform: uppercase;
             letter-spacing: 0.08em;
+            line-height: 1.1;
+            white-space: nowrap;
         }
 
         .nav-links {
@@ -724,15 +718,17 @@
             gap: 42px;
         }
 
-        .footer .logo-mark {
-            color: #FFFFFF;
+        .footer .logo {
+            width: max-content;
+            max-width: 100%;
+            padding: 12px 14px;
+            background: #FFFFFF;
         }
 
-        .footer .logo-text strong {
-            color: #FFFFFF;
+        .footer .site-tagline {
+            color: var(--wjp-gray);
         }
 
-        .footer .logo-text span,
         .footer-brand p,
         .footer-bottom {
             color: rgba(255, 255, 255, 0.62);
@@ -895,8 +891,19 @@
         }
 
         @media (max-width: 460px) {
-            .logo-text strong {
-                font-size: 14px;
+            .logo {
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .wjp-logo {
+                width: 168px;
+                max-width: 58vw;
+            }
+
+            .site-tagline {
+                padding-left: 10px;
+                font-size: 10px;
             }
 
             .hero h1 {
@@ -927,14 +934,8 @@
     <header class="header">
         <div class="header-content">
             <a href="#" class="logo" aria-label="ROLI Dashboard home">
-                <svg class="logo-mark" viewBox="0 0 72 48" aria-hidden="true">
-                    <ellipse cx="36" cy="24" rx="30" ry="18" fill="none" stroke="currentColor" stroke-width="5"/>
-                    <path d="M8 24h56M36 6v36M18 13c9 5 27 5 36 0M18 35c9-5 27-5 36 0" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
-                </svg>
-                <span class="logo-text">
-                    <strong>World Justice Project</strong>
-                    <span>ROLI Dashboard</span>
-                </span>
+                <img class="wjp-logo" src="assets/wjp-logo-text.svg" alt="World Justice Project">
+                <span class="site-tagline">ROLI Dashboard</span>
             </a>
             <nav class="nav-links" aria-label="Primary navigation">
                 <a href="#about">About</a>
@@ -1269,14 +1270,8 @@
         <div class="footer-content">
             <div class="footer-brand">
                 <a href="#" class="logo" aria-label="ROLI Dashboard home">
-                    <svg class="logo-mark" viewBox="0 0 72 48" aria-hidden="true">
-                        <ellipse cx="36" cy="24" rx="30" ry="18" fill="none" stroke="currentColor" stroke-width="5"/>
-                        <path d="M8 24h56M36 6v36M18 13c9 5 27 5 36 0M18 35c9-5 27-5 36 0" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
-                    </svg>
-                    <span class="logo-text">
-                        <strong>World Justice Project</strong>
-                        <span>ROLI Dashboard</span>
-                    </span>
+                    <img class="wjp-logo" src="assets/wjp-logo-text.svg" alt="World Justice Project">
+                    <span class="site-tagline">ROLI Dashboard</span>
                 </a>
                 <p>An open-source visualization tool for the World Justice Project Rule of Law Index data.</p>
             </div>
