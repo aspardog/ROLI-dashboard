@@ -2,12 +2,6 @@
 
 This folder contains all project documentation organized by role.
 
-## 🌐 Landing Page
-
-**View the landing page:** [docs/index.html](index.html) or visit [aspardog.github.io/roli-dashboard/docs/](https://aspardog.github.io/roli-dashboard/docs/)
-
-The landing page provides a visual overview of the dashboard, including all 8 factors and 44 sub-factors of the Rule of Law Index.
-
 ## 📁 Structure
 
 ```
