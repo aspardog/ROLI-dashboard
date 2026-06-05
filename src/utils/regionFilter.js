@@ -21,25 +21,3 @@ export function filterByRegion(data, selectedRegion) {
 
   return data.filter(d => d.region === selectedRegion);
 }
-
-/**
- * Check if a data item matches the selected region
- * @param {Object} item - Data object with 'region' and 'country' properties
- * @param {string} selectedRegion - The selected region value
- * @returns {boolean} True if item matches the region
- */
-export function matchesRegion(item, selectedRegion) {
-  if (selectedRegion === 'global') {
-    return true;
-  }
-
-  if (selectedRegion === 'European Union') {
-    return EU_COUNTRIES.includes(item.country);
-  }
-
-  if (selectedRegion === 'EU enlargement') {
-    return EU_ENLARGEMENT_COUNTRIES.includes(item.country);
-  }
-
-  return item.region === selectedRegion;
-}

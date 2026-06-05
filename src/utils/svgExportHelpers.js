@@ -235,32 +235,3 @@ export function downloadSVG(clone, filename) {
   a.click();
   URL.revokeObjectURL(url);
 }
-
-/**
- * Complete SVG export workflow
- */
-export async function exportChartAsSVG(chartRef, filename, legendConfig) {
-  const svg = chartRef.current?.querySelector('svg');
-  if (!svg) return;
-
-  const { clone } = prepareSVGClone(svg, legendConfig.height, legendConfig.position);
-
-  await embedFonts(clone);
-
-  // Add legend items
-  if (legendConfig.items) {
-    legendConfig.items.forEach(item => {
-      const elements = createLegendItem(
-        item.x,
-        item.y,
-        item.color,
-        item.label,
-        item.type,
-        item.options
-      );
-      elements.forEach(el => clone.appendChild(el));
-    });
-  }
-
-  downloadSVG(clone, filename);
-}
