@@ -16,6 +16,7 @@
 .claude/
 /data/
 /archive/
+/custom-presentation-graphics/
 .env
 .env.local
 .env.development.local

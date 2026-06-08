@@ -143,6 +143,9 @@ src/
 scripts/
 └── parse-roli-data.js        # Excel → JSON data pipeline
 
+custom-presentation-graphics/ # Custom SVG graphics for presentations (gitignored)
+└── *.svg                     # Standalone presentation-ready graphics
+
 craco.config.js               # Webpack config for recharts transpilation
 ```
 
