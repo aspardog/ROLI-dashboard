@@ -421,7 +421,7 @@ See `docs/maintainer/SYNC_GUIDE.md` for detailed instructions and troubleshootin
 
 ### GitHub Pages (Production)
 
-**Live URL:** https://aspardog.github.io/roli-dashboard
+**Live URL:** https://worldjusticeproject.github.io/roli-dashboard-viz
 
 **Automatic deployment:** Every push to `main` triggers the GitHub Actions workflow (`.github/workflows/deploy-gh-pages.yml`) which:
 1. Builds the React app with `npm run build`

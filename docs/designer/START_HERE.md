@@ -30,7 +30,7 @@ Abre Terminal (Mac) o Command Prompt (Windows) y ejecuta:
 cd Desktop
 
 # Clona el repositorio
-git clone https://github.com/aspardog/ROLI-dashboard.git
+git clone https://github.com/worldjusticeproject/roli-dashboard-viz.git
 
 # Entra a la carpeta
 cd ROLI-dashboard
@@ -168,7 +168,7 @@ git push origin design
 
 ## 🔄 Crear Pull Request (cuando estés lista)
 
-1. Ve a: https://github.com/aspardog/ROLI-dashboard
+1. Ve a: https://github.com/worldjusticeproject/roli-dashboard-viz
 2. Verás un banner amarillo: **"design had recent pushes"**
 3. Click en **"Compare & pull request"**
 4. Verifica que sea: `base: main` ← `compare: design`

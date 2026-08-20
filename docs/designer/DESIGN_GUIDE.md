@@ -35,7 +35,7 @@ Siempre trabajarás en la rama llamada `design`. Tus cambios NO afectarán la ve
 cd Desktop
 
 # Clona el repositorio
-git clone https://github.com/aspardog/ROLI-dashboard.git
+git clone https://github.com/worldjusticeproject/roli-dashboard-viz.git
 
 # Entra a la carpeta
 cd ROLI-dashboard
@@ -217,7 +217,7 @@ Cuando tengas cambios listos para que Main User los revise:
    ```
 
 2. **Crea un Pull Request en GitHub:**
-   - Ve a: https://github.com/aspardog/ROLI-dashboard
+   - Ve a: https://github.com/worldjusticeproject/roli-dashboard-viz
    - Verás un banner amarillo: "design had recent pushes"
    - Click en "Compare & pull request"
    - **Base:** main ← **Compare:** design
@@ -287,6 +287,6 @@ TU COMPUTADORA                                    GITHUB
 
 Si tienes problemas o preguntas:
 - Main User: [tu contacto]
-- Este proyecto: https://github.com/aspardog/ROLI-dashboard
+- Este proyecto: https://github.com/worldjusticeproject/roli-dashboard-viz
 
 ¡Disfruta experimentando con el diseño! 🎨

@@ -26,7 +26,7 @@ Yo me encargaré de toda la lógica, datos, y aspectos técnicos del proyecto.
 
 ### 1. Acceso al repositorio
 Ya te agregué como colaboradora al repositorio de GitHub:
-**https://github.com/aspardog/ROLI-dashboard**
+**https://github.com/worldjusticeproject/roli-dashboard-viz**
 
 ### 2. Setup inicial (30 minutos aprox)
 Por favor lee y sigue esta guía: **`START_HERE.md`**
@@ -152,6 +152,6 @@ Main User
 ---
 
 **Links rápidos:**
-- Repo: https://github.com/aspardog/ROLI-dashboard
+- Repo: https://github.com/worldjusticeproject/roli-dashboard-viz
 - Claude Code: https://claude.ai/code
-- Documentación: https://github.com/aspardog/ROLI-dashboard/blob/design/docs/designer/START_HERE.md
+- Documentación: https://github.com/worldjusticeproject/roli-dashboard-viz/blob/design/docs/designer/START_HERE.md
